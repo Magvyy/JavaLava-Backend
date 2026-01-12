@@ -1,4 +1,4 @@
-package com.magvy.experis.springboot_demo.application;
+package com.magvy.experis.javalava_backend.application;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

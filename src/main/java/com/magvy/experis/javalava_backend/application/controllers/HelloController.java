@@ -1,4 +1,4 @@
-package com.magvy.experis.springboot_demo.application.controllers;
+package com.magvy.experis.javalava_backend.application.controllers;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;

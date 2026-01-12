@@ -1,4 +1,4 @@
-package com.magvy.experis.springboot_demo.domain.DTOs;
+package com.magvy.experis.javalava_backend.domain.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
