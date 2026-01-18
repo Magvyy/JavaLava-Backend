@@ -1,53 +1,55 @@
 package com.magvy.experis.javalava_backend.application.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.LoginDTO;
-import com.magvy.experis.javalava_backend.application.DTOs.RegisterDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.AuthDTO;
 import com.magvy.experis.javalava_backend.application.entitites.User;
+import com.magvy.experis.javalava_backend.application.exceptions.UserAlreadyExistsException;
 import com.magvy.experis.javalava_backend.repositories.UserRepository;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UserService() {
-
-    }
-
-    public User convertToEntity(RegisterDTO registerDTO) {
+    public User convertToEntity(AuthDTO authDTO) {
         User user = new User();
-        user.setUsername(registerDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        user.setUsername(authDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(authDTO.getPassword()));
         return user;
     }
 
-    public ResponseEntity <String> register(RegisterDTO registerDTO) {
+    public ResponseEntity<Map<String, String>> register(AuthDTO authDTO) {
         // Validate input
-        // Check if user exists
-        if (userRepository.existsByUsername(registerDTO.getUsername())) {
-            return ResponseEntity.status(409).body("Username is taken.");
+        if (userRepository.existsByUsername(authDTO.getUsername())) {
+            throw new UserAlreadyExistsException("Username is taken");
         }
-        // Hash password
-        // Create user
-        User user = convertToEntity(registerDTO);
+        User user = convertToEntity(authDTO);
         userRepository.save(user);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(null);
     }
 
-    public ResponseEntity <User> login(LoginDTO loginDTO) {
-        // Validate input
-        // Check if user exists
-        if (!userRepository.existsByUsername(loginDTO.getUsername())) {
-            return ResponseEntity.status(404).body(null);
-        }
-        User exist = userRepository.findByUsername(loginDTO.getUsername()).get();
-        return ResponseEntity.ok(exist);
+    @Override
+    @NullMarked
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                Collections.emptyList() // You can add roles/authorities here
+        );
     }
 }
