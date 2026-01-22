@@ -1,6 +1,6 @@
-package com.magvy.experis.javalava_backend.security.config;
+package com.magvy.experis.javalava_backend.application.security.config;
 
-import com.magvy.experis.javalava_backend.security.filter.JwtFilter;
+import com.magvy.experis.javalava_backend.application.security.filter.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeHttpRequests ->
                     authorizeHttpRequests
                             .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers("/post/**").permitAll()
                             .anyRequest().authenticated()
                 );
         return http.build();

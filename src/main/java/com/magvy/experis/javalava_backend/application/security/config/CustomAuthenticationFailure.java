@@ -1,6 +1,6 @@
-package com.magvy.experis.javalava_backend.security.config;
+package com.magvy.experis.javalava_backend.application.security.config;
 
-import com.magvy.experis.javalava_backend.application.exceptions.GlobalExceptionHandler;
+import com.magvy.experis.javalava_backend.domain.exceptions.GlobalExceptionHandler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,4 +1,4 @@
-package com.magvy.experis.javalava_backend.application.exceptions;
+package com.magvy.experis.javalava_backend.domain.exceptions;
 
 public class UserAlreadyExistsException extends RuntimeException {
     public UserAlreadyExistsException(String message) {

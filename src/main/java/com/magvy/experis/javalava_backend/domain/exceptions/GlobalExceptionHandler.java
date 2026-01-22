@@ -1,4 +1,4 @@
-package com.magvy.experis.javalava_backend.application.exceptions;
+package com.magvy.experis.javalava_backend.domain.exceptions;
 
 
 import org.springframework.http.HttpStatus;

@@ -1,6 +1,6 @@
-package com.magvy.experis.javalava_backend.security.config;
+package com.magvy.experis.javalava_backend.application.security.config;
 
-import com.magvy.experis.javalava_backend.application.services.UserService;
+import com.magvy.experis.javalava_backend.domain.services.UserService;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;

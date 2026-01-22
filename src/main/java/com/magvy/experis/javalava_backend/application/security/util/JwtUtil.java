@@ -1,4 +1,4 @@
-package com.magvy.experis.javalava_backend.security.util;
+package com.magvy.experis.javalava_backend.application.security.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
