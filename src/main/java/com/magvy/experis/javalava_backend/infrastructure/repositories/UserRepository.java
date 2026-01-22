@@ -1,17 +1,16 @@
-package com.magvy.experis.javalava_backend.repositories;
+package com.magvy.experis.javalava_backend.infrastructure.repositories;
 
-import com.magvy.experis.javalava_backend.application.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, Integer>, ReadOnlyUserRepository {
 
-    // Use Spring Data's 'existsBy{Property}' convention so the framework parses this correctly
     boolean existsByUsername(String username);
 
-    // Return Optional to express possible absence
     Optional<User> findByUsername(String username);
 }
