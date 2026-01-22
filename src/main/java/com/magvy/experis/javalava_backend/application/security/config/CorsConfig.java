@@ -1,4 +1,4 @@
-package com.magvy.experis.javalava_backend.config;
+package com.magvy.experis.javalava_backend.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

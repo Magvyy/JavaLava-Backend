@@ -1,4 +1,4 @@
-    package com.magvy.experis.javalava_backend.application.entitites;
+    package com.magvy.experis.javalava_backend.domain.entitites;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -24,17 +24,17 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "full_name")
-    private String fullName;
-
-    @Column(name = "email", unique = true)
-    private String email;
-
-    @Column(name = "age")
-    private int age;
-
-    @Column(name = "birthday")
-    private Date birthday;
+//    @Column(name = "full_name")
+//    private String fullName;
+//
+//    @Column(name = "email", unique = true)
+//    private String email;
+//
+//    @Column(name = "age")
+//    private int age;
+//
+//    @Column(name = "birthday")
+//    private Date birthday;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

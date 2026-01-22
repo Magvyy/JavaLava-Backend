@@ -1,6 +1,6 @@
-package com.magvy.experis.javalava_backend.filter;
+package com.magvy.experis.javalava_backend.security.filter;
 
-import com.magvy.experis.javalava_backend.util.JwtUtil;
+import com.magvy.experis.javalava_backend.security.util.JwtUtil;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

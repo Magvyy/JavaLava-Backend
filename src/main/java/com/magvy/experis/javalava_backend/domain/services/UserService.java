@@ -3,7 +3,7 @@ package com.magvy.experis.javalava_backend.application.services;
 import com.magvy.experis.javalava_backend.application.DTOs.AuthDTO;
 import com.magvy.experis.javalava_backend.application.entitites.User;
 import com.magvy.experis.javalava_backend.application.exceptions.UserAlreadyExistsException;
-import com.magvy.experis.javalava_backend.repositories.UserRepository;
+import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service

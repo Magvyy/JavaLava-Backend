@@ -1,4 +1,4 @@
-package com.magvy.experis.javalava_backend.config;
+package com.magvy.experis.javalava_backend.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -6,7 +6,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-public class EncoderConfig {
+public class PasswordEncoderConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {

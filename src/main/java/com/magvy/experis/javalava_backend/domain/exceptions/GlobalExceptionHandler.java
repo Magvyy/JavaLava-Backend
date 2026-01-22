@@ -1,7 +1,6 @@
-package com.magvy.experis.javalava_backend.config;
+package com.magvy.experis.javalava_backend.application.exceptions;
 
 
-import com.magvy.experis.javalava_backend.application.exceptions.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
