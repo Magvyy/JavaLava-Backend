@@ -1,8 +1,8 @@
-package com.magvy.experis.javalava_backend.application.services;
+package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.AuthDTO;
-import com.magvy.experis.javalava_backend.application.entitites.User;
-import com.magvy.experis.javalava_backend.application.exceptions.UserAlreadyExistsException;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.exceptions.UserAlreadyExistsException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +18,13 @@ import java.util.Map;
 
 @Service
 public class UserService implements UserDetailsService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public User convertToEntity(AuthDTO authDTO) {
         User user = new User();
