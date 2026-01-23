@@ -25,11 +25,11 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     WHERE p.visible = true
        OR (p.visible = false AND p.user.id IN (
            SELECT CASE
-                    WHEN f.user_id_1 = :currentUserId THEN f.user_id_2
-                    ELSE f.user_id_1
+                    WHEN f.user1.id = :currentUserId THEN f.user2.id
+                    ELSE f.user1.id
                   END
            FROM Friend f
-           WHERE f.user_id_1 = :currentUserId OR f.user_id_2 = :currentUserId
+           WHERE f.user1.id = :currentUserId OR f.user2.id = :currentUserId
        ))
     ORDER BY p.published DESC
 """)
@@ -40,12 +40,12 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     FROM Post p
     WHERE p.user.id IN (
         SELECT CASE
-                 WHEN f.user_id_1 = :currentUserId THEN f.user_id_2
-                 ELSE f.user_id_1
+                 WHEN f.user1.id = :currentUserId THEN f.user2.id
+                 ELSE f.user1.id
                END
         FROM Friend f
-        WHERE f.user_id_1 = :currentUserId
-           OR f.user_id_2 = :currentUserId
+        WHERE f.user1.id = :currentUserId
+           OR f.user2.id = :currentUserId
     )
     ORDER BY p.published DESC
 """)
@@ -60,8 +60,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             OR EXISTS (
                 SELECT 1
                 FROM Friend f
-                WHERE (f.user_id_1 = :currentUserId AND f.user_id_2 = :targetUserId)
-                   OR (f.user_id_2 = :currentUserId AND f.user_id_1 = :targetUserId)
+                WHERE (f.user1.id = :currentUserId AND f.user2.id = :targetUserId)
+                   OR (f.user2.id = :currentUserId AND f.user1.id = :targetUserId)
             )
       )
     ORDER BY p.published DESC
