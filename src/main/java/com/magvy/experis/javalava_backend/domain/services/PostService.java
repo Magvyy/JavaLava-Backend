@@ -13,10 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.MissingResourceException;
 import java.util.Optional;
 
 @Service
@@ -87,5 +89,8 @@ public class PostService {
                         p.getId()
                 ))
                 .toList();
+    }
+    public Post findByID(int postId) {
+        return postRepository.findById(postId).orElseThrow(() -> new MissingResourceException("Post not found", "Post", String.valueOf(postId)));
     }
 }
