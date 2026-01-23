@@ -32,7 +32,7 @@ public class PostController {
         public List<PostDTOResponse> LoadPostHandler(@RequestParam int page, @RequestParam(required = false) Integer userId) {
         return postService.loadPosts(page, userId);
     }
-    @GetMapping("/post/friends")
+    @GetMapping("/friends")
     public List<PostDTOResponse> LoadPostByFriendsHandler(@RequestParam int page, @RequestParam int userId) {
         return postService.loadPostsByFriends(page, userId);
     }
