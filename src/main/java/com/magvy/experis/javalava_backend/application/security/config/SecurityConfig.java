@@ -37,6 +37,7 @@ public class SecurityConfig {
                     authorizeHttpRequests
                             .requestMatchers("/auth/**").permitAll()
                             .requestMatchers("/post/**").permitAll()
+                            .requestMatchers("/comment/**").permitAll()
                             .anyRequest().authenticated()
                 );
         return http.build();
