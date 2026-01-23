@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO.AuthDTO;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
 import com.magvy.experis.javalava_backend.application.security.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
