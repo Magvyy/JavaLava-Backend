@@ -8,15 +8,18 @@ import lombok.Data;
 
 @Data
 @Entity
-@IdClass(FriendId.class)
 @Table(name = "friends")
 public class Friend {
-    @Id
+
+    @EmbeddedId
+    private FriendId id;
+
+    @MapsId("user1")
     @ManyToOne
     @JoinColumn(name = "user_id_1")
     private User user1;
 
-    @Id
+    @MapsId("user2")
     @ManyToOne
     @JoinColumn(name = "user_id_2")
     private User user2;
