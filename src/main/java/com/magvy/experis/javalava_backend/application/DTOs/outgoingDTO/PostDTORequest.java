@@ -13,7 +13,7 @@ public class IncomingPostDTO {
     @JsonProperty("published")
     private LocalDate published;
 
-    @JsonProperty("public")
+    @JsonProperty("visible")
     private boolean visible;
 
     @JsonProperty("user_id")
