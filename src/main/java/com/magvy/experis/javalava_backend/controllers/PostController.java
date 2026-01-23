@@ -25,15 +25,15 @@ public class PostController {
     }
 
     @GetMapping("/users/{userId}")
-    public List<PostDTOResponse> LoadPostByUserHandler(@RequestBody int page, @PathVariable int userId) {
+    public List<PostDTOResponse> LoadPostByUserHandler(@RequestParam int page, @PathVariable int userId) {
         return postService.loadPostsByUser(page, userId);
     }
     @GetMapping("/all")
-    public List<PostDTOResponse> LoadPostHandler(@RequestBody int page, @RequestParam(required = false) Integer userId) {
+    public List<PostDTOResponse> LoadPostHandler(@RequestParam int page, @RequestParam(required = false) Integer userId) {
         return postService.loadPosts(page, userId);
     }
     @GetMapping("/post/friends")
-    public List<PostDTOResponse> LoadPostByFriendsHandler(@RequestBody int page) {
-        return postService.loadPostsByFriends(page);
+    public List<PostDTOResponse> LoadPostByFriendsHandler(@RequestParam int page, @RequestParam int userId) {
+        return postService.loadPostsByFriends(page, userId);
     }
 }
