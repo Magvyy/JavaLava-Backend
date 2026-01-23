@@ -1,22 +1,12 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.AuthDTO;
-import com.magvy.experis.javalava_backend.application.DTOs.PostDTO;
-import com.magvy.experis.javalava_backend.application.security.util.JwtUtil;
-import com.magvy.experis.javalava_backend.domain.entitites.Post;
+import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.PostDTOResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO.PostDTORequest;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
-import com.magvy.experis.javalava_backend.domain.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -29,8 +19,21 @@ public class PostController {
     }
 
     @PostMapping("/create")
-    public HttpStatus LoginPostHandler(@RequestBody PostDTO postDTO) {
+    public HttpStatus LoginPostHandler(@RequestBody PostDTORequest postDTO) {
         if (postService.createPost(postDTO)) return HttpStatus.OK;
         else return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    @GetMapping("/users/{userId}")
+    public List<PostDTOResponse> LoadPostByUserHandler(@RequestBody int page, @PathVariable int userId) {
+        return postService.loadPostsByUser(page, userId);
+    }
+    @GetMapping("/all")
+    public List<PostDTOResponse> LoadPostHandler(@RequestBody int page, @RequestParam(required = false) Integer userId) {
+        return postService.loadPosts(page, userId);
+    }
+    @GetMapping("/post/friends")
+    public List<PostDTOResponse> LoadPostByFriendsHandler(@RequestBody int page) {
+        return postService.loadPostsByFriends(page);
     }
 }
