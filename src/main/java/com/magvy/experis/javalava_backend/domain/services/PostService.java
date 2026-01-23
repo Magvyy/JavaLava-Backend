@@ -83,7 +83,10 @@ public class PostService {
                         p.getPublished().toLocalDate(),
                         p.isVisible(),
                         p.getUser().getId(),
-                        p.getUser().getUsername()
+                        p.getUser().getUsername(),
+                        (int)likeRepository.countByPost(p),
+                        (int)commentRepository.countByPost(p),
+                        p.getId()
                 ))
                 .toList();
     }
