@@ -50,4 +50,22 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     ORDER BY p.published DESC
 """)
     Page<Post> findPostsFromFriends(@Param("currentUserId") int currentUserId, Pageable pageable);
+
+    @Query("""
+    SELECT p
+    FROM Post p
+    WHERE p.user.id = :targetUserId
+      AND (
+            p.visible = true
+            OR EXISTS (
+                SELECT 1
+                FROM Friend f
+                WHERE (f.user_id_1 = :currentUserId AND f.user_id_2 = :targetUserId)
+                   OR (f.user_id_2 = :currentUserId AND f.user_id_1 = :targetUserId)
+            )
+      )
+    ORDER BY p.published DESC
+""")
+    Page<Post> findPostsFromUser(@Param("currentUserId") int currentUserId,
+                                           @Param("targetUserId") int targetUserId, Pageable pageable);
 }
