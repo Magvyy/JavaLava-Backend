@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 @Getter
-public class IncomingPostDTO {
+public class PostDTORequest {
     @JsonProperty("content")
     private String content;
 
@@ -19,7 +19,7 @@ public class IncomingPostDTO {
     @JsonProperty("user_id")
     private int userId;
 
-    public IncomingPostDTO(String content, LocalDate published, boolean visible, int userId) {
+    public PostDTORequest(String content, LocalDate published, boolean visible, int userId) {
         this.content = content;
         this.published = published;
         this.visible = visible;
