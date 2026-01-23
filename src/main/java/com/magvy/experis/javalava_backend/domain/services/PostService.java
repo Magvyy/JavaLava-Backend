@@ -25,6 +25,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final ReadOnlyUserRepository userRepository;
+    private final int pageSize = 10;
 
     public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, ReadOnlyUserRepository userRepository) {
         this.postRepository = postRepository;
@@ -53,7 +54,6 @@ public class PostService {
     }
 
     public List<PostDTOResponse> loadPosts(int page, Integer userId) {
-        int pageSize = 10;
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         if (userId == null) {
@@ -63,14 +63,12 @@ public class PostService {
     }
 
     public List<PostDTOResponse> loadPostsByUser(int page, int userId, int selectedId) {
-        int pageSize = 10;
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         return pageToDTOList(postRepository.findPostsFromUser(userId, selectedId, pageable));
 
     }
     public List<PostDTOResponse> loadPostsByFriends(int page, int userId) {
-        int pageSize = 10;
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         return pageToDTOList(postRepository.findPostsFromFriends(userId, pageable));
