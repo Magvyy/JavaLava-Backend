@@ -1,6 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.PostDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.PostDTOResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO.PostDTORequest;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.MissingUserException;
@@ -8,9 +9,14 @@ import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRep
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
 import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,7 +33,7 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    private Post convertToEntity(PostDTO postDTO) {
+    private Post convertToEntity(PostDTORequest postDTO) {
         Optional<User> oUser = userRepository.findById(postDTO.getUserId());
         if (oUser.isEmpty()) {
             throw new MissingUserException("User not found");
@@ -40,9 +46,45 @@ public class PostService {
         );
     }
 
-    public boolean createPost(PostDTO postDTO) {
+    public boolean createPost(PostDTORequest postDTO) {
         Post post = convertToEntity(postDTO);
         postRepository.save(post);
         return true;
+    }
+
+    public List<PostDTOResponse> loadPosts(int page, Integer userId) {
+        int pageSize = 10;
+        Sort sort = Sort.by("published").descending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        if (userId == null) {
+            return pageToDTOList(postRepository.findByVisibleTrue(pageable));
+        }
+        return pageToDTOList(postRepository.findPostsForUser(userId, pageable));
+    }
+
+    public List<PostDTOResponse> loadPostsByUser(int page, int userId, int selectedId) {
+        int pageSize = 10;
+        Sort sort = Sort.by("published").descending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        return pageToDTOList(postRepository.findPostsFromUser(userId, selectedId, pageable));
+
+    }
+    public List<PostDTOResponse> loadPostsByFriends(int page, int userId) {
+        int pageSize = 10;
+        Sort sort = Sort.by("published").descending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        return pageToDTOList(postRepository.findPostsFromFriends(userId, pageable));
+    }
+
+    private List<PostDTOResponse> pageToDTOList(Page<Post> posts) {
+        return posts.stream()
+                .map(p -> new PostDTOResponse(
+                        p.getContent(),
+                        p.getPublished().toLocalDate(),
+                        p.isVisible(),
+                        p.getUser().getId(),
+                        p.getUser().getUsername()
+                ))
+                .toList();
     }
 }
