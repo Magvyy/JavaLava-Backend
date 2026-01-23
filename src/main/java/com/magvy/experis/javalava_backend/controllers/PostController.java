@@ -25,8 +25,8 @@ public class PostController {
     }
 
     @GetMapping("/users/{userId}")
-    public List<PostDTOResponse> LoadPostByUserHandler(@RequestParam int page, @PathVariable int userId) {
-        return postService.loadPostsByUser(page, userId);
+    public List<PostDTOResponse> LoadPostByUserHandler(@PathVariable int selectedId, @RequestParam int page,@RequestParam int userId) {
+        return postService.loadPostsByUser(page, userId, selectedId);
     }
     @GetMapping("/all")
     public List<PostDTOResponse> LoadPostHandler(@RequestParam int page, @RequestParam(required = false) Integer userId) {
