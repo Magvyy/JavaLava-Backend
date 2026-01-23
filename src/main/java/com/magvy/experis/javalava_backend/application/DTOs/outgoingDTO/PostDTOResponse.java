@@ -1,4 +1,4 @@
-package com.magvy.experis.javalava_backend.application.DTOs.incomingDTO;
+package com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
