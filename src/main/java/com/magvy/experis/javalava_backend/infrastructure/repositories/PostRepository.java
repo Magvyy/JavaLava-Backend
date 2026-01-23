@@ -57,6 +57,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     WHERE p.user.id = :targetUserId
       AND (
             p.visible = true
+            OR :currentUserId = :targetUserId
             OR EXISTS (
                 SELECT 1
                 FROM Friend f
