@@ -21,7 +21,8 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Post(String content, Date published, boolean visible, User user) {
+    public Post(int id, String content, Date published, boolean visible, User user) {
+        this.id = id;
         this.content = content;
         this.published = published;
         this.visible = visible;

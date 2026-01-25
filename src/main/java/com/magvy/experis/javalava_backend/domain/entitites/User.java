@@ -24,6 +24,14 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
+    public User(int id, String username, String password) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+    }
+
+    public User() {}
+
 //    @Column(name = "full_name")
 //    private String fullName;
 //
