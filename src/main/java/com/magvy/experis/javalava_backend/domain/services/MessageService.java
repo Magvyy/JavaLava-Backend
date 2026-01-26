@@ -13,13 +13,11 @@ import java.util.List;
 @Service
 public class MessageService {
     private final MessageRepository messageRepository;
-    private final FriendService friendService;
     private final UserService userService;
 
 
-    public MessageService(MessageRepository messageRepository, FriendService friendService, UserService userService) {
+    public MessageService(MessageRepository messageRepository, UserService userService) {
         this.messageRepository = messageRepository;
-        this.friendService = friendService;
         this.userService = userService;
     }
 
@@ -31,9 +29,9 @@ public class MessageService {
     public Message sendMessage(MessageDTORequest messageDTORequest, User sender) {
         User recipient = userService.getUserById(messageDTORequest.getReceiver_id());
 
-//        if (!friendService.isFriend(recipient, sender)) {
-//           throw new IllegalArgumentException("Can only send message to a friend");
-//        }
+//       if (!friendService.isFriend(recipient, sender)) { TODO IMPLEMENT Friends
+//          throw new IllegalArgumentException("Can only send message to a friend");
+//       }
         if (recipient== null) {
             throw new IllegalArgumentException("Recipient cannot be null");
         }
@@ -49,7 +47,7 @@ public class MessageService {
 
     public List<MessageDTOResponse> getMessageHistory(User receiver, int sender_id) {
         User sender = userService.getUserById(sender_id);
-        List<Message> messageList = messageRepository.getMessageByTo(receiver, sender);
+        List<Message> messageList = messageRepository.findByToAndFrom(receiver, sender);
         List<MessageDTOResponse> messageDTOResponses = new ArrayList<>();
         for (Message message : messageList) {
             messageDTOResponses.add(new MessageDTOResponse(message));
