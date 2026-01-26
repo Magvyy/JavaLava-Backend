@@ -1,9 +1,12 @@
 package com.magvy.experis.javalava_backend.controllers;
 
 import com.magvy.experis.javalava_backend.application.DTOs.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.LikeDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.PostDTO;
 import com.magvy.experis.javalava_backend.application.security.util.JwtUtil;
+import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
+import com.magvy.experis.javalava_backend.domain.services.LikeService;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +26,12 @@ import java.util.Map;
 @RequestMapping("/post")
 public class PostController {
     private final PostService postService;
+    private final LikeService likeService;
 
-    public PostController(PostService postService) {
+    @Autowired
+    public PostController(PostService postService, LikeService likeService) {
         this.postService = postService;
+        this.likeService = likeService;
     }
 
     @PostMapping("/create")
@@ -33,4 +39,10 @@ public class PostController {
         if (postService.createPost(postDTO)) return HttpStatus.OK;
         else return HttpStatus.INTERNAL_SERVER_ERROR;
     }
+
+    @PutMapping("/like")
+    public ResponseEntity<Like> LikePutHandler(@RequestBody LikeDTO likeDTO){
+        return likeService.likePost(likeDTO);
+    }
+
 }
