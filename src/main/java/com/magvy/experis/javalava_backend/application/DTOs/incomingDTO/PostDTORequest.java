@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 public class PostDTORequest {
@@ -11,7 +12,7 @@ public class PostDTORequest {
     private String content;
 
     @JsonProperty("published")
-    private LocalDate published;
+    private LocalDateTime published;
 
     @JsonProperty("visible")
     private boolean visible;
@@ -19,7 +20,7 @@ public class PostDTORequest {
     @JsonProperty("user_id")
     private int userId;
 
-    public PostDTORequest(String content, LocalDate published, boolean visible, int userId) {
+    public PostDTORequest(String content, LocalDateTime published, boolean visible, int userId) {
         this.content = content;
         this.published = published;
         this.visible = visible;

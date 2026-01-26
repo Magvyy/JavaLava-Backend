@@ -22,15 +22,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("""
     SELECT p
     FROM Post p
-    WHERE p.visible = true
-       OR (p.visible = false AND p.user.id IN (
+    WHERE p.visible
+       OR p.user.id = :currentUserId
+       OR p.user.id IN (
            SELECT CASE
                     WHEN f.user1.id = :currentUserId THEN f.user2.id
                     ELSE f.user1.id
                   END
            FROM Friend f
            WHERE f.user1.id = :currentUserId OR f.user2.id = :currentUserId
-       ))
+       )
     ORDER BY p.published DESC
 """)
     Page<Post> findPostsForUser(@Param("currentUserId") int currentUserId, Pageable pageable);

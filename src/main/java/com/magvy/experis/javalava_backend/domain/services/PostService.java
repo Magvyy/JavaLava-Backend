@@ -41,7 +41,7 @@ public class PostService {
         }
         return new Post(
                 postDTO.getContent(),
-                Date.valueOf(postDTO.getPublished()),
+                postDTO.getPublished(),
                 postDTO.isVisible(),
                 oUser.get()
         );
@@ -78,7 +78,7 @@ public class PostService {
         return posts.stream()
                 .map(p -> new PostDTOResponse(
                         p.getContent(),
-                        p.getPublished().toLocalDate(),
+                        p.getPublished().toLocalDateTime(),
                         p.isVisible(),
                         p.getUser().getId(),
                         p.getUser().getUsername(),
