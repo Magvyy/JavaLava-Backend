@@ -28,4 +28,15 @@ public class Message {
     @ManyToOne
     @JoinColumn(name = "to_id")
     private User to;
+
+
+    public Message() {}
+
+    public Message(String content, Date date, User from, User to) {
+        this.content = content.trim();
+        this.date = date;
+        this.from = from;
+        this.to = to;
+    }
+
 }
