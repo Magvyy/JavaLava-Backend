@@ -52,4 +52,7 @@ public class UserService implements UserDetailsService {
                 Collections.emptyList() // You can add roles/authorities here
         );
     }
+    public User findById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 }

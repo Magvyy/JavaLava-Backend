@@ -13,10 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.MissingResourceException;
 import java.util.Optional;
 
 @Service
@@ -25,13 +27,16 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final ReadOnlyUserRepository userRepository;
+    private final FriendService friendService;
     private final int pageSize = 10;
 
-    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, ReadOnlyUserRepository userRepository) {
+    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, ReadOnlyUserRepository userRepository, FriendService friendService) {
+        this.friendService = friendService;
         this.postRepository = postRepository;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
+
     }
 
     private Post convertToEntity(PostDTORequest postDTO) {
@@ -87,5 +92,21 @@ public class PostService {
                         p.getId()
                 ))
                 .toList();
+    }
+    public Post findByID(int postId) {
+        return postRepository.findById(postId).orElseThrow(() -> new MissingResourceException("Post not found", "Post", String.valueOf(postId)));
+    }
+
+    public boolean isPostVisibleToUser(Post post, User user) {
+        if (post.isVisible()) {
+            return true;
+        }
+        if( user == null) {
+            return false;
+        }
+        if (post.getUser().getId() == user.getId()) {
+            return true;
+        }
+        return friendService.isFriends(user.getId(), post.getUser().getId());
     }
 }

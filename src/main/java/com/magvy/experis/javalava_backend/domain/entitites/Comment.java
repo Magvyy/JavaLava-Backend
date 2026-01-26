@@ -7,7 +7,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-    @Data
+@Data
 @Entity
 @Table(name = "comments")
 public class Comment {

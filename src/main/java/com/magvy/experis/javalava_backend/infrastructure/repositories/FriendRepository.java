@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FriendRepository extends JpaRepository<Friend, Integer> {
-
+    boolean existsByUser1IdAndUser2Id(int user1Id, int user2Id);
 }
