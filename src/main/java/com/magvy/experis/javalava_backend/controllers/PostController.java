@@ -44,5 +44,8 @@ public class PostController {
     public ResponseEntity<Like> LikePutHandler(@RequestBody LikeDTO likeDTO){
         return likeService.likePost(likeDTO);
     }
-
+    @DeleteMapping("/unlike")
+    public ResponseEntity<String> LikeDeleteHandler(@RequestBody LikeDTO likeDTO){
+        return likeService.unlikePost(likeDTO);
+    }
 }

@@ -6,7 +6,11 @@ import com.magvy.experis.javalava_backend.domain.entitites.composite.LikeId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface LikeRepository extends JpaRepository<Like, LikeId> {
-    long countByPost_Id(int post_id);
+    long countByPost_Id(int postId);
+    boolean existsByPost_idAndUser_Id(int postId, int userId);
+
 }

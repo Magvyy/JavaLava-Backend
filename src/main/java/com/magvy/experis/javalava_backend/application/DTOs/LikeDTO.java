@@ -2,6 +2,7 @@ package com.magvy.experis.javalava_backend.application.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 public class LikeDTO {
@@ -14,5 +15,12 @@ public class LikeDTO {
     public LikeDTO(int userId, int postId){
         this.userId = userId;
         this.postId = postId;
+    }
+
+    public String toString(){
+        return String.format("""
+            userId: %s,
+            postId: %s
+            """, this.getUserId(), this.getPostId());
     }
 }
