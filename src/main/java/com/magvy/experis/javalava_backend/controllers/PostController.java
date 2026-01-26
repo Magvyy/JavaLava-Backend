@@ -4,8 +4,9 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO.PostDTORe
 import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.PostDTORequest;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
+import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,12 +18,15 @@ import java.util.Optional;
 @RequestMapping("/post")
 public class PostController {
     private final PostService postService;
-    private final UserRepository userRepository;
+    private final ReadOnlyUserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
 
-    public PostController(PostService postService, UserRepository userRepository) {
+    public PostController(PostService postService, ReadOnlyUserRepository userRepository, AuthenticationManager authenticationManager) {
         this.postService = postService;
         this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
     }
+
 
     @PostMapping("/create")
     public HttpStatus LoginPostHandler(@RequestBody PostDTORequest postDTO) {

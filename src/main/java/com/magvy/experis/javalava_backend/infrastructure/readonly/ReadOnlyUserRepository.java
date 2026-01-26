@@ -8,4 +8,5 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface ReadOnlyUserRepository {
     Optional <User> findById(int userId);
+    Optional <User> findByUsername(String username);
 }
