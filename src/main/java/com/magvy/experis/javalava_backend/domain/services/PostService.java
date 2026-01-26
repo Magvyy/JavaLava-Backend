@@ -29,17 +29,13 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    private Post convertToEntity(PostDTORequest postDTORequest) {
-        Optional<User> oUser = userRepository.findById(postDTORequest.getUserId());
-        if (oUser.isEmpty()) {
-            throw new MissingUserException("User not found");
-        }
+    private Post convertToEntity(PostDTORequest postDTORequest, User user) {
         return new Post(
                 postDTORequest.getId(),
                 postDTORequest.getContent(),
                 Date.valueOf(postDTORequest.getPublished()),
                 postDTORequest.isVisible(),
-                oUser.get()
+                user
         );
     }
 
@@ -47,7 +43,7 @@ public class PostService {
         if (user == null) {
             throw new UnauthorizedActionException("Cannot create a post as an anonymous user.");
         }
-        Post post = convertToEntity(postDTORequest);
+        Post post = convertToEntity(postDTORequest, user);
         return postRepository.save(post);
     }
 
@@ -62,7 +58,7 @@ public class PostService {
         if (user == null) {
             throw new UnauthorizedActionException("Cannot update a post as an anonymous user.");
         }
-        Post post = convertToEntity(postDTORequest);
+        Post post = convertToEntity(postDTORequest, user);
         return postRepository.save(post);
     }
 
