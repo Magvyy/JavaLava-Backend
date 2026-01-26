@@ -24,14 +24,16 @@ public class PostController {
         else return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    @GetMapping("/users/{userId}")
-    public List<PostDTOResponse> LoadPostByUserHandler(@PathVariable int selectedId, @RequestParam int page,@RequestParam int userId) {
+    @GetMapping("/users/{selectedId}")
+    public List<PostDTOResponse> LoadPostByUserHandler(@PathVariable int selectedId, @RequestParam int page, @RequestParam int userId) {
         return postService.loadPostsByUser(page, userId, selectedId);
     }
+
     @GetMapping("/all")
         public List<PostDTOResponse> LoadPostHandler(@RequestParam int page, @RequestParam(required = false) Integer userId) {
         return postService.loadPosts(page, userId);
     }
+
     @GetMapping("/friends")
     public List<PostDTOResponse> LoadPostByFriendsHandler(@RequestParam int page, @RequestParam int userId) {
         return postService.loadPostsByFriends(page, userId);
