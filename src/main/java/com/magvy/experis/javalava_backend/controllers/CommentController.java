@@ -27,27 +27,27 @@ public class CommentController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<CommentDTOResponse> CreateCommentHandler(@RequestBody CommentDTORequest commentDTO, @RequestParam Authentication auth) {
+    public ResponseEntity<CommentDTOResponse> CreateCommentHandler(@RequestBody CommentDTORequest commentDTO, Authentication auth) {
         User user = getLoggedInUser(auth);
         if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         return commentService.createPost(commentDTO, user);
     }
-    @GetMapping("/post/{postId}")
-    public List<CommentDTOResponse> LoadCommentsHandler(@PathVariable int postId, @RequestParam int page, @RequestParam (required = false) Authentication auth) {
+    @GetMapping("/post/{id}")
+    public List<CommentDTOResponse> LoadCommentsHandler(@PathVariable int id, @RequestParam int page, Authentication auth) {
         User user = getLoggedInUser(auth);
-        return commentService.loadCommentsByPost(page, postId, user);
+        return commentService.loadCommentsByPost(page, id, user);
     }
-    @PutMapping("/{commentId}")
-    public ResponseEntity<CommentDTOResponse> UpdateCommentsHandler(@PathVariable int commentId, @RequestBody CommentDTORequest commentDTORequest, @RequestParam Authentication auth) {
+    @PutMapping("/{id}")
+    public ResponseEntity<CommentDTOResponse> UpdateCommentsHandler(@PathVariable int id, @RequestBody CommentDTORequest commentDTORequest, Authentication auth) {
         User user = getLoggedInUser(auth);
         if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        return commentService.edit(commentId, user, commentDTORequest);
+        return commentService.edit(id, user, commentDTORequest);
     }
-    @DeleteMapping("/{commentId}")
-    public HttpStatus DeleteCommentsHandler(@PathVariable int commentId, @RequestBody CommentDTORequest commentDTORequest, @RequestParam Authentication auth) {
+    @DeleteMapping("/{id}")
+    public HttpStatus DeleteCommentsHandler(@PathVariable int id, @RequestBody CommentDTORequest commentDTORequest, Authentication auth) {
         User user = getLoggedInUser(auth);
         if (user == null) return HttpStatus.UNAUTHORIZED;
-        return commentService.delete(commentId, user, commentDTORequest);
+        return commentService.delete(id, user, commentDTORequest);
     }
 
     private User getLoggedInUser(Authentication auth) {

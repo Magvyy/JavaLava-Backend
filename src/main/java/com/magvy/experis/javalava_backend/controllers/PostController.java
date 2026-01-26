@@ -19,12 +19,10 @@ import java.util.Optional;
 public class PostController {
     private final PostService postService;
     private final ReadOnlyUserRepository userRepository;
-    private final AuthenticationManager authenticationManager;
 
-    public PostController(PostService postService, ReadOnlyUserRepository userRepository, AuthenticationManager authenticationManager) {
+    public PostController(PostService postService, ReadOnlyUserRepository userRepository) {
         this.postService = postService;
         this.userRepository = userRepository;
-        this.authenticationManager = authenticationManager;
     }
 
 
@@ -34,22 +32,22 @@ public class PostController {
         else return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    @GetMapping("/users/{selectedId}")
-    public List<PostDTOResponse> LoadPostByUserHandler(@PathVariable int selectedId, @RequestParam int page, Authentication auth) {
+    @GetMapping("/user/{id}")
+    public List<PostDTOResponse> LoadPostByUserHandler(@PathVariable int id, @RequestParam int page, Authentication auth) {
         User user = getLoggedInUser(auth);
-        return postService.loadPostsByUser(page, user.getId(), selectedId);
+        return postService.loadPostsByUser(page, user, id);
     }
 
     @GetMapping("/all")
     public List<PostDTOResponse> LoadPostHandler(@RequestParam int page, Authentication auth) {
         User user = getLoggedInUser(auth);
-        return postService.loadPosts(page, user.getId());
+        return postService.loadPosts(page, user);
     }
 
     @GetMapping("/friends")
     public List<PostDTOResponse> LoadPostByFriendsHandler(@RequestParam int page, Authentication auth) {
         User user = getLoggedInUser(auth);
-        return postService.loadPostsByFriends(page, user.getId());
+        return postService.loadPostsByFriends(page, user);
     }
 
     private User getLoggedInUser(Authentication auth) {
