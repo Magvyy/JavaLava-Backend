@@ -107,7 +107,6 @@ public class PostService {
         if (post.getUser().getId() == user.getId()) {
             return true;
         }
-        boolean areFriends = friendService.isFriends(user.getId(), post.getUser().getId());
-        return areFriends;
+        return friendService.isFriends(user.getId(), post.getUser().getId());
     }
 }
