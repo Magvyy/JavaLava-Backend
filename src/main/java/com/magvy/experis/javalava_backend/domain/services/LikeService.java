@@ -35,12 +35,9 @@ public class LikeService {
             throw new PostCantAlterLikedException("Post already liked by user");
         }
         // Lazy loading, user and post only loaded once needed
-        System.out.println("1");
         Like newLike = new Like(userRepository.getReferenceById(likeDTO.getUserId()),
                 postRepository.getReferenceById(likeDTO.getPostId()));
-        System.out.println("2");
         likeRepository.save(newLike);
-        System.out.println("3");
         return ResponseEntity.ok(newLike);
     }
 
