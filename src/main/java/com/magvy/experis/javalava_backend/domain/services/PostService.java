@@ -27,13 +27,16 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final ReadOnlyUserRepository userRepository;
+    private final FriendService friendService;
     private final int pageSize = 10;
 
-    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, ReadOnlyUserRepository userRepository) {
+    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, ReadOnlyUserRepository userRepository, FriendService friendService) {
+        this.friendService = friendService;
         this.postRepository = postRepository;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
+
     }
 
     private Post convertToEntity(PostDTORequest postDTO) {
@@ -92,5 +95,19 @@ public class PostService {
     }
     public Post findByID(int postId) {
         return postRepository.findById(postId).orElseThrow(() -> new MissingResourceException("Post not found", "Post", String.valueOf(postId)));
+    }
+
+    public boolean isPostVisibleToUser(Post post, User user) {
+        if (post.isVisible()) {
+            return true;
+        }
+        if( user == null) {
+            return false;
+        }
+        if (post.getUser().getId() == user.getId()) {
+            return true;
+        }
+        boolean areFriends = friendService.isFriends(user.getId(), post.getUser().getId());
+        return areFriends;
     }
 }

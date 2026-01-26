@@ -33,6 +33,9 @@ public class CommentService {
 
 
     public boolean createPost(CommentDTORequest commentDTO, User user) {
+        if(!postService.isPostVisibleToUser(postService.findByID(commentDTO.getPostId()), user)) {
+            throw new MissingUserException("User not authorized to create comments on this post");
+        }
         Comment comment = convertToEntity(commentDTO, user);
         CommentRepository.save(comment);
         return true;
@@ -47,8 +50,11 @@ public class CommentService {
         );
     }
 
-    public List<CommentDTOResponse> loadCommentsByPost(int page, int postId) {
+    public List<CommentDTOResponse> loadCommentsByPost(int page, int postId, User user) {
         Post post = postService.findByID(postId);
+        if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
+            throw new MissingUserException("User not authorized to view comments on this post");
+        }
         Sort sort = Sort.by("date").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         List<Comment> comments = CommentRepository.findByPost(post, pageable);

@@ -32,8 +32,9 @@ public class CommentController {
         else return HttpStatus.INTERNAL_SERVER_ERROR;
     }
     @GetMapping("/load")
-    public List<CommentDTOResponse> LoadCommentsHandler(@RequestParam int page,@RequestParam int postId) {
-        return commentService.loadCommentsByPost(page, postId);
+    public List<CommentDTOResponse> LoadCommentsHandler(@RequestParam int page,@RequestParam int postId, @RequestParam (required = false) Authentication auth) {
+        User user = getLoggedInUser(auth);
+        return commentService.loadCommentsByPost(page, postId, user);
     }
 
     private User getLoggedInUser(Authentication auth) {
