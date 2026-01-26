@@ -30,6 +30,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username).orElseThrow();
     }
 
+    public User getUserById(int id) {
+        return userRepository.findById(id).orElseThrow();
+    }
+
     public User convertToEntity(AuthDTO authDTO) {
         User user = new User();
         user.setUsername(authDTO.getUsername());

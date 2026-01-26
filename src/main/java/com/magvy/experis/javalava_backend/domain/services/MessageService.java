@@ -1,15 +1,15 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.MessageDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.MessageDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Friend;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.MessageRepository;
 import org.springframework.stereotype.Service;
 import java.sql.Date;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -25,29 +25,48 @@ public class MessageService {
         this.userService = userService;
     }
 
-    private Message ConvertToEntity(MessageDTO messageDTO, User sender, User receiver) {
-        return new Message(messageDTO.getContent(), (Date) messageDTO.getDate(), sender, receiver);
+    private Message ConvertToEntity(MessageDTORequest messageDTORequest, User sender) {
+        User receiver = userService.getUserById(messageDTORequest.getId());
+        return new Message(messageDTORequest.getContent(), messageDTORequest.getDate(), sender, receiver);
     }
 
+    public Message sendMessage(MessageDTORequest messageDTORequest, User sender) {
+        User recipient = userService.getUserById(messageDTORequest.getId());
 
-    public Message sendMessage(MessageDTO messageDTO, User sender, User receiver) {
-        Message message = ConvertToEntity(messageDTO, sender,receiver);
+        if (recipient== null) {
+            throw new IllegalArgumentException("Recipient cannot be null");
+        }
+        if (sender == null) {
+            throw new IllegalArgumentException("Sender cannot be null");
+        }
+        if (sender.equals(recipient)) {
+            throw new IllegalArgumentException("Sender and Receiver are the same");
+        }
+        Message message = ConvertToEntity(messageDTORequest, sender);
         return messageRepository.save(message);
     }
 
-    public List<Message> getMessageHistory(String to, String from){
-        User userTo = userService.getUserByUsername(to);
-        User userFrom = userService.getUserByUsername(from);
-
-        return messageRepository.getMessageByTo(userTo, userFrom);
+    public Message getMessage(MessageDTORequest messageDTORequest, User sender) {
+        Message message = ConvertToEntity(messageDTORequest, sender);
+        return messageRepository.save(message);
     }
 
+
+    public List<MessageDTOResponse> getMessageHistory(User receiver, int sender_id) {
+        User sender = userService.getUserById(sender_id);
+        List<Message> messageList = messageRepository.getMessageByTo(receiver, sender);
+        List<MessageDTOResponse> messageDTOResponses = new ArrayList<>();
+        for (Message message : messageList) {
+            messageDTOResponses.add(new MessageDTOResponse(message));
+        }
+
+        return messageDTOResponses;
+    }
 
     public List<Message> getAllMessagesToUser(String user) {
         User recipient = userService.getUserByUsername(user);
             return messageRepository.getMessageByTo(recipient);
     }
-
 
     private boolean isFriend(User messageSender, User messageReceiver) {
         List<Friend> friendList = friendService.getAllFriendsByUser1(messageSender);
