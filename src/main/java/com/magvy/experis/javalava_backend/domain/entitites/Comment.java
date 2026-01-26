@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
-@Data
+    @Data
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -14,7 +16,7 @@ public class Comment {
     private int id;
 
     private String content;
-    private Date date;
+    private Timestamp published;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
@@ -24,9 +26,9 @@ public class Comment {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Comment(String content, Date date, Post post, User user) {
+    public Comment(String content, LocalDateTime published, Post post, User user) {
         this.content = content;
-        this.date = date;
+        this.published = Timestamp.valueOf(published);
         this.post = post;
         this.user = user;
     }

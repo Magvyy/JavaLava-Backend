@@ -44,7 +44,7 @@ public class CommentService {
     public Comment convertToEntity(CommentDTORequest commentDTO, User user) {
         return new Comment(
                 commentDTO.getContent(),
-                Date.valueOf(commentDTO.getPublished()),
+                commentDTO.getPublished(),
                 postService.findByID(commentDTO.getPostId()),
                 user
         );
@@ -60,7 +60,7 @@ public class CommentService {
         List<Comment> comments = CommentRepository.findByPost(post, pageable);
         return comments.stream().map(comment -> new CommentDTOResponse(
                 comment.getContent(),
-                comment.getDate().toLocalDate(),
+                comment.getPublished().toLocalDateTime(),
                 comment.getUser().getId(),
                 comment.getUser().getUsername(),
                 comment.getPost().getId()

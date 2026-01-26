@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 public class CommentDTORequest {
@@ -11,12 +12,12 @@ public class CommentDTORequest {
     private String content;
 
     @JsonProperty("published")
-    private LocalDate published;
+    private LocalDateTime published;
 
     @JsonProperty("post_id")
     private int postId;
 
-    public CommentDTORequest(String content, LocalDate published, int postId) {
+    public CommentDTORequest(String content, LocalDateTime published, int postId) {
         this.content = content;
         this.published = published;
         this.postId = postId;
