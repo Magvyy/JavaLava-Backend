@@ -46,11 +46,6 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public Message getMessage(MessageDTORequest messageDTORequest, User sender) {
-        Message message = ConvertToEntity(messageDTORequest, sender);
-        return messageRepository.save(message);
-    }
-
 
     public List<MessageDTOResponse> getMessageHistory(User receiver, int sender_id) {
         User sender = userService.getUserById(sender_id);
@@ -63,10 +58,6 @@ public class MessageService {
         return messageDTOResponses;
     }
 
-    public List<Message> getAllMessagesToUser(String user) {
-        User recipient = userService.getUserByUsername(user);
-            return messageRepository.getMessageByTo(recipient);
-    }
 
     private boolean isFriend(User messageSender, User messageReceiver) {
         List<Friend> friendList = friendService.getAllFriendsByUser1(messageSender);
