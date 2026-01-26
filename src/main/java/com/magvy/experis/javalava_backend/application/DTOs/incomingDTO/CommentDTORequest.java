@@ -5,9 +5,12 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 public class CommentDTORequest {
+    private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
     @JsonProperty("content")
     private String content;
 
@@ -17,9 +20,9 @@ public class CommentDTORequest {
     @JsonProperty("post_id")
     private int postId;
 
-    public CommentDTORequest(String content, LocalDateTime published, int postId) {
+    public CommentDTORequest(String content, String published, int postId) {
         this.content = content;
-        this.published = published;
+        this.published = LocalDateTime.parse(published, formatter);
         this.postId = postId;
     }
 }

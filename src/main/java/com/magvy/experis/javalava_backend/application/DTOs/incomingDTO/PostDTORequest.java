@@ -5,9 +5,12 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 public class PostDTORequest {
+    private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
     @JsonProperty("content")
     private String content;
 
@@ -20,10 +23,10 @@ public class PostDTORequest {
     @JsonProperty("user_id")
     private int userId;
 
-    public PostDTORequest(String content, LocalDateTime published, boolean visible, int userId) {
+    public PostDTORequest(String content, String published, boolean visible, int userId) {
         this.content = content;
-        this.published = published;
         this.visible = visible;
         this.userId = userId;
+        this.published = LocalDateTime.parse(published, formatter);
     }
 }

@@ -35,8 +35,7 @@ public class PostDTOResponse {
     @JsonProperty("post_id")
     private int postId;
 
-    public PostDTOResponse(String content, LocalDateTime published, boolean visible, int userId, String userName,
-                           int likeCount, int commentCount, int postId) {
+    public PostDTOResponse(String content, LocalDateTime published, boolean visible, int userId, String userName, int likeCount, int commentCount, int postId) {
         this.content = content;
         this.published = published.format(customFormatter);
         this.visible = visible;
