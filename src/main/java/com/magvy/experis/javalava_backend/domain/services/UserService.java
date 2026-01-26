@@ -26,6 +26,10 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow();
+    }
+
     public User convertToEntity(AuthDTO authDTO) {
         User user = new User();
         user.setUsername(authDTO.getUsername());

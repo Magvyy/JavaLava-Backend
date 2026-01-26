@@ -3,9 +3,7 @@ package com.magvy.experis.javalava_backend.domain.services;
 import com.magvy.experis.javalava_backend.domain.entitites.Friend;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.MessageRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -15,18 +13,18 @@ import java.util.List;
 @Service
 public class MessageService {
     private final MessageRepository messageRepository;
-    private final FriendRepository friendRepository;
-    private final UserRepository userRepository;
+    private final FriendService friendService;
+    private final UserService userService;
 
 
-    public MessageService(MessageRepository messageRepository, UserRepository userRepository, FriendRepository friendRepository) {
+    public MessageService(MessageRepository messageRepository, FriendService friendService, UserService userService) {
         this.messageRepository = messageRepository;
-        this.friendRepository = friendRepository;
-        this.userRepository = userRepository;
+        this.friendService = friendService;
+        this.userService = userService;
     }
 
     private boolean isFriend(User messageSender, User messageReceiver) {
-        List<Friend> friendList = friendRepository.getAllFriendsByUser1(messageSender);
+        List<Friend> friendList = friendService.getAllFriendsByUser1(messageSender);
 
         for (Friend friend : friendList) {
             if (friend.getUser1().equals(messageReceiver) || friend.getUser2().equals(messageReceiver)) {
@@ -37,8 +35,8 @@ public class MessageService {
     }
 
     public String sendMessage(String to, String from, String content){
-        User userTo = userRepository.findByUsername(to).orElseThrow();
-        User userFrom = userRepository.findByUsername(from).orElseThrow();
+        User userTo = userService.getUserByUsername(to);
+        User userFrom = userService.getUserByUsername(from);
 
         LocalDate localDate = LocalDate.now();
         Date sqlDate = Date.valueOf(localDate);
@@ -53,17 +51,16 @@ public class MessageService {
 //        }
     }
 
-    public String readNewestMessage(String to, String from){
-        User userTo = userRepository.findByUsername(to).orElseThrow();
-        User userFrom = userRepository.findByUsername(from).orElseThrow();
+    public List<Message> getMessageHistory(String to, String from){
+        User userTo = userService.getUserByUsername(to);
+        User userFrom = userService.getUserByUsername(from);
 
-
-        return messageRepository.getMessageByTo(userTo, userFrom).getLast().getContent();
+        return messageRepository.getMessageByTo(userTo, userFrom);
     }
 
-    public List<Message> getAllMessagesToUser(String userName) {
-        User user = userRepository.findByUsername(userName).orElseThrow();
-            return messageRepository.getMessageByTo(user);
+    public List<Message> getAllMessagesToUser(String user) {
+        User recipient = userService.getUserByUsername(user);
+            return messageRepository.getMessageByTo(recipient);
     }
 
 
