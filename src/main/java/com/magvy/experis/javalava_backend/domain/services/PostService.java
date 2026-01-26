@@ -71,7 +71,7 @@ public class PostService {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         if (user == null) {
-            return pageToDTOList(postRepository.findByVisibleTrueByUserId(selectedId, pageable));
+            return pageToDTOList(postRepository.findByVisibleTrueAndUserId(selectedId, pageable));
         }
         return pageToDTOList(postRepository.findPostsFromUser(user.getId(), selectedId, pageable));
     }

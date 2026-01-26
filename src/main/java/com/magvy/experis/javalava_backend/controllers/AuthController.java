@@ -2,7 +2,7 @@ package com.magvy.experis.javalava_backend.controllers;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.AuthDTO;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
-import com.magvy.experis.javalava_backend.application.security.util.JwtUtil;
+import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
