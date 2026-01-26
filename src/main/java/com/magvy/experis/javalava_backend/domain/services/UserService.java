@@ -26,10 +26,6 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow();
-    }
-
     public User getUserById(int id) {
         return userRepository.findById(id).orElseThrow();
     }

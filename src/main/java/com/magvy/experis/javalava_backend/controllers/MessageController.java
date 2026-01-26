@@ -7,12 +7,9 @@ import com.magvy.experis.javalava_backend.domain.services.MessageService;
 import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -34,6 +31,12 @@ public class MessageController {
         User user = getLoggedInUser(authentication);
         Message message = messageService.sendMessage(messageDTORequest, user);
         return new ResponseEntity<>(new MessageDTOResponse(message), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/me")
+    public String me(Authentication auth) {
+        return auth == null ? "NO AUTH" : auth.getName();
     }
 
     @GetMapping("{id}")

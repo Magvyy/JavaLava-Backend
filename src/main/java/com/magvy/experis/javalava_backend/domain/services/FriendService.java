@@ -20,7 +20,14 @@ public class FriendService {
     }
 
 
-    public List<Friend> getAllFriendsByUser1(User user) {
-        return friendRepository.getAllFriendsByUser1(user);
+    public boolean isFriend(User messageSender, User messageReceiver) {
+        List<Friend> friendList = friendRepository.getAllFriendsByUser1(messageSender);
+
+        for (Friend friend : friendList) {
+            if (friend.getUser1().equals(messageReceiver) || friend.getUser2().equals(messageReceiver)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

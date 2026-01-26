@@ -18,16 +18,14 @@ public class MessageDTORequest {
     @JsonProperty("sent")
     private Date date;
 
-    @JsonProperty("To")
+    @JsonProperty("receiver")
     private int receiver_id;
 
     public MessageDTORequest() {}
 
-    public MessageDTORequest(int receiver_id, String content, Date date)
+    public MessageDTORequest(int receiver_id, String content)
     {
         this.receiver_id = receiver_id;
         this.content = content;
-        this.date = date;
-
     }
 }
