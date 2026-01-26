@@ -32,7 +32,7 @@ public class CommentController {
         if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         return commentService.createPost(commentDTO, user);
     }
-    @GetMapping("/{postId}")
+    @GetMapping("/post/{postId}")
     public List<CommentDTOResponse> LoadCommentsHandler(@PathVariable int postId, @RequestParam int page, @RequestParam (required = false) Authentication auth) {
         User user = getLoggedInUser(auth);
         return commentService.loadCommentsByPost(page, postId, user);
