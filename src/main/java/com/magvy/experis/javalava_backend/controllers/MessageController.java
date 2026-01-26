@@ -34,11 +34,6 @@ public class MessageController {
     }
 
 
-    @GetMapping("/me")
-    public String me(Authentication auth) {
-        return auth == null ? "NO AUTH" : auth.getName();
-    }
-
     @GetMapping("{id}")
     public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable int sender_id, Authentication authentication) {
         User user = getLoggedInUser(authentication);
