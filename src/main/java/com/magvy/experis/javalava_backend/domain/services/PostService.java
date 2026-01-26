@@ -58,25 +58,31 @@ public class PostService {
         return true;
     }
 
-    public List<PostDTOResponse> loadPosts(int page, Integer userId) {
+    public List<PostDTOResponse> loadPosts(int page, User user) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
-        if (userId == null) {
+        if (user == null) {
             return pageToDTOList(postRepository.findByVisibleTrue(pageable));
         }
-        return pageToDTOList(postRepository.findPostsForUser(userId, pageable));
+        return pageToDTOList(postRepository.findPostsForUser(user.getId(), pageable));
     }
 
-    public List<PostDTOResponse> loadPostsByUser(int page, int userId, int selectedId) {
+    public List<PostDTOResponse> loadPostsByUser(int page, User user, int selectedId) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
-        return pageToDTOList(postRepository.findPostsFromUser(userId, selectedId, pageable));
-
+        if (user == null) {
+            return pageToDTOList(postRepository.findByVisibleTrueByUserId(selectedId, pageable));
+        }
+        return pageToDTOList(postRepository.findPostsFromUser(user.getId(), selectedId, pageable));
     }
-    public List<PostDTOResponse> loadPostsByFriends(int page, int userId) {
+
+    public List<PostDTOResponse> loadPostsByFriends(int page, User user) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
-        return pageToDTOList(postRepository.findPostsFromFriends(userId, pageable));
+        if (user == null) {
+            throw new MissingUserException("Couldn't find user in database");
+        }
+        return pageToDTOList(postRepository.findPostsFromFriends(user.getId(), pageable));
     }
 
     private List<PostDTOResponse> pageToDTOList(Page<Post> posts) {

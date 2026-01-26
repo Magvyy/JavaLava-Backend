@@ -66,7 +66,7 @@ public class CommentService {
         if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
             throw new MissingUserException("User not authorized to view comments on this post");
         }
-        Sort sort = Sort.by("date").descending();
+        Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         List<Comment> comments = CommentRepository.findByPost(post, pageable);
         return comments.stream().map(comment -> new CommentDTOResponse(
