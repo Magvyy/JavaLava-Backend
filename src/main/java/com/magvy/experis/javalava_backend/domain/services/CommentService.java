@@ -9,6 +9,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.MissingUserException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
+import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -35,13 +36,20 @@ public class CommentService {
     }
 
 
-    public boolean createPost(CommentDTORequest commentDTO, User user) {
+    public ResponseEntity<CommentDTOResponse> createPost(CommentDTORequest commentDTO, User user) {
         if(!postService.isPostVisibleToUser(postService.findByID(commentDTO.getPostId()), user)) {
             throw new MissingUserException("User not authorized to create comments on this post");
         }
         Comment comment = convertToEntity(commentDTO, user);
         CommentRepository.save(comment);
-        return true;
+        CommentDTOResponse commentDTOResponse = new CommentDTOResponse(
+                comment.getContent(),
+                comment.getPublished().toLocalDateTime(),
+                comment.getUser().getId(),
+                comment.getUser().getUsername(),
+                comment.getPost().getId()
+        );
+        return new ResponseEntity<>(commentDTOResponse, HttpStatus.OK);
     }
 
     public Comment convertToEntity(CommentDTORequest commentDTO, User user) {

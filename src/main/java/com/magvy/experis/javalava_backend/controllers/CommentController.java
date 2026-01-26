@@ -27,11 +27,10 @@ public class CommentController {
     }
 
     @PostMapping("/create")
-    public HttpStatus CreateCommentHandler(@RequestBody CommentDTORequest commentDTO, @RequestParam Authentication auth) {
+    public ResponseEntity<CommentDTOResponse> CreateCommentHandler(@RequestBody CommentDTORequest commentDTO, @RequestParam Authentication auth) {
         User user = getLoggedInUser(auth);
-        if (user == null) return HttpStatus.UNAUTHORIZED;
-        if (commentService.createPost(commentDTO, user)) return HttpStatus.OK;
-        else return HttpStatus.INTERNAL_SERVER_ERROR;
+        if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return commentService.createPost(commentDTO, user);
     }
     @GetMapping("/{postId}")
     public List<CommentDTOResponse> LoadCommentsHandler(@PathVariable int postId, @RequestParam int page, @RequestParam (required = false) Authentication auth) {
