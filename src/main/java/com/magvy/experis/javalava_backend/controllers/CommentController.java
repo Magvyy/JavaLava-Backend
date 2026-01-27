@@ -51,7 +51,6 @@ public class CommentController {
     }
 
     private User getLoggedInUser(CustomUserDetails principal) {
-        System.out.println("principal:" + principal);
         if (principal == null) return null;
         return principal.getUser();
     }
