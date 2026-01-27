@@ -1,6 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.AuthDTO;
+import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserAlreadyExistsException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
@@ -46,11 +47,7 @@ public class UserService implements UserDetailsService {
     @NullMarked
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                Collections.emptyList() // You can add roles/authorities here
-        );
+        return new CustomUserDetails(user);
     }
     public User findById(int id) {
         return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
