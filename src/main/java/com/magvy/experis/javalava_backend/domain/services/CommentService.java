@@ -41,8 +41,9 @@ public class CommentService {
             throw new MissingUserException("User not authorized to create comments on this post");
         }
         Comment comment = convertToEntity(commentDTO, user);
-        CommentRepository.save(comment);
+        comment = CommentRepository.save(comment);
         CommentDTOResponse commentDTOResponse = new CommentDTOResponse(
+                comment.getId(),
                 comment.getContent(),
                 comment.getPublished().toLocalDateTime(),
                 comment.getUser().getId(),
@@ -70,6 +71,7 @@ public class CommentService {
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         List<Comment> comments = CommentRepository.findByPost(post, pageable);
         return comments.stream().map(comment -> new CommentDTOResponse(
+                comment.getId(),
                 comment.getContent(),
                 comment.getPublished().toLocalDateTime(),
                 comment.getUser().getId(),
@@ -88,8 +90,9 @@ public class CommentService {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        CommentRepository.save(convertToEntity(commentDTORequest, user));
+        comment = CommentRepository.save(convertToEntity(commentDTORequest, user));
         CommentDTOResponse commentDTOResponse = new CommentDTOResponse(
+                comment.getId(),
                 comment.getContent(),
                 comment.getPublished().toLocalDateTime(),
                 comment.getUser().getId(),
