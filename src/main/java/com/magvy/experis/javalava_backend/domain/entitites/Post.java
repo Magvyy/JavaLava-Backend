@@ -1,4 +1,4 @@
-    package com.magvy.experis.javalava_backend.domain.entitites;
+package com.magvy.experis.javalava_backend.domain.entitites;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,7 +23,8 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Post(String content, LocalDateTime published, boolean visible, User user) {
+    public Post(int id, String content, LocalDateTime published, boolean visible, User user) {
+        this.id = id;
         this.content = content;
         this.published = Timestamp.valueOf(published);
         this.visible = visible;

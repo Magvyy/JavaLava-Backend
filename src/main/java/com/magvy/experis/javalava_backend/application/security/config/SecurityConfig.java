@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorizeHttpRequests ->
                     authorizeHttpRequests
+                            .requestMatchers("/home").permitAll()
                             .requestMatchers("/auth/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/post/{id}").permitAll()
                             .requestMatchers(HttpMethod.GET, "/post/all").permitAll()

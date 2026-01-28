@@ -10,7 +10,6 @@ import lombok.Data;
 @Entity
 @Table(name = "friends")
 public class Friend {
-
     @EmbeddedId
     private FriendId id;
 
