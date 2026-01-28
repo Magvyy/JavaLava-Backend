@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.MessageDTORequest;
-import com.magvy.experis.javalava_backend.application.DTOs.MessageDTOResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.MessageDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.MessageRepository;
