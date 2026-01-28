@@ -38,6 +38,7 @@ public class SecurityConfig {
                     authorizeHttpRequests
                             .requestMatchers("/home").permitAll()
                             .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers("/likes/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/post/{id}").permitAll()
                             .requestMatchers(HttpMethod.GET, "/post/all").permitAll()
                             .requestMatchers(HttpMethod.GET, "/comment/post/{id}").permitAll()

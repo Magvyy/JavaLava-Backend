@@ -10,6 +10,7 @@ public class LikeId implements Serializable {
     private User user;
     private Post post;
 
+    LikeId(){};
     public LikeId(User user, Post post) {
         this.user = user;
         this.post = post;

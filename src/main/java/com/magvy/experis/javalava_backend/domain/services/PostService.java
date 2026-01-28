@@ -80,7 +80,7 @@ public class PostService {
         return posts.stream()
                 .map(post -> new PostDTOResponse(
                         post,
-                        (int)likeRepository.countByPost(post),
+                        (int)likeRepository.countByPost_Id(post.getId()),
                         (int)commentRepository.countByPost(post)
                 ))
                 .toList();
