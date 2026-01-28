@@ -1,15 +1,17 @@
-package com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO;
+package com.magvy.experis.javalava_backend.application.DTOs.outgoing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
-public class PostDTOResponse {
+public class CommentDTOResponse {
     private final static DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
+    @JsonProperty("id")
+    private int id;
 
     @JsonProperty("content")
     private String content;
@@ -17,32 +19,21 @@ public class PostDTOResponse {
     @JsonProperty("published")
     private String published;
 
-    @JsonProperty("visible")
-    private boolean visible;
-
     @JsonProperty("user_id")
     private int userId;
 
     @JsonProperty("user_name")
     private String userName;
 
-    @JsonProperty("like_count")
-    private int likeCount;
-
-    @JsonProperty("comment_count")
-    private int commentCount;
-
     @JsonProperty("post_id")
     private int postId;
 
-    public PostDTOResponse(String content, LocalDateTime published, boolean visible, int userId, String userName, int likeCount, int commentCount, int postId) {
+    public CommentDTOResponse(int id, String content, LocalDateTime published, int userId, String userName, int postId) {
+        this.id = id;
         this.content = content;
         this.published = published.format(customFormatter);
-        this.visible = visible;
         this.userId = userId;
         this.userName = userName;
-        this.likeCount = likeCount;
-        this.commentCount = commentCount;
         this.postId = postId;
     }
 }

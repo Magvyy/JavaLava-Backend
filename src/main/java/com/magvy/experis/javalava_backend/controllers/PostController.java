@@ -1,32 +1,18 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO.PostDTOResponse;
-import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.PostDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
-import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
-import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
-import com.magvy.experis.javalava_backend.application.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
-import com.magvy.experis.javalava_backend.domain.services.PostService;
-import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -36,11 +22,9 @@ import java.util.Optional;
 @RequestMapping("/post")
 public class PostController {
     private final PostService postService;
-    private final AuthenticationManager authenticationManager;
 
-    public PostController(PostService postService, AuthenticationManager authenticationManager) {
+    public PostController(PostService postService) {
         this.postService = postService;
-        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping()
