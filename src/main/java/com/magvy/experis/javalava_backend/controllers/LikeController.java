@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.LikeDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTO;
 import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.domain.services.LikeService;
 import org.springframework.beans.factory.annotation.Autowired;

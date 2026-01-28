@@ -1,8 +1,7 @@
-package com.magvy.experis.javalava_backend.application.DTOs;
+package com.magvy.experis.javalava_backend.application.DTOs.incoming;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
 public class LikeDTO {
