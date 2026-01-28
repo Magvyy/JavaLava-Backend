@@ -21,9 +21,10 @@ public class Like {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    Like() {};
+    public Like() {};
     public Like(User user, Post post){
         this.post = post;
         this.user = user;
     }
+
 }

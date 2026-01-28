@@ -27,12 +27,10 @@ import java.util.Map;
 @RequestMapping("/post")
 public class PostController {
     private final PostService postService;
-    private final LikeService likeService;
 
     @Autowired
     public PostController(PostService postService, LikeService likeService) {
         this.postService = postService;
-        this.likeService = likeService;
     }
 
     @PostMapping("/create")
@@ -41,12 +39,5 @@ public class PostController {
         else return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    @PutMapping("/like")
-    public ResponseEntity<Like> LikePutHandler(@RequestBody LikeDTO likeDTO){
-        return likeService.likePost(likeDTO);
-    }
-    @DeleteMapping("/unlike")
-    public ResponseEntity<String> LikeDeleteHandler(@RequestBody LikeDTO likeDTO){
-        return likeService.unlikePost(likeDTO);
-    }
+
 }
