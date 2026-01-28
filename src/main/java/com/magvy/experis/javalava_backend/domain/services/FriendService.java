@@ -14,4 +14,9 @@ public class FriendService {
         this.friendRepository = friendRepository;
         this.friendRequestRepository = friendRequestRepository;
     }
+
+    public boolean isFriends(int userId1, int userId2) {
+        return friendRepository.existsByUser1IdAndUser2Id(userId1, userId2)
+                || friendRepository.existsByUser1IdAndUser2Id(userId2, userId1);
+    }
 }

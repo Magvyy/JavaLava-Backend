@@ -28,4 +28,20 @@ public class GlobalExceptionHandler {
         errorResponse.put("message", exception.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(MissingPostException.class)
+    public ResponseEntity<Map<String, String>> handleMissingPostException(MissingPostException exception) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Post not found.");
+        errorResponse.put("message", exception.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnauthorizedActionException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedDeletionException(UnauthorizedActionException exception) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Unauthorized Deletion.  ");
+        errorResponse.put("message", exception.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -13,8 +15,11 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(nullable = false)
     private String content;
-    private Date date;
+
+    @Column(nullable = false)
+    private Timestamp published;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
@@ -23,4 +28,13 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public Comment(String content, LocalDateTime published, Post post, User user) {
+        this.content = content;
+        this.published = Timestamp.valueOf(published);
+        this.post = post;
+        this.user = user;
+    }
+
+    public Comment() {}
 }
