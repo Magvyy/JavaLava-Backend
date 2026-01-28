@@ -1,9 +1,13 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
+import com.magvy.experis.javalava_backend.domain.entitites.Friend;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRequestRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class FriendService {
