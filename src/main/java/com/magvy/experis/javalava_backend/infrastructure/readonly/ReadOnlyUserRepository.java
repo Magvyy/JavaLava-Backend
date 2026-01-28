@@ -9,11 +9,5 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface ReadOnlyUserRepository {
     Optional <User> findById(int userId);
-
-    @Query("""
-    SELECT u
-    FROM User u
-    WHERE u.username = :username
-    """)
     Optional <User> findByUsername(String username);
 }

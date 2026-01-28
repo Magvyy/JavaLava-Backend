@@ -1,4 +1,4 @@
-package com.magvy.experis.javalava_backend.application.security.util;
+package com.magvy.experis.javalava_backend.application.security.filter.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -6,7 +6,6 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -22,6 +21,7 @@ public class JwtUtil {
                 .signWith(KEY)
                 .compact();
     }
+
     public String extractUsername(String token) {
         return Jwts.parser()
                 .verifyWith(KEY)
@@ -30,6 +30,7 @@ public class JwtUtil {
                 .getPayload()
                 .getSubject();
     }
+    
     public boolean validateToken(String token) {
         try {
             Jwts.parser()

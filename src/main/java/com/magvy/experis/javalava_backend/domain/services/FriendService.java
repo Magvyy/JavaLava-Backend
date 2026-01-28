@@ -19,15 +19,8 @@ public class FriendService {
         this.friendRequestRepository = friendRequestRepository;
     }
 
-
-    public boolean isFriend(User messageSender, User messageReceiver) {
-        List<Friend> friendList = friendRepository.getAllFriendsByUser1(messageSender);
-
-        for (Friend friend : friendList) {
-            if (friend.getUser1().equals(messageReceiver) || friend.getUser2().equals(messageReceiver)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isFriends(int userId1, int userId2) {
+        return friendRepository.existsByUser1IdAndUser2Id(userId1, userId2)
+                || friendRepository.existsByUser1IdAndUser2Id(userId2, userId1);
     }
 }

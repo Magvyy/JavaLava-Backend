@@ -9,7 +9,5 @@ import java.util.List;
 
 @Repository
 public interface FriendRepository extends JpaRepository<Friend, Integer> {
-
-    List<Friend> getAllFriendsByUser1(User user);
-
+    boolean existsByUser1IdAndUser2Id(int user1Id, int user2Id);
 }

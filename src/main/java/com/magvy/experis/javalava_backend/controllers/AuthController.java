@@ -1,14 +1,16 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
+import com.magvy.experis.javalava_backend.application.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
-import com.magvy.experis.javalava_backend.application.security.util.JwtUtil;
+import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,11 +48,15 @@ public class AuthController {
     }
 
     private ResponseEntity <Map<String, String>> AuthHandler(AuthDTO authDTO) {
-        authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authDTO.getUsername(), authDTO.getPassword())
         );
         Map<String, String> response = new HashMap<>();
         response.put("jwt", jwtUtil.generateToken(authDTO.getUsername()));
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserDetails details) {
+            response.put("user_id", String.valueOf(details.getUser().getId()));
+        }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
