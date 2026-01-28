@@ -21,7 +21,7 @@ import java.util.Optional;
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/post")
-public class PostController {
+public class PostController extends BaseAuthHController{
     private final PostService postService;
 
     @Autowired
@@ -82,11 +82,5 @@ public class PostController {
         User user = getLoggedInUser(principal);
         return postService.loadPostsByFriends(page, user);
     }
-
-    private User getLoggedInUser(CustomUserDetails principal) {
-        if (principal == null) return null;
-        return principal.getUser();
-    }
-
 
 }
