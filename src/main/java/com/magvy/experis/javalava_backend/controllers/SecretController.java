@@ -9,7 +9,6 @@ public class SecretController {
 
     @GetMapping("/secret")
     public ResponseEntity <String> Secret() {
-        return  ResponseEntity.ok("Hi, it's me, the secret.");
+        return ResponseEntity.ok("Hi, it's me, the secret.");
     }
-
 }
