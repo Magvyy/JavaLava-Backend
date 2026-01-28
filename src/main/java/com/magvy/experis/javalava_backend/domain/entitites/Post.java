@@ -1,11 +1,13 @@
-    package com.magvy.experis.javalava_backend.domain.entitites;
+package com.magvy.experis.javalava_backend.domain.entitites;
 
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
-@Data
+    @Data
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -14,17 +16,17 @@ public class Post {
     private int id;
 
     private String content;
-    private Date published;
+    private Timestamp published;
     private boolean visible;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Post(int id, String content, Date published, boolean visible, User user) {
+    public Post(int id, String content, LocalDateTime published, boolean visible, User user) {
         this.id = id;
         this.content = content;
-        this.published = published;
+        this.published = Timestamp.valueOf(published);
         this.visible = visible;
         this.user = user;
     }
