@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import lombok.Getter;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
@@ -14,13 +11,13 @@ public class PostDTOResponse {
     private final static DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     @JsonProperty("id")
-    private int id;
+    private Long id;
 
     @JsonProperty("user_name")
     private String username;
 
     @JsonProperty("user_id")
-    private int userId;
+    private Long userId;
 
     @JsonProperty("content")
     private String content;

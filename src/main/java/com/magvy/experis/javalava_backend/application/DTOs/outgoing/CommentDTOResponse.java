@@ -11,7 +11,7 @@ public class CommentDTOResponse {
     private final static DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     @JsonProperty("id")
-    private int id;
+    private Long id;
 
     @JsonProperty("content")
     private String content;
@@ -20,15 +20,15 @@ public class CommentDTOResponse {
     private String published;
 
     @JsonProperty("user_id")
-    private int userId;
+    private Long userId;
 
     @JsonProperty("user_name")
     private String userName;
 
     @JsonProperty("post_id")
-    private int postId;
+    private Long postId;
 
-    public CommentDTOResponse(int id, String content, LocalDateTime published, int userId, String userName, int postId) {
+    public CommentDTOResponse(Long id, String content, LocalDateTime published, Long userId, String userName, Long postId) {
         this.id = id;
         this.content = content;
         this.published = published.format(customFormatter);

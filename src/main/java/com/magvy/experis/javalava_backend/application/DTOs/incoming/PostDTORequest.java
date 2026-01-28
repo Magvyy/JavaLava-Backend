@@ -3,7 +3,6 @@ package com.magvy.experis.javalava_backend.application.DTOs.incoming;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -11,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 public class PostDTORequest {
     private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     @JsonProperty("id")
-    private int id;
+    private Long id;
 
     @JsonProperty("content")
     private String content;
@@ -22,7 +21,7 @@ public class PostDTORequest {
     @JsonProperty("visible")
     private boolean visible;
 
-    public PostDTORequest(int id, String content, String published, boolean visible) {
+    public PostDTORequest(Long id, String content, String published, boolean visible) {
         this.id = id;
         this.content = content;
         this.published = LocalDateTime.parse(published, formatter);

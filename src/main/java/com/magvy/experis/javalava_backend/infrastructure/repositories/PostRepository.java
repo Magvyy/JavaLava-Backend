@@ -14,11 +14,11 @@ import java.util.Optional;
 
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Integer> {
+public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByUser(User user);
-    Page<Post> findByUserId(int userId, Pageable pageable);
+    Page<Post> findByUserId(Long userId, Pageable pageable);
     Page<Post> findByVisibleTrue(Pageable pageable);
-    Page<Post> findByVisibleTrueAndUserId(int userId, Pageable pageable);
+    Page<Post> findByVisibleTrueAndUserId(Long userId, Pageable pageable);
 
 
     @Query("""
@@ -36,7 +36,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
        )
     ORDER BY p.published DESC
 """)
-    Page<Post> findPostsForUser(@Param("currentUserId") int currentUserId, Pageable pageable);
+    Page<Post> findPostsForUser(@Param("currentUserId") Long currentUserId, Pageable pageable);
 
     @Query("""
     SELECT p
@@ -52,7 +52,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     )
     ORDER BY p.published DESC
 """)
-    Page<Post> findPostsFromFriends(@Param("currentUserId") int currentUserId, Pageable pageable);
+    Page<Post> findPostsFromFriends(@Param("currentUserId") Long currentUserId, Pageable pageable);
 
     @Query("""
     SELECT p
@@ -70,7 +70,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       )
     ORDER BY p.published DESC
 """)
-    Page<Post> findPostsFromUser(@Param("currentUserId") int currentUserId, @Param("targetUserId") int targetUserId, Pageable pageable);
+    Page<Post> findPostsFromUser(@Param("currentUserId") Long currentUserId, @Param("targetUserId") Long targetUserId, Pageable pageable);
            
     @Query("""
     SELECT p
@@ -87,7 +87,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 )
         )
     """)
-    Optional<Post> findByIdIfUserLoggedIn(@Param("user") User user, @Param("id") int id);
+    Optional<Post> findByIdIfUserLoggedIn(@Param("user") User user, @Param("id") Long id);
 
     @Query("""
     SELECT p
@@ -95,5 +95,5 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     WHERE p.id = :id
     AND p.visible
     """)
-    Optional<Post> findByIdAndVisibleTrue(@Param("id") int id);
+    Optional<Post> findByIdAndVisibleTrue(@Param("id") Long id);
 }
