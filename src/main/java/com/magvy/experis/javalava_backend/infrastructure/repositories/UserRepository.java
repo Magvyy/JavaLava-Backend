@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long>, ReadOnlyUserR
     Optional<User> findByUsername(String username);
 
     @Query("""
-        SELECT new UserSearchResponse(
+        SELECT new com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserSearchResponse(
             u.id,
             u.username
         )
