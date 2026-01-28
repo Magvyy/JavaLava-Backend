@@ -23,7 +23,6 @@ public class MessageController extends BaseAuthHController {
     private final MessageService messageService;
     private final ReadOnlyUserRepository userRepository;
 
-
     public MessageController(MessageService messageService, ReadOnlyUserRepository userRepository) {
         this.messageService = messageService;
         this.userRepository = userRepository;
