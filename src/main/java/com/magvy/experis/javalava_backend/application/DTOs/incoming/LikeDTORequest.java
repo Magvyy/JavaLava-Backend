@@ -6,12 +6,12 @@ import lombok.Getter;
 @Getter
 public class LikeDTORequest {
     @JsonProperty("user_id")
-    private int userId;
+    private Long userId;
 
     @JsonProperty("post_id")
-    private int postId;
+    private Long postId;
 
-    public LikeDTORequest(int userId, int postId){
+    public LikeDTORequest(Long userId, Long postId){
         this.userId = userId;
         this.postId = postId;
     }

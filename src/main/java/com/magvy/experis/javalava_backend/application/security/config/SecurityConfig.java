@@ -42,6 +42,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/post/{id}").permitAll()
                             .requestMatchers(HttpMethod.GET, "/post/all").permitAll()
                             .requestMatchers(HttpMethod.GET, "/comment/post/{id}").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/users/search").permitAll()
                             .anyRequest().authenticated()
                 );
         return http.build();
