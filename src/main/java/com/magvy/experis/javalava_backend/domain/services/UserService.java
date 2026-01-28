@@ -1,9 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.AuthDTO;
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
-import com.magvy.experis.javalava_backend.application.custom.CustomUserDetails;
+import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserAlreadyExistsException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
@@ -15,7 +13,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.Map;
 
 @Service

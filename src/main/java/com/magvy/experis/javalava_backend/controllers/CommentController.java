@@ -1,20 +1,16 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.CommentDTORequest;
-import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.PostDTORequest;
-import com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO.CommentDTOResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.CommentDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.CommentDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.CommentService;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")

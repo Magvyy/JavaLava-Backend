@@ -1,15 +1,12 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.CommentDTORequest;
-import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.PostDTORequest;
-import com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO.CommentDTOResponse;
-import com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO.PostDTOResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.CommentDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.CommentDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Comment;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.MissingUserException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

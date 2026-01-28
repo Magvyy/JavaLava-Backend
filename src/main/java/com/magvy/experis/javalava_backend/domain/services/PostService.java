@@ -1,7 +1,6 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.outgoingDTO.PostDTOResponse;
-import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.PostDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -44,9 +42,8 @@ public class PostService {
   
     private Post convertToEntity(PostDTORequest postDTORequest, User user) {
         return new Post(
-                postDTORequest.getId(),
                 postDTORequest.getContent(),
-                Date.valueOf(postDTORequest.getPublished()),
+                postDTORequest.getPublished(),
                 postDTORequest.isVisible(),
                 user
         );
@@ -81,15 +78,10 @@ public class PostService {
 
     private List<PostDTOResponse> pageToDTOList(Page<Post> posts) {
         return posts.stream()
-                .map(p -> new PostDTOResponse(
-                        p.getContent(),
-                        p.getPublished().toLocalDateTime(),
-                        p.isVisible(),
-                        p.getUser().getId(),
-                        p.getUser().getUsername(),
-                        (int)likeRepository.countByPost(p),
-                        (int)commentRepository.countByPost(p),
-                        p.getId()
+                .map(post -> new PostDTOResponse(
+                        post,
+                        (int)likeRepository.countByPost(post),
+                        (int)commentRepository.countByPost(post)
                 ))
                 .toList();
     }
@@ -121,17 +113,20 @@ public class PostService {
 
     public Optional<Post> getPost(User user, int id) {
         if (user == null) {
-            return postRepository.findById(id);
+            return postRepository.findByIdAndVisibleTrue(id);
         }
-        return postRepository.findById(user, id);
+        return postRepository.findByIdIfUserLoggedIn(user, id);
     }
 
     public Post updatePost(User user, PostDTORequest postDTORequest) {
         if (user == null) {
             throw new UnauthorizedActionException("Cannot update a post as an anonymous user.");
         }
-        Post post = convertToEntity(postDTORequest, user);
-        return postRepository.save(post);
+        Optional<Post> oPost = postRepository.findById(postDTORequest.getId());
+        if (oPost.isEmpty()) {
+            throw new MissingPostException("Can't update a missing post.");
+        }
+        return postRepository.save(oPost.get());
     }
 
     public void deletePost(User user, int id) {

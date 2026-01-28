@@ -87,7 +87,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 )
         )
     """)
-    Optional<Post> findById(@Param("user") User user, @Param("id") int id);
+    Optional<Post> findByIdIfUserLoggedIn(@Param("user") User user, @Param("id") int id);
 
     @Query("""
     SELECT p
@@ -95,5 +95,5 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     WHERE p.id = :id
     AND p.visible
     """)
-    Optional<Post> findById(@Param("id") int id);
+    Optional<Post> findByIdAndVisibleTrue(@Param("id") int id);
 }

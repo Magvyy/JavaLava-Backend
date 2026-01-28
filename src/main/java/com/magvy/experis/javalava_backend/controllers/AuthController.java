@@ -1,6 +1,5 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incomingDTO.AuthDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.application.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.services.UserService;

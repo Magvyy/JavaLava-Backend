@@ -23,8 +23,7 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Post(int id, String content, LocalDateTime published, boolean visible, User user) {
-        this.id = id;
+    public Post(String content, LocalDateTime published, boolean visible, User user) {
         this.content = content;
         this.published = Timestamp.valueOf(published);
         this.visible = visible;
