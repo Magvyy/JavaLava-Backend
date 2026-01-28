@@ -1,12 +1,13 @@
 package com.magvy.experis.javalava_backend.application.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Date;
 
 @Getter
+@Setter
 public class MessageDTORequest {
 
     @JsonProperty("message_id")
@@ -18,14 +19,14 @@ public class MessageDTORequest {
     @JsonProperty("sent")
     private Date date;
 
-    @JsonProperty("receiver")
-    private int receiver_id;
+    @JsonProperty("to")
+    private int to;
 
     public MessageDTORequest() {}
 
-    public MessageDTORequest(int receiver_id, String content)
+    public MessageDTORequest(int to, String content)
     {
-        this.receiver_id = receiver_id;
+        this.to = to;
         this.content = content;
     }
 }

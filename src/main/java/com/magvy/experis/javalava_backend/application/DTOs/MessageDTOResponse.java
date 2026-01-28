@@ -10,16 +10,16 @@ public class MessageDTOResponse {
     @JsonProperty("content")
     private String content;
     @JsonProperty("from")
-    private String sender;
+    private String from;
     @JsonProperty("to")
-    private String receiver;
+    private String to;
     @JsonProperty("date")
     private Date date;
 
     public MessageDTOResponse(Message message) {
         this.content = message.getContent();
-        this.sender = message.getFrom().getUsername();
-        this.receiver = message.getTo().getUsername();
+        this.from = message.getFrom().getUsername();
+        this.to = message.getTo().getUsername();
         this.date = message.getDate();
     }
 
