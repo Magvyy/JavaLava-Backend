@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public class LikeDTO {
+public class LikeDTORequest {
     @JsonProperty("user_id")
     private Long userId;
 
     @JsonProperty("post_id")
     private Long postId;
 
-    public LikeDTO(Long userId, Long postId){
+    public LikeDTORequest(Long userId, Long postId){
         this.userId = userId;
         this.postId = postId;
     }

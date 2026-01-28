@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/comment")
-public class CommentController {
+public class CommentController extends BaseAuthHController {
     private final CommentService commentService;
 
     public CommentController(CommentService commentService) {
@@ -46,8 +46,4 @@ public class CommentController {
         return commentService.delete(id, user, commentDTORequest);
     }
 
-    private User getLoggedInUser(CustomUserDetails principal) {
-        if (principal == null) return null;
-        return principal.getUser();
-    }
 }

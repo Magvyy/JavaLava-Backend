@@ -1,16 +1,19 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTORequest;
+import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.domain.services.LikeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/likes")
-public class LikeController {
+public class LikeController extends BaseAuthHController {
 
     private final LikeService likeService;
 
@@ -19,12 +22,16 @@ public class LikeController {
         this.likeService = likeService;
     }
 
-    @PutMapping("/like")
-    public ResponseEntity<Like> LikePutHandler(@RequestBody LikeDTO likeDTO){
-        return likeService.likePost(likeDTO);
+    @PutMapping("/like/post/{postId}")
+    public ResponseEntity<Like> LikePutHandler(@PathVariable int postId, @AuthenticationPrincipal CustomUserDetails principal){
+        int userId = getLoggedInUser(principal).getId();
+        LikeDTORequest likeDTORequest = new LikeDTORequest(userId, postId);
+        return likeService.likePost(likeDTORequest);
     }
-    @DeleteMapping("/unlike")
-    public ResponseEntity<String> LikeDeleteHandler(@RequestBody LikeDTO likeDTO){
-        return likeService.unlikePost(likeDTO);
+    @DeleteMapping("/unlike/post/{postId}")
+    public ResponseEntity<String> LikeDeleteHandler(@PathVariable int postId, @AuthenticationPrincipal CustomUserDetails principal){
+        int userId = getLoggedInUser(principal).getId();
+        LikeDTORequest likeDTORequest = new LikeDTORequest(userId, postId);
+        return likeService.unlikePost(likeDTORequest);
     }
 }
