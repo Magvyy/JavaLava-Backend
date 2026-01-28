@@ -3,7 +3,6 @@ package com.magvy.experis.javalava_backend.domain.entitites;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String content;
     private Timestamp published;

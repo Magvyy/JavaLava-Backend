@@ -9,7 +9,7 @@ import java.sql.Date;
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String content;
     private Date date;

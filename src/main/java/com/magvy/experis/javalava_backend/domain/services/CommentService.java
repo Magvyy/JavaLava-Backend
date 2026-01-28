@@ -59,7 +59,7 @@ public class CommentService {
         );
     }
 
-    public List<CommentDTOResponse> loadCommentsByPost(int page, int postId, User user) {
+    public List<CommentDTOResponse> loadCommentsByPost(int page, Long postId, User user) {
         Post post = postService.findByID(postId);
         if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
             throw new MissingUserException("User not authorized to view comments on this post");
@@ -77,7 +77,7 @@ public class CommentService {
         )).toList();
     }
 
-    public ResponseEntity<CommentDTOResponse> edit(int commentId, User user, CommentDTORequest commentDTORequest) {
+    public ResponseEntity<CommentDTOResponse> edit(Long commentId, User user, CommentDTORequest commentDTORequest) {
         Optional<Comment> oComment = CommentRepository.findById(commentId);
         if (oComment.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -99,7 +99,7 @@ public class CommentService {
         return new ResponseEntity<>(commentDTOResponse, HttpStatus.OK);
     }
 
-    public HttpStatus delete(int commentId, User user, CommentDTORequest commentDTORequest) {
+    public HttpStatus delete(Long commentId, User user, CommentDTORequest commentDTORequest) {
         Optional<Comment> oComment = CommentRepository.findById(commentId);
         if (oComment.isEmpty()) {
             return HttpStatus.NOT_FOUND;

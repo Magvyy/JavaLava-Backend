@@ -58,7 +58,7 @@ public class PostService {
         return pageToDTOList(postRepository.findPostsForUser(user.getId(), pageable));
     }
 
-    public List<PostDTOResponse> loadPostsByUser(int page, User user, int selectedId) {
+    public List<PostDTOResponse> loadPostsByUser(int page, User user, Long selectedId) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         if (user == null) {
@@ -86,7 +86,7 @@ public class PostService {
                 .toList();
     }
   
-    public Post findByID(int postId) {
+    public Post findByID(Long postId) {
         return postRepository.findById(postId).orElseThrow(() -> new MissingResourceException("Post not found", "Post", String.valueOf(postId)));
     }
 
@@ -111,7 +111,7 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Optional<Post> getPost(User user, int id) {
+    public Optional<Post> getPost(User user, Long id) {
         if (user == null) {
             return postRepository.findByIdAndVisibleTrue(id);
         }
@@ -129,7 +129,7 @@ public class PostService {
         return postRepository.save(oPost.get());
     }
 
-    public void deletePost(User user, int id) {
+    public void deletePost(User user, Long id) {
         if (user == null) {
             throw new UnauthorizedActionException("Cannot delete a post as an anonymous user.");
         }

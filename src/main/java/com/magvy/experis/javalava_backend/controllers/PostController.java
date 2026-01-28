@@ -37,7 +37,7 @@ public class PostController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<PostDTOResponse> getPost(@PathVariable("id") int id, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         Optional<Post> oPost = postService.getPost(user, id);
         HttpHeaders headers = new HttpHeaders();
@@ -50,14 +50,14 @@ public class PostController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<PostDTOResponse> updatePost(@PathVariable("id") int id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         Post post = postService.updatePost(user, postDTORequest);
         return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<PostDTOResponse> deletePost(@PathVariable("id") int id, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<PostDTOResponse> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         postService.deletePost(user, id);
         HttpHeaders headers = new HttpHeaders();
@@ -66,7 +66,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{id}")
-    public List<PostDTOResponse> LoadPostByUserHandler(@PathVariable int id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> LoadPostByUserHandler(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPostsByUser(page, user, id);
     }

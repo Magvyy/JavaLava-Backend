@@ -29,18 +29,18 @@ public class CommentController {
         return commentService.createPost(commentDTO, user);
     }
     @GetMapping("/post/{id}")
-    public List<CommentDTOResponse> LoadCommentsHandler(@PathVariable int id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<CommentDTOResponse> LoadCommentsHandler(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return commentService.loadCommentsByPost(page, id, user);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<CommentDTOResponse> UpdateCommentsHandler(@PathVariable int id, @RequestBody CommentDTORequest commentDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<CommentDTOResponse> UpdateCommentsHandler(@PathVariable Long id, @RequestBody CommentDTORequest commentDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         return commentService.edit(id, user, commentDTORequest);
     }
     @DeleteMapping("/{id}")
-    public HttpStatus DeleteCommentsHandler(@PathVariable int id, @RequestBody CommentDTORequest commentDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    public HttpStatus DeleteCommentsHandler(@PathVariable Long id, @RequestBody CommentDTORequest commentDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         if (user == null) return HttpStatus.UNAUTHORIZED;
         return commentService.delete(id, user, commentDTORequest);
