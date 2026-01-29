@@ -29,7 +29,7 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User getUserById(int id) {
+    public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow();
     }
 
