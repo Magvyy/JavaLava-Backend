@@ -61,9 +61,7 @@ public class FriendService {
             friendRequestRepository.delete(request);
             return ResponseEntity.badRequest().build();
         }
-        Friend friend = new Friend();
-        friend.setUser1(user);
-        friend.setUser2(friendUser);
+        Friend friend = new Friend(user,friendUser);
         friendRepository.save(friend);
         friendRequestRepository.delete(request);
         return ResponseEntity.noContent().build();
@@ -80,6 +78,7 @@ public class FriendService {
     }
 
     public ResponseEntity<Void> removeFriend(Long id, Long friendId) {
+
     }
 
     public ResponseEntity<List<UserSearchResponse>> getFriendsList(Long id) {

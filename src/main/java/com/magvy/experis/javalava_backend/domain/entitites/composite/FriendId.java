@@ -4,13 +4,12 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class FriendId implements Serializable {
-    private Long user1; // store user IDs, not entities
+    private Long user1;
     private Long user2;
 
-    public FriendId() {} // required by JPA
+    public FriendId() {}
 
     public FriendId(Long user1, Long user2) {
-        // optional: ensure consistent order so friendships are always the same
         if (user1 < user2) {
             this.user1 = user1;
             this.user2 = user2;
