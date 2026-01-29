@@ -1,7 +1,10 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.cglib.core.Local;
+
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -12,7 +15,8 @@ public class Message {
     private Long id;
 
     private String content;
-    private Date date;
+
+    private LocalDateTime sent;
 
     @ManyToOne
     @JoinColumn(name = "from_id")
@@ -25,9 +29,9 @@ public class Message {
 
     public Message() {}
 
-    public Message(String content, Date date, User from, User to) {
+    public Message(String content, LocalDateTime sent, User from, User to) {
         this.content = content.trim();
-        this.date = date;
+        this.sent = sent;
         this.from = from;
         this.to = to;
     }

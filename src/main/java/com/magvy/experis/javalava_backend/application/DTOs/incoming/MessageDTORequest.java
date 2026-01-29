@@ -1,32 +1,20 @@
 package com.magvy.experis.javalava_backend.application.DTOs.incoming;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Getter
-@Setter
 public class MessageDTORequest {
-
-    @JsonProperty("message_id")
-    private int id;
-
-    @JsonProperty("content")
     private String content;
 
-    @JsonProperty("sent")
-    private Date date;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+    private LocalDateTime sent;
 
-    @JsonProperty("to")
-    private int to;
+    private Long from;
 
-    public MessageDTORequest() {}
-
-    public MessageDTORequest(int to, String content)
-    {
-        this.to = to;
-        this.content = content;
-    }
+    private Long to;
 }

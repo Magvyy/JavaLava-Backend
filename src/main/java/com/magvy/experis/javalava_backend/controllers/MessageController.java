@@ -35,7 +35,7 @@ public class MessageController {
 
 
     @GetMapping("/{sender_id}")
-    public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable int sender_id, Authentication authentication) {
+    public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable Long sender_id, Authentication authentication) {
         User user = getLoggedInUser(authentication);
         List<MessageDTOResponse> messageHistory = messageService.getMessageHistory(user, sender_id);
 
