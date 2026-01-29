@@ -49,7 +49,7 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public List<MessageDTOResponse> getMessageHistory(User receiver, int sender_id) {
+    public List<MessageDTOResponse> getMessageHistory(User receiver, Long sender_id) {
         User sender = userService.getUserById(sender_id);
         List<Message> messageList = messageRepository.findByToAndFrom(receiver, sender);
         List<MessageDTOResponse> messageDTOResponses = new ArrayList<>();

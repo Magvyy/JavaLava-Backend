@@ -11,7 +11,7 @@ import java.sql.Date;
 public class MessageDTORequest {
 
     @JsonProperty("message_id")
-    private int id;
+    private Long id;
 
     @JsonProperty("content")
     private String content;
@@ -20,11 +20,11 @@ public class MessageDTORequest {
     private Date date;
 
     @JsonProperty("to")
-    private int to;
+    private Long to;
 
     public MessageDTORequest() {}
 
-    public MessageDTORequest(int to, String content)
+    public MessageDTORequest(Long to, String content)
     {
         this.to = to;
         this.content = content;

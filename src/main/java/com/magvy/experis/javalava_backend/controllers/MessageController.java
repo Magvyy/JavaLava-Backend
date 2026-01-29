@@ -34,7 +34,7 @@ public class MessageController extends BaseAuthHController {
     }
 
     @GetMapping("/{sender_id}")
-    public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable int sender_id, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable Long sender_id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         List<MessageDTOResponse> messageHistory = messageService.getMessageHistory(user, sender_id);
 
