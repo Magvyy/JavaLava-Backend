@@ -1,3 +1,4 @@
 **/target/
 
-application-dev.properties
+/src/main/resources/application-local.properties
+/src/main/resources/application-dev.properties

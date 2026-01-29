@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("/comment")
+@RequestMapping("/post/{postId}/comments")
 public class CommentController extends BaseAuthHController {
     private final CommentService commentService;
 
@@ -22,28 +21,28 @@ public class CommentController extends BaseAuthHController {
         this.commentService = commentService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<CommentDTOResponse> CreateCommentHandler(@RequestBody CommentDTORequest commentDTO, @AuthenticationPrincipal CustomUserDetails principal) {
+    @PostMapping()
+    public ResponseEntity<CommentDTOResponse> createComment(@PathVariable Long postId, @RequestBody CommentDTORequest commentDTO, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        return commentService.createPost(commentDTO, user);
+        return commentService.createPost(postId, user, commentDTO);
     }
-    @GetMapping("/post/{id}")
-    public List<CommentDTOResponse> LoadCommentsHandler(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    @GetMapping()
+    public List<CommentDTOResponse> getComments(@PathVariable Long postId, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
-        return commentService.loadCommentsByPost(page, id, user);
+        return commentService.loadCommentsByPost(postId, user, page);
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<CommentDTOResponse> UpdateCommentsHandler(@PathVariable Long id, @RequestBody CommentDTORequest commentDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentDTOResponse> updateComment(@PathVariable Long commentId, @RequestBody CommentDTORequest commentDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        return commentService.edit(id, user, commentDTORequest);
+        return commentService.edit(commentId, user, commentDTORequest);
     }
-    @DeleteMapping("/{id}")
-    public HttpStatus DeleteCommentsHandler(@PathVariable Long id, @RequestBody CommentDTORequest commentDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    @DeleteMapping("/{commentId}")
+    public HttpStatus deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         if (user == null) return HttpStatus.UNAUTHORIZED;
-        return commentService.delete(id, user, commentDTORequest);
+        return commentService.delete(commentId, user);
     }
 
 }

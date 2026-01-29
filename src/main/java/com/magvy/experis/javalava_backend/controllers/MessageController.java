@@ -5,18 +5,14 @@ import com.magvy.experis.javalava_backend.application.security.config.CustomUser
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.MessageService;
-import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@CrossOrigin("http://localhost:5173")
 @RequestMapping("/message")
 public class MessageController extends BaseAuthHController {
 
@@ -34,7 +30,7 @@ public class MessageController extends BaseAuthHController {
     }
 
     @GetMapping("/{sender_id}")
-    public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable int sender_id, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable Long sender_id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         List<MessageDTOResponse> messageHistory = messageService.getMessageHistory(user, sender_id);
 

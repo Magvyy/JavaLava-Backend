@@ -3,6 +3,7 @@ package com.magvy.experis.javalava_backend.application.security.filter.util;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -10,12 +11,15 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final String SECRET_KEY = "efjxyhugsydlesmnedibefbhteklwznaefjxyhugsydlesmnedibefbhteklwzna";
-    private final SecretKey KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY));
+    private final SecretKey KEY;
 
-    public String generateToken(String username) {
+    public JwtUtil(@Value("${jwt.key}") String secret_key) {
+        KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret_key));
+    }
+
+    public String generateToken(String userName) {
         return Jwts.builder()
-                .subject(username)
+                .subject(userName)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
                 .signWith(KEY)

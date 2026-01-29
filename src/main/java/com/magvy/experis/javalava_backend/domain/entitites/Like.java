@@ -13,12 +13,10 @@ import lombok.Data;
 public class Like {
     @Id
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "post_id")
     private Post post;
 
     public Like() {};

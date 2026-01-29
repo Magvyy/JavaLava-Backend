@@ -15,17 +15,17 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, ReadOnlyUserRepository {
 
-    boolean existsByUsername(String username);
-    Optional<User> findByUsername(String username);
+    boolean existsByUserName(String username);
+    Optional<User> findByUserName(String username);
 
     @Query("""
         SELECT new com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserSearchResponse(
             u.id,
-            u.username
+            u.userName
         )
         FROM User u
         WHERE
-            LOWER(u.username) LIKE LOWER(CONCAT(:query, '%'))
+            LOWER(u.userName) LIKE LOWER(CONCAT(:query, '%'))
     """)
     List<UserSearchResponse> searchUsers(@Param("query") String query, Pageable pageable);
 }

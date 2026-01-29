@@ -10,14 +10,12 @@ import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionEx
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
-import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.Optional;
@@ -27,21 +25,20 @@ public class PostService {
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
-    private final ReadOnlyUserRepository userRepository;
     private final FriendService friendService;
     private final int pageSize = 10;
 
-    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, ReadOnlyUserRepository userRepository, FriendService friendService) {
+    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, FriendService friendService) {
         this.friendService = friendService;
         this.postRepository = postRepository;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
 
     }
   
-    private Post convertToEntity(PostDTORequest postDTORequest, User user) {
+    private Post convertToEntity(Long id, PostDTORequest postDTORequest, User user) {
         return new Post(
+                id,
                 postDTORequest.getContent(),
                 postDTORequest.getPublished(),
                 postDTORequest.isVisible(),
@@ -86,8 +83,8 @@ public class PostService {
                 .toList();
     }
   
-    public Post findByID(Long postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new MissingResourceException("Post not found", "Post", String.valueOf(postId)));
+    public Post findByID(Long id) {
+        return postRepository.findById(id).orElseThrow(() -> new MissingResourceException("Post not found", "Post", String.valueOf(id)));
     }
 
     public boolean isPostVisibleToUser(Post post, User user) {
@@ -97,7 +94,7 @@ public class PostService {
         if( user == null) {
             return false;
         }
-        if (post.getUser().getId() == user.getId()) {
+        if (post.getUser().getId().equals(user.getId())) {
             return true;
         }
         return friendService.isFriends(user.getId(), post.getUser().getId());
@@ -107,29 +104,34 @@ public class PostService {
         if (user == null) {
             throw new UnauthorizedActionException("Cannot create a post as an anonymous user.");
         }
-        Post post = convertToEntity(postDTORequest, user);
+        Post post = convertToEntity(null, postDTORequest, user);
         return postRepository.save(post);
     }
 
-    public Optional<Post> getPost(User user, Long id) {
+    public Optional<Post> getPost(Long id, User user) {
         if (user == null) {
             return postRepository.findByIdAndVisibleTrue(id);
         }
         return postRepository.findByIdIfUserLoggedIn(user, id);
     }
 
-    public Post updatePost(User user, PostDTORequest postDTORequest) {
+    public Post updatePost(Long id, User user, PostDTORequest postDTORequest) {
         if (user == null) {
             throw new UnauthorizedActionException("Cannot update a post as an anonymous user.");
         }
-        Optional<Post> oPost = postRepository.findById(postDTORequest.getId());
+        Optional<Post> oPost = postRepository.findById(id);
         if (oPost.isEmpty()) {
             throw new MissingPostException("Can't update a missing post.");
         }
-        return postRepository.save(oPost.get());
+        Post post = oPost.get();
+        if (!post.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedActionException("User does not own this post.");
+        }
+        post = convertToEntity(id, postDTORequest, user);
+        return postRepository.save(post);
     }
 
-    public void deletePost(User user, Long id) {
+    public void deletePost(Long id, User user) {
         if (user == null) {
             throw new UnauthorizedActionException("Cannot delete a post as an anonymous user.");
         }
@@ -138,9 +140,9 @@ public class PostService {
             throw new MissingPostException("Can't delete a missing post.");
         }
         Post post = oPost.get();
-        if (post.getUser().getId() != user.getId()) {
+        if (!post.getUser().getId().equals(user.getId())) {
             throw new UnauthorizedActionException("User does not own this post.");
         }
-        postRepository.delete(oPost.get());
+        postRepository.delete(post);
     }
 }

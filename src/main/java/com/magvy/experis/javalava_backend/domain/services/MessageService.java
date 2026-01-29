@@ -7,7 +7,6 @@ import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.MessageRepository;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,17 +24,16 @@ public class MessageService {
 
     private Message ConvertToEntity(MessageDTORequest messageDTORequest, User sender) {
         User receiver = userService.getUserById(messageDTORequest.getTo());
-        return new Message(messageDTORequest.getContent(), messageDTORequest.getDate(), sender, receiver);
+        return new Message(messageDTORequest.getContent(), messageDTORequest.getSent(), sender, receiver);
     }
 
     public Message sendMessage(MessageDTORequest messageDTORequest, User sender) {
-        Date date = new Date(System.currentTimeMillis());
         User recipient = userService.getUserById(messageDTORequest.getTo());
 
 //       if (!friendService.isFriend(recipient, sender)) { TODO IMPLEMENT Friends
 //          throw new IllegalArgumentException("Can only send message to a friend");
 //       }
-        if (recipient== null) {
+        if (recipient == null) {
             throw new IllegalArgumentException("Recipient cannot be null");
         }
         if (sender == null) {
@@ -44,12 +42,11 @@ public class MessageService {
         if (sender.equals(recipient)) {
             throw new IllegalArgumentException("Sender and Receiver are the same");
         }
-        messageDTORequest.setDate(date);
         Message message = ConvertToEntity(messageDTORequest, sender);
         return messageRepository.save(message);
     }
 
-    public List<MessageDTOResponse> getMessageHistory(User receiver, int sender_id) {
+    public List<MessageDTOResponse> getMessageHistory(User receiver, Long sender_id) {
         User sender = userService.getUserById(sender_id);
         List<Message> messageList = messageRepository.findByToAndFrom(receiver, sender);
         List<MessageDTOResponse> messageDTOResponses = new ArrayList<>();

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/post")
 public class PostController extends BaseAuthHController{
     private final PostService postService;
@@ -39,7 +38,7 @@ public class PostController extends BaseAuthHController{
     @GetMapping("{id}")
     public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
-        Optional<Post> oPost = postService.getPost(user, id);
+        Optional<Post> oPost = postService.getPost(id, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
         if (oPost.isEmpty()) {
@@ -52,14 +51,14 @@ public class PostController extends BaseAuthHController{
     @PutMapping("{id}")
     public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
-        Post post = postService.updatePost(user, postDTORequest);
+        Post post = postService.updatePost(id, user, postDTORequest);
         return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<PostDTOResponse> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
-        postService.deletePost(user, id);
+        postService.deletePost(id, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
         return new ResponseEntity<>(null, headers, HttpStatus.OK);
