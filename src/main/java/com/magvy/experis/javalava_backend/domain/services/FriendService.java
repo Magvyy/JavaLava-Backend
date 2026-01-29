@@ -4,6 +4,7 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserSearchRe
 import com.magvy.experis.javalava_backend.domain.entitites.Friend;
 import com.magvy.experis.javalava_backend.domain.entitites.FriendRequest;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRequestRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
@@ -77,8 +78,13 @@ public class FriendService {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<Void> removeFriend(Long id, Long friendId) {
-
+    public ResponseEntity<Void> removeFriend(Long userId, Long friendId) {
+        FriendId id = new FriendId(userId, friendId);
+        if (!friendRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        friendRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     public ResponseEntity<List<UserSearchResponse>> getFriendsList(Long id) {
