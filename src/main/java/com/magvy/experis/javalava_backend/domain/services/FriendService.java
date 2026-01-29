@@ -10,6 +10,7 @@ import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeReposi
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -47,10 +48,35 @@ public class FriendService {
 
     }
 
-    public ResponseEntity<Void> acceptFriendRequest(Long id, Long requestId) {
+    @Transactional
+    public ResponseEntity<Void> acceptFriendRequest(Long userId, Long requestId) {
+        FriendRequest request = friendRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Friend request not found"));
+        if(!request.getTo().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        User user = request.getFrom();
+        User friendUser = request.getTo();
+        if(isFriends(user.getId(), friendUser.getId())) {
+            friendRequestRepository.delete(request);
+            return ResponseEntity.badRequest().build();
+        }
+        Friend friend = new Friend();
+        friend.setUser1(user);
+        friend.setUser2(friendUser);
+        friendRepository.save(friend);
+        friendRequestRepository.delete(request);
+        return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<Void> declineFriendRequest(Long id, Long requestId) {
+    public ResponseEntity<Void> declineFriendRequest(Long userId, Long requestId) {
+        FriendRequest request = friendRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Friend request not found"));
+        if(!request.getTo().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        friendRequestRepository.delete(request);
+        return ResponseEntity.noContent().build();
     }
 
     public ResponseEntity<Void> removeFriend(Long id, Long friendId) {
