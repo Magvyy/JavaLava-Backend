@@ -45,7 +45,7 @@ public class MessageController {
     private User getLoggedInUser(Authentication auth) {
         Object principal = auth.getPrincipal();
         if (principal instanceof String username) {
-            Optional<User> oUser = userRepository.findByUsername(username);
+            Optional<User> oUser = userRepository.findByUserName(username);
             return oUser.orElse(null);
         }
         return null;

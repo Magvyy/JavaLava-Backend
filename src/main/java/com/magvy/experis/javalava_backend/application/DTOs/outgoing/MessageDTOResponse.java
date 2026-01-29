@@ -18,8 +18,8 @@ public class MessageDTOResponse {
 
     public MessageDTOResponse(Message message) {
         this.content = message.getContent();
-        this.from = message.getFrom().getUsername();
-        this.to = message.getTo().getUsername();
+        this.from = message.getFrom().getUserName();
+        this.to = message.getTo().getUserName();
         this.date = message.getDate();
     }
 
