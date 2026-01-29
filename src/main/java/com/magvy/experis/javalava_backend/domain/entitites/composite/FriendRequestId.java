@@ -3,12 +3,15 @@ package com.magvy.experis.javalava_backend.domain.entitites.composite;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class FriendRequestId implements Serializable {
-    private User from;
-    private User to;
+    private Long from; // user id
+    private Long to;   // user id
 
-    public FriendRequestId(User from, User to) {
+    public FriendRequestId() {}
+
+    public FriendRequestId(Long from, Long to) {
         this.from = from;
         this.to = to;
     }
@@ -16,13 +19,12 @@ public class FriendRequestId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (this.getClass() != o.getClass()) return false;
-        FriendRequestId that = (FriendRequestId) o;
-        return this.from.getId() == that.from.getId() && this.to.getId() == that.to.getId();
+        if (!(o instanceof FriendRequestId that)) return false;
+        return from.equals(that.from) && to.equals(that.to);
     }
 
     @Override
     public int hashCode() {
-        return from.hashCode() + to.hashCode();
+        return Objects.hash(from, to);
     }
 }
