@@ -5,11 +5,13 @@ import com.magvy.experis.javalava_backend.domain.entitites.Friend;
 import com.magvy.experis.javalava_backend.domain.entitites.FriendRequest;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
+import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendRequestId;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRequestRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,11 +53,7 @@ public class FriendService {
 
     @Transactional
     public ResponseEntity<Void> acceptFriendRequest(Long userId, Long requestId) {
-        FriendRequest request = friendRequestRepository.findById(requestId)
-                .orElseThrow(() -> new RuntimeException("Friend request not found"));
-        if(!request.getTo().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        FriendRequest request = getIncomingRequestOrThrow(userId, requestId);
         User user = request.getFrom();
         User friendUser = request.getTo();
         if(isFriends(user.getId(), friendUser.getId())) {
@@ -69,11 +67,7 @@ public class FriendService {
     }
 
     public ResponseEntity<Void> declineFriendRequest(Long userId, Long requestId) {
-        FriendRequest request = friendRequestRepository.findById(requestId)
-                .orElseThrow(() -> new RuntimeException("Friend request not found"));
-        if(!request.getTo().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        FriendRequest request = getIncomingRequestOrThrow(userId, requestId);
         friendRequestRepository.delete(request);
         return ResponseEntity.noContent().build();
     }
@@ -88,5 +82,33 @@ public class FriendService {
     }
 
     public ResponseEntity<List<UserSearchResponse>> getFriendsList(Long id) {
+        List<Friend> friends = friendRepository.findAllByUser(id);
+        List<UserSearchResponse> response = friends.stream()
+                .map(friend -> {
+                    User other =
+                            friend.getUser1().getId().equals(id)
+                                    ? friend.getUser2()
+                                    : friend.getUser1();
+
+                    return new UserSearchResponse(
+                            other.getId(),
+                            other.getUsername()
+                    );
+                })
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+    private FriendRequest getIncomingRequestOrThrow(Long fromId, Long toUserId) {
+
+        FriendRequestId id = new FriendRequestId(fromId, toUserId);
+
+        FriendRequest request = friendRequestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Friend request not found"));
+
+        if (!request.getTo().getId().equals(toUserId)) {
+            throw new AccessDeniedException("Not authorized to manage this friend request");
+        }
+
+        return request;
     }
 }
