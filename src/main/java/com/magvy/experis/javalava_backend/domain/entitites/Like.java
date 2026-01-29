@@ -18,4 +18,11 @@ public class Like {
     @Id
     @ManyToOne
     private Post post;
+
+    public Like() {};
+    public Like(User user, Post post){
+        this.post = post;
+        this.user = user;
+    }
+
 }
