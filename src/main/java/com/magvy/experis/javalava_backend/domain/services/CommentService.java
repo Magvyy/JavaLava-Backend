@@ -21,73 +21,72 @@ import java.util.Optional;
 @Service
 public class CommentService {
 
-    private UserService userService;
-    private PostService postService;
-    private CommentRepository CommentRepository;
+    private final UserService userService;
+    private final PostService postService;
+    private final CommentRepository commentRepository;
     private final int pageSize = 10;
 
     public CommentService(UserService userService, PostService postService, CommentRepository commentRepository) {
         this.userService = userService;
         this.postService = postService;
-        CommentRepository = commentRepository;
+        this.commentRepository = commentRepository;
     }
 
 
-    public ResponseEntity<CommentDTOResponse> createPost(CommentDTORequest commentDTO, User user) {
-        if(!postService.isPostVisibleToUser(postService.findByID(commentDTO.getPostId()), user)) {
+    public ResponseEntity<CommentDTOResponse> createPost(Long postId, User user, CommentDTORequest commentDTO) {
+        if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
             throw new MissingUserException("User not authorized to create comments on this post");
         }
-        Comment comment = convertToEntity(commentDTO, user);
-        comment = CommentRepository.save(comment);
+        Comment comment = convertToEntity(postId, user, commentDTO);
+        comment = commentRepository.save(comment);
         CommentDTOResponse commentDTOResponse = new CommentDTOResponse(comment);
         return new ResponseEntity<>(commentDTOResponse, HttpStatus.OK);
     }
 
-    public Comment convertToEntity(CommentDTORequest commentDTO, User user) {
+    public Comment convertToEntity(Long postId, User user, CommentDTORequest commentDTO) {
         return new Comment(
                 commentDTO.getContent(),
                 commentDTO.getPublished(),
-                postService.findByID(commentDTO.getPostId()),
+                postService.findByID(postId),
                 user
         );
     }
 
-    public List<CommentDTOResponse> loadCommentsByPost(int page, Long postId, User user) {
+    public List<CommentDTOResponse> loadCommentsByPost(Long postId, User user, int page) {
         Post post = postService.findByID(postId);
         if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
             throw new MissingUserException("User not authorized to view comments on this post");
         }
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
-        List<Comment> comments = CommentRepository.findByPost(post, pageable);
+        List<Comment> comments = commentRepository.findByPost(post, pageable);
         return comments.stream().map(CommentDTOResponse::new).toList();
     }
 
     public ResponseEntity<CommentDTOResponse> edit(Long commentId, User user, CommentDTORequest commentDTORequest) {
-        Optional<Comment> oComment = CommentRepository.findById(commentId);
+        Optional<Comment> oComment = commentRepository.findById(commentId);
         if (oComment.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Comment comment = oComment.get();
-        if (comment.getUser().getId() != user.getId()) {
+        if (!comment.getUser().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        comment = CommentRepository.save(convertToEntity(commentDTORequest, user));
+        comment = commentRepository.save(convertToEntity(comment.getPost().getId(), user, commentDTORequest));
         CommentDTOResponse commentDTOResponse = new CommentDTOResponse(comment);
         return new ResponseEntity<>(commentDTOResponse, HttpStatus.OK);
     }
 
-    public HttpStatus delete(Long commentId, User user, CommentDTORequest commentDTORequest) {
-        Optional<Comment> oComment = CommentRepository.findById(commentId);
+    public HttpStatus delete(Long commentId, User user) {
+        Optional<Comment> oComment = commentRepository.findById(commentId);
         if (oComment.isEmpty()) {
             return HttpStatus.NOT_FOUND;
         }
         Comment comment = oComment.get();
-        if (comment.getUser().getId() != user.getId()) {
+        if (!comment.getUser().getId().equals(user.getId())) {
             return HttpStatus.UNAUTHORIZED;
         }
-        CommentRepository.delete(comment);
+        commentRepository.delete(comment);
         return HttpStatus.OK;
     }
 }

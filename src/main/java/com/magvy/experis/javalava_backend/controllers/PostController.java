@@ -38,7 +38,7 @@ public class PostController {
     @GetMapping("{id}")
     public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
-        Optional<Post> oPost = postService.getPost(user, id);
+        Optional<Post> oPost = postService.getPost(id, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
         if (oPost.isEmpty()) {
@@ -51,33 +51,33 @@ public class PostController {
     @PutMapping("{id}")
     public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
-        Post post = postService.updatePost(user, postDTORequest);
+        Post post = postService.updatePost(id, user, postDTORequest);
         return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<PostDTOResponse> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
-        postService.deletePost(user, id);
+        postService.deletePost(id, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
         return new ResponseEntity<>(null, headers, HttpStatus.OK);
     }
 
     @GetMapping("/user/{id}")
-    public List<PostDTOResponse> LoadPostByUserHandler(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> getPostsFromUser(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPostsByUser(page, user, id);
     }
 
     @GetMapping("/all")
-    public List<PostDTOResponse> LoadPostHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> getAllPosts(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPosts(page, user);
     }
 
     @GetMapping("/friends")
-    public List<PostDTOResponse> LoadPostByFriendsHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> getPostsFromFriends(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPostsByFriends(page, user);
     }
@@ -86,6 +86,4 @@ public class PostController {
         if (principal == null) return null;
         return principal.getUser();
     }
-
-
 }
