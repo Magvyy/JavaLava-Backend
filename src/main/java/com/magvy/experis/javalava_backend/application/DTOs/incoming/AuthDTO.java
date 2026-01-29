@@ -5,12 +5,11 @@ import lombok.Getter;
 
 @Getter
 public class AuthDTO {
-    @JsonProperty("user_name")
-    private String username;
+    private String userName;
     private String password;
 
-    public AuthDTO(String username, String password) {
-        this.username = username;
+    public AuthDTO(String userName, String password) {
+        this.userName = userName;
         this.password = password;
     }
 
@@ -19,6 +18,6 @@ public class AuthDTO {
             """
             Username: %s
             Password: %s
-            """, this.username, this.password);
+            """, this.userName, this.password);
     }
 }

@@ -13,9 +13,9 @@ public class JwtUtil {
     private final String SECRET_KEY = "efjxyhugsydlesmnedibefbhteklwznaefjxyhugsydlesmnedibefbhteklwzna";
     private final SecretKey KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY));
 
-    public String generateToken(String username) {
+    public String generateToken(String userName) {
         return Jwts.builder()
-                .subject(username)
+                .subject(userName)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
                 .signWith(KEY)

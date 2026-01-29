@@ -2,74 +2,28 @@
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.jspecify.annotations.Nullable;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+import java.io.Serializable;
 
     @Data
 @Entity
 @Table(name = "users")
-public class User implements UserDetails {
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "user_name", nullable = false, unique = true)
-    private String username;
+    private String userName;
 
     @Column(name = "password", nullable = false)
     private String password;
 
-    public User(Long id, String username, String password) {
+    public User(Long id, String userName, String password) {
         this.id = id;
-        this.username = username;
+        this.userName = userName;
         this.password = password;
     }
 
     public User() {}
-
-//    @Column(name = "full_name")
-//    private String fullName;
-//
-//    @Column(name = "email", unique = true)
-//    private String email;
-//
-//    @Column(name = "age")
-//    private int age;
-//
-//    @Column(name = "birthday")
-//    private Date birthday;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
-
-    @Override
-    public @Nullable String getPassword() {
-        return this.password;
-    }
-
-        @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

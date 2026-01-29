@@ -39,14 +39,7 @@ public class CommentService {
         }
         Comment comment = convertToEntity(commentDTO, user);
         comment = CommentRepository.save(comment);
-        CommentDTOResponse commentDTOResponse = new CommentDTOResponse(
-                comment.getId(),
-                comment.getContent(),
-                comment.getPublished().toLocalDateTime(),
-                comment.getUser().getId(),
-                comment.getUser().getUsername(),
-                comment.getPost().getId()
-        );
+        CommentDTOResponse commentDTOResponse = new CommentDTOResponse(comment);
         return new ResponseEntity<>(commentDTOResponse, HttpStatus.OK);
     }
 
@@ -67,14 +60,7 @@ public class CommentService {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         List<Comment> comments = CommentRepository.findByPost(post, pageable);
-        return comments.stream().map(comment -> new CommentDTOResponse(
-                comment.getId(),
-                comment.getContent(),
-                comment.getPublished().toLocalDateTime(),
-                comment.getUser().getId(),
-                comment.getUser().getUsername(),
-                comment.getPost().getId()
-        )).toList();
+        return comments.stream().map(CommentDTOResponse::new).toList();
     }
 
     public ResponseEntity<CommentDTOResponse> edit(Long commentId, User user, CommentDTORequest commentDTORequest) {
@@ -88,14 +74,7 @@ public class CommentService {
         }
 
         comment = CommentRepository.save(convertToEntity(commentDTORequest, user));
-        CommentDTOResponse commentDTOResponse = new CommentDTOResponse(
-                comment.getId(),
-                comment.getContent(),
-                comment.getPublished().toLocalDateTime(),
-                comment.getUser().getId(),
-                comment.getUser().getUsername(),
-                comment.getPost().getId()
-        );
+        CommentDTOResponse commentDTOResponse = new CommentDTOResponse(comment);
         return new ResponseEntity<>(commentDTOResponse, HttpStatus.OK);
     }
 

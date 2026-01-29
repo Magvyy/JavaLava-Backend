@@ -18,20 +18,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/auth")
 public class AuthController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    public AuthController(UserService userService, JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
+    }
 
     @PostMapping("/login")
     public ResponseEntity <Map<String, String>> LoginPostHandler(@RequestBody AuthDTO authDTO) {
@@ -49,10 +46,10 @@ public class AuthController {
 
     private ResponseEntity <Map<String, String>> AuthHandler(AuthDTO authDTO) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authDTO.getUsername(), authDTO.getPassword())
+                new UsernamePasswordAuthenticationToken(authDTO.getUserName(), authDTO.getPassword())
         );
         Map<String, String> response = new HashMap<>();
-        response.put("jwt", jwtUtil.generateToken(authDTO.getUsername()));
+        response.put("jwt", jwtUtil.generateToken(authDTO.getUserName()));
         Object principal = authentication.getPrincipal();
         if (principal instanceof CustomUserDetails details) {
             response.put("user_id", String.valueOf(details.getUser().getId()));

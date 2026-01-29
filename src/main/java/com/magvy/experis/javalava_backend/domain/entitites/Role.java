@@ -4,8 +4,10 @@ import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
 
-@Data
+
+    @Data
 @Entity
 @Table(name = "roles")
 public class Role {
@@ -16,5 +18,6 @@ public class Role {
     private RoleEnum role;
 
     @OneToOne
+    @JoinColumn(name = "user_id")
     private User user;
 }

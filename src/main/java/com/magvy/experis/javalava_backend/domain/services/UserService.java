@@ -27,14 +27,14 @@ public class UserService implements UserDetailsService {
 
     public User convertToEntity(AuthDTO authDTO) {
         User user = new User();
-        user.setUsername(authDTO.getUsername());
+        user.setUserName(authDTO.getUserName());
         user.setPassword(passwordEncoder.encode(authDTO.getPassword()));
         return user;
     }
 
     public ResponseEntity<Map<String, String>> register(AuthDTO authDTO) {
         // Validate input
-        if (userRepository.existsByUsername(authDTO.getUsername())) {
+        if (userRepository.existsByUserName(authDTO.getUserName())) {
             throw new UserAlreadyExistsException("Username is taken");
         }
         User user = convertToEntity(authDTO);
@@ -44,8 +44,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     @NullMarked
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        User user = userRepository.findByUserName(userName).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new CustomUserDetails(user);
     }
 }
