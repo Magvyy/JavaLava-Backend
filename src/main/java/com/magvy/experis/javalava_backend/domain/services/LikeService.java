@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTORequest;
 import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
@@ -26,26 +26,26 @@ public class LikeService {
         this.postRepository = postRepository;
     }
 
-    private Like convertToEntity(LikeDTO likeDTO) {
-        return new Like(userRepository.getReferenceById(likeDTO.getUserId()),
-                postRepository.getReferenceById(likeDTO.getPostId()));
+    private Like convertToEntity(LikeDTORequest likeDTORequest) {
+        return new Like(userRepository.getReferenceById(likeDTORequest.getUserId()),
+                postRepository.getReferenceById(likeDTORequest.getPostId()));
     }
 
-    public ResponseEntity<Like> likePost(LikeDTO likeDTO){
-        if (likeRepository.existsByPost_idAndUser_Id(likeDTO.getUserId(), likeDTO.getPostId())){
+    public ResponseEntity<Like> likePost(LikeDTORequest likeDTORequest){
+        if (likeRepository.existsByPost_idAndUser_Id(likeDTORequest.getUserId(), likeDTORequest.getPostId())){
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         // Lazy loading, user and post only loaded once needed
-        Like newLike = convertToEntity(likeDTO);
+        Like newLike = convertToEntity(likeDTORequest);
         likeRepository.save(newLike);
         return ResponseEntity.ok(newLike);
     }
 
-    public ResponseEntity<String> unlikePost(LikeDTO likeDTO){
-        if (!likeRepository.existsByPost_idAndUser_Id(likeDTO.getPostId(), likeDTO.getUserId())){
+    public ResponseEntity<String> unlikePost(LikeDTORequest likeDTORequest){
+        if (!likeRepository.existsByPost_idAndUser_Id(likeDTORequest.getPostId(), likeDTORequest.getUserId())){
             return ResponseEntity.notFound().build();
         }
-        Like like = convertToEntity(likeDTO);
+        Like like = convertToEntity(likeDTORequest);
         likeRepository.delete(like);
         return ResponseEntity.noContent().build();
     }

@@ -1,17 +1,14 @@
 package com.magvy.experis.javalava_backend.application.DTOs.incoming;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public class LikeDTO {
-    @JsonProperty("user_id")
+public class LikeDTORequest {
     private Long userId;
 
-    @JsonProperty("post_id")
     private Long postId;
 
-    public LikeDTO(Long userId, Long postId){
+    public LikeDTORequest(Long userId, Long postId){
         this.userId = userId;
         this.postId = postId;
     }

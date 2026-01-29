@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/post")
-public class PostController {
+public class PostController extends BaseAuthHController{
     private final PostService postService;
 
     @Autowired
@@ -65,25 +65,21 @@ public class PostController {
     }
 
     @GetMapping("/user/{id}")
-    public List<PostDTOResponse> getPostsFromUser(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> loadPostByUserHandler(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPostsByUser(page, user, id);
     }
 
     @GetMapping("/all")
-    public List<PostDTOResponse> getAllPosts(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> loadPostHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPosts(page, user);
     }
 
     @GetMapping("/friends")
-    public List<PostDTOResponse> getPostsFromFriends(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> loadPostByFriendsHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPostsByFriends(page, user);
     }
 
-    private User getLoggedInUser(CustomUserDetails principal) {
-        if (principal == null) return null;
-        return principal.getUser();
-    }
 }
