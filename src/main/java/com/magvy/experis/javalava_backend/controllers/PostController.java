@@ -66,19 +66,19 @@ public class PostController extends BaseAuthHController{
     }
 
     @GetMapping("/user/{id}")
-    public List<PostDTOResponse> LoadPostByUserHandler(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> loadPostByUserHandler(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPostsByUser(page, user, id);
     }
 
     @GetMapping("/all")
-    public List<PostDTOResponse> LoadPostHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> loadPostHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPosts(page, user);
     }
 
     @GetMapping("/friends")
-    public List<PostDTOResponse> LoadPostByFriendsHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> loadPostByFriendsHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         return postService.loadPostsByFriends(page, user);
     }
