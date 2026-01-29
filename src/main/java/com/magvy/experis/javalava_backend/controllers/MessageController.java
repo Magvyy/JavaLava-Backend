@@ -21,11 +21,9 @@ import java.util.Optional;
 public class MessageController extends BaseAuthHController {
 
     private final MessageService messageService;
-    private final ReadOnlyUserRepository userRepository;
 
-    public MessageController(MessageService messageService, ReadOnlyUserRepository userRepository) {
+    public MessageController(MessageService messageService) {
         this.messageService = messageService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping()
@@ -35,22 +33,12 @@ public class MessageController extends BaseAuthHController {
         return new ResponseEntity<>(new MessageDTOResponse(message), HttpStatus.OK);
     }
 
-
     @GetMapping("/{sender_id}")
     public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable int sender_id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);
         List<MessageDTOResponse> messageHistory = messageService.getMessageHistory(user, sender_id);
 
         return new ResponseEntity<>(messageHistory, HttpStatus.OK);
-    }
-
-    private User getLoggedInUser(Authentication auth) {
-        Object principal = auth.getPrincipal();
-        if (principal instanceof String username) {
-            Optional<User> oUser = userRepository.findByUsername(username);
-            return oUser.orElse(null);
-        }
-        return null;
     }
 
 }
