@@ -46,22 +46,22 @@ public class PostService {
         );
     }
 
-    public List<PostDTOResponse> loadPosts(int page, User user) {
+    public List<PostDTOResponse> loadPosts(int page, Optional<User> user) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
-        if (user == null) {
+        if (user.isEmpty()) {
             return pageToDTOList(postRepository.findByVisibleTrue(pageable));
         }
-        return pageToDTOList(postRepository.findPostsForUser(user.getId(), pageable));
+        return pageToDTOList(postRepository.findPostsForUser(user.get().getId(), pageable));
     }
 
-    public List<PostDTOResponse> loadPostsByUser(int page, User user, Long selectedId) {
+    public List<PostDTOResponse> loadPostsByUser(int page, Optional<User> user, Long selectedId) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
-        if (user == null) {
+        if (user.isEmpty()) {
             return pageToDTOList(postRepository.findByVisibleTrueAndUserId(selectedId, pageable));
         }
-        return pageToDTOList(postRepository.findPostsFromUser(user.getId(), selectedId, pageable));
+        return pageToDTOList(postRepository.findPostsFromUser(user.get().getId(), selectedId, pageable));
     }
 
     public List<PostDTOResponse> loadPostsByFriends(int page, User user) {
@@ -108,11 +108,11 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Optional<Post> getPost(Long id, User user) {
-        if (user == null) {
+    public Optional<Post> getPost(Long id, Optional<User> user) {
+        if (user.isEmpty()) {
             return postRepository.findByIdAndVisibleTrue(id);
         }
-        return postRepository.findByIdIfUserLoggedIn(user, id);
+        return postRepository.findByIdIfUserLoggedIn(user.get(), id);
     }
 
     public Post updatePost(Long id, User user, PostDTORequest postDTORequest) {
