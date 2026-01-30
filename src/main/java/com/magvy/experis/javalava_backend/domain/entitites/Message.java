@@ -18,11 +18,11 @@ public class Message {
     private LocalDateTime sent;
 
     @ManyToOne
-    @JoinColumn(name = "from_id")
+    @JoinColumn(name = "from_user_id")
     private User from;
 
     @ManyToOne
-    @JoinColumn(name = "to_id")
+    @JoinColumn(name = "to_user_id")
     private User to;
 
 
