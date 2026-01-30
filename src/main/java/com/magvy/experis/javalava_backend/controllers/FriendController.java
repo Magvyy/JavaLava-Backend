@@ -24,6 +24,11 @@ public class FriendController extends BaseAuthHController{
         User user = getLoggedInUser(principal);
         return friendService.sendFriendRequest(user, userId);
     }
+    @GetMapping("/requests")
+    public ResponseEntity<List<UserSearchResponse>> getFriendRequests(@AuthenticationPrincipal CustomUserDetails principal) {
+        User user = getLoggedInUser(principal);
+        return friendService.getFriendRequests(user);
+    }
     @PostMapping("/requests/{from_user_id}/accept")
     public ResponseEntity<Void> acceptFriendRequest(@PathVariable(name = "from_user_id") Long fromId, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = getLoggedInUser(principal);

@@ -102,6 +102,21 @@ public class FriendService {
         return ResponseEntity.ok(response);
     }
 
+    public ResponseEntity<List<UserSearchResponse>> getFriendRequests(User user) {
+        Long id = user.getId();
+        List<FriendRequest> requests = friendRequestRepository.findAllByToId(id);
+        List<UserSearchResponse> response = requests.stream()
+                .map(request -> {
+                    User from = request.getFrom();
+                    return new UserSearchResponse(
+                            from.getId(),
+                            from.getUserName()
+                    );
+                })
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
     private FriendRequest getIncomingRequestOrThrow(Long fromId, Long toUserId) {
 
         FriendRequestId id = new FriendRequestId(fromId, toUserId);
