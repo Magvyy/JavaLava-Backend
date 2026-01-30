@@ -6,6 +6,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.Comment;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.MissingUserException;
+import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,13 +52,17 @@ public class CommentService {
         );
     }
 
-    public List<CommentDTOResponse> loadCommentsByPost(Long postId, User user, int page) {
-        Post post = postService.findByID(postId);
-        if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
-            throw new MissingUserException("User not authorized to view comments on this post");
-        }
+    public List<CommentDTOResponse> loadCommentsByPost(Long postId, Optional<User> user, int page) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Post post = postService.findByID(postId);
+        if (user.isEmpty()) {
+            if (!postService.findByID(postId).isVisible()) {
+                throw new UnauthorizedActionException("User not authorized to view comments on this post");
+            }
+        } else if(!postService.isPostVisibleToUser(postService.findByID(postId), user.get())) {
+            throw new MissingUserException("User not authorized to view comments on this post");
+        }
         List<Comment> comments = commentRepository.findByPost(post, pageable);
         return comments.stream().map(CommentDTOResponse::new).toList();
     }

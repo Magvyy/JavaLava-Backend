@@ -21,32 +21,32 @@ public class FriendController extends BaseAuthHController{
 
     @PostMapping("/requests/{userId}")
     public ResponseEntity<Void> sendFriendRequest(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = getLoggedInUser(principal);
+        User user = throwIfUserNull(principal);
         return friendService.sendFriendRequest(user, userId);
     }
     @GetMapping("/requests")
     public ResponseEntity<List<UserSearchResponse>> getFriendRequests(@AuthenticationPrincipal CustomUserDetails principal) {
-        User user = getLoggedInUser(principal);
+        User user = throwIfUserNull(principal);
         return friendService.getFriendRequests(user);
     }
     @PostMapping("/requests/{from_user_id}/accept")
     public ResponseEntity<Void> acceptFriendRequest(@PathVariable(name = "from_user_id") Long fromId, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = getLoggedInUser(principal);
+        User user = throwIfUserNull(principal);
         return friendService.acceptFriendRequest(user, fromId);
     }
     @DeleteMapping("/requests/{requestId}")
     public ResponseEntity<Void> declineFriendRequest(@PathVariable Long requestId, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = getLoggedInUser(principal);
+        User user = throwIfUserNull(principal);
         return friendService.declineFriendRequest(user, requestId);
     }
     @DeleteMapping("/{friendId}")
     public ResponseEntity<Void> removeFriend(@PathVariable Long friendId, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = getLoggedInUser(principal);
+        User user = throwIfUserNull(principal);
         return friendService.removeFriend(user, friendId);
     }
     @GetMapping
     public ResponseEntity<List<UserSearchResponse>> getFriendsList(@AuthenticationPrincipal CustomUserDetails principal) {
-        User user = getLoggedInUser(principal);
+        User user = throwIfUserNull(principal);
         return friendService.getFriendsList(user);
     }
 }
