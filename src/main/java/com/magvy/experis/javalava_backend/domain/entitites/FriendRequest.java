@@ -1,23 +1,36 @@
-    package com.magvy.experis.javalava_backend.domain.entitites;
+package com.magvy.experis.javalava_backend.domain.entitites;
 
-import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendRequestId;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 
-@Data
 @Entity
-@IdClass(FriendRequestId.class)
+@Getter
+@Setter
 @Table(name = "friend_requests")
 public class FriendRequest {
-    @Id
+
+    @EmbeddedId
+    private FriendRequestId id;
+
+    @MapsId("from")
     @ManyToOne
     @JoinColumn(name = "from_id")
     private User from;
 
-    @Id
+    @MapsId("to")
     @ManyToOne
     @JoinColumn(name = "to_id")
     private User to;
+
+    public FriendRequest() {}
+
+    public FriendRequest(User from, User to) {
+        this.from = from;
+        this.to = to;
+        this.id = new FriendRequestId(from.getId(), to.getId());
+    }
 }
