@@ -1,10 +1,9 @@
 package com.magvy.experis.javalava_backend.controllers;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
-import com.magvy.experis.javalava_backend.application.custom.CustomUserDetails;
+import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
 import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
