@@ -31,14 +31,14 @@ public class LikeService {
                 postRepository.getReferenceById(likeDTORequest.getPostId()));
     }
 
-    public ResponseEntity<Like> likePost(LikeDTORequest likeDTORequest){
+    public ResponseEntity<String> likePost(LikeDTORequest likeDTORequest){
         if (likeRepository.existsByPost_idAndUser_Id(likeDTORequest.getUserId(), likeDTORequest.getPostId())){
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         // Lazy loading, user and post only loaded once needed
         Like newLike = convertToEntity(likeDTORequest);
         likeRepository.save(newLike);
-        return ResponseEntity.ok(newLike);
+        return ResponseEntity.noContent().build();
     }
 
     public ResponseEntity<String> unlikePost(LikeDTORequest likeDTORequest){

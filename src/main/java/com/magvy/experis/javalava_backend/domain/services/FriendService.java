@@ -33,45 +33,48 @@ public class FriendService {
                 || friendRepository.existsByUser1IdAndUser2Id(userId2, userId1);
     }
 
-    public ResponseEntity<Void> sendFriendRequest(User user, Long userId) {
-        Long id = user.getId();
-        if(isFriends(id, userId)) {
+    public ResponseEntity<Void> sendFriendRequest(User from, Long toId) {
+        Long fromId = from.getId();
+        if (isFriends(fromId, toId)) {
             return ResponseEntity.badRequest().build();
         }
-        if(friendRequestRepository.existsByFromIdAndToId(id, userId)
-                || friendRequestRepository.existsByFromIdAndToId(userId, id)) {
+        if (friendRequestRepository.existsByFromIdAndToId(fromId, toId)
+                || friendRequestRepository.existsByFromIdAndToId(toId, fromId)) {
             return ResponseEntity.badRequest().build();
         }
-        FriendRequest friendRequest = new FriendRequest();
-        friendRequest.setFrom(user);
-        friendRequest.setTo(userService.getUserById(userId));
+        User to = userService.getUserById(toId);
+        FriendRequest friendRequest = new FriendRequest(
+                from,
+                to
+        );
         friendRequestRepository.save(friendRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
-
     }
 
     @Transactional
-    public ResponseEntity<Void> acceptFriendRequest(Long userId, Long requestId) {
-        FriendRequest request = getIncomingRequestOrThrow(userId, requestId);
-        User user = request.getFrom();
-        User friendUser = request.getTo();
-        if(isFriends(user.getId(), friendUser.getId())) {
+    public ResponseEntity<Void> acceptFriendRequest(User user, Long fromId) {
+        Long userId = user.getId();
+        FriendRequest request = getIncomingRequestOrThrow(fromId, userId);
+        User friendUser = request.getFrom();
+        if (isFriends(user.getId(), friendUser.getId())) {
             friendRequestRepository.delete(request);
             return ResponseEntity.badRequest().build();
         }
-        Friend friend = new Friend(user,friendUser);
+        Friend friend = new Friend(user, friendUser);
         friendRepository.save(friend);
         friendRequestRepository.delete(request);
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<Void> declineFriendRequest(Long userId, Long requestId) {
-        FriendRequest request = getIncomingRequestOrThrow(userId, requestId);
+    public ResponseEntity<Void> declineFriendRequest(User user, Long fromId) {
+        Long userId = user.getId();
+        FriendRequest request = getIncomingRequestOrThrow(fromId, userId);
         friendRequestRepository.delete(request);
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<Void> removeFriend(Long userId, Long friendId) {
+    public ResponseEntity<Void> removeFriend(User user, Long friendId) {
+        Long userId = user.getId();
         FriendId id = new FriendId(userId, friendId);
         if (!friendRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
@@ -80,7 +83,8 @@ public class FriendService {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<List<UserSearchResponse>> getFriendsList(Long id) {
+    public ResponseEntity<List<UserSearchResponse>> getFriendsList(User user) {
+        Long id = user.getId();
         List<Friend> friends = friendRepository.findAllByUser(id);
         List<UserSearchResponse> response = friends.stream()
                 .map(friend -> {
@@ -97,6 +101,22 @@ public class FriendService {
                 .toList();
         return ResponseEntity.ok(response);
     }
+
+    public ResponseEntity<List<UserSearchResponse>> getFriendRequests(User user) {
+        Long id = user.getId();
+        List<FriendRequest> requests = friendRequestRepository.findAllByToId(id);
+        List<UserSearchResponse> response = requests.stream()
+                .map(request -> {
+                    User from = request.getFrom();
+                    return new UserSearchResponse(
+                            from.getId(),
+                            from.getUserName()
+                    );
+                })
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
     private FriendRequest getIncomingRequestOrThrow(Long fromId, Long toUserId) {
 
         FriendRequestId id = new FriendRequestId(fromId, toUserId);

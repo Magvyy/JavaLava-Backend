@@ -17,12 +17,12 @@ public class FriendRequest {
 
     @MapsId("from")
     @ManyToOne
-    @JoinColumn(name = "from_id")
+    @JoinColumn(name = "from_user_id", nullable = false)
     private User from;
 
     @MapsId("to")
     @ManyToOne
-    @JoinColumn(name = "to_id")
+    @JoinColumn(name = "to_user_id", nullable = false)
     private User to;
 
     public FriendRequest() {}
