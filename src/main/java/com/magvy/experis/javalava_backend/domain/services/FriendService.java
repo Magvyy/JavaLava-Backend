@@ -92,7 +92,7 @@ public class FriendService {
 
                     return new UserSearchResponse(
                             other.getId(),
-                            other.getUsername()
+                            other.getUserName()
                     );
                 })
                 .toList();
