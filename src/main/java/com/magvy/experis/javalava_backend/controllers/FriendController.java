@@ -4,7 +4,6 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserSearchRe
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.FriendService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/friends")
 public class FriendController extends BaseAuthHController{
     public final FriendService friendService;

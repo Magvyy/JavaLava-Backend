@@ -7,11 +7,9 @@ import com.magvy.experis.javalava_backend.domain.services.LikeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/likes")
 public class LikeController extends BaseAuthHController {
 
