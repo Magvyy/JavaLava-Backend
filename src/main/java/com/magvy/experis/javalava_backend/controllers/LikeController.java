@@ -21,7 +21,7 @@ public class LikeController extends BaseAuthHController {
     }
 
     @PostMapping("/like/post/{postId}")
-    public ResponseEntity<Like> LikePutHandler(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails principal){
+    public ResponseEntity<String> LikePutHandler(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails principal){
         Long userId = getLoggedInUser(principal).getId();
         LikeDTORequest likeDTORequest = new LikeDTORequest(userId, postId);
         return likeService.likePost(likeDTORequest);
