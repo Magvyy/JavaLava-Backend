@@ -18,7 +18,7 @@ public class FriendRequestId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof FriendRequestId that)) return false;
-        return from.equals(that.from) && to.equals(that.to);
+        return from.equals(that.from) && to.equals(that.to) || from.equals(that.to) && to.equals(that.from);
     }
 
     @Override
