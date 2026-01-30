@@ -1,31 +1,33 @@
 package com.magvy.experis.javalava_backend.domain.entitites.composite;
 
-import com.magvy.experis.javalava_backend.domain.entitites.Post;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
-
 import java.io.Serializable;
+import java.util.Objects;
 
 public class FriendId implements Serializable {
-    private User user1;
-    private User user2;
+    private Long user1;
+    private Long user2;
 
-    public FriendId(User user1, User user2) {
-        this.user1 = user1;
-        this.user2 = user2;
+    public FriendId() {}
+
+    public FriendId(Long user1, Long user2) {
+        if (user1 < user2) {
+            this.user1 = user1;
+            this.user2 = user2;
+        } else {
+            this.user1 = user2;
+            this.user2 = user1;
+        }
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (this.getClass() != o.getClass()) return false;
-        FriendId that = (FriendId) o;
-        return
-                   this.user1.getId() == that.user1.getId() && this.user2.getId() == that.user2.getId()
-                || this.user1.getId() == that.user2.getId() && this.user2.getId() == that.user1.getId();
+        if (!(o instanceof FriendId that)) return false;
+        return Objects.equals(user1, that.user1) && Objects.equals(user2, that.user2);
     }
 
     @Override
     public int hashCode() {
-        return user1.hashCode() + user2.hashCode();
+        return Objects.hash(user1, user2);
     }
 }
