@@ -5,8 +5,9 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
-    @Data
+@Data
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -21,6 +22,9 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE) // Use CascadeType.REMOVE or ALL
+    private List<Comment> comments;
 
     public Post(Long id, String content, LocalDateTime published, boolean visible, User user) {
         this.id = id;
