@@ -39,14 +39,10 @@ public class SecurityConfig {
                             .requestMatchers("/swagger-ui/**").permitAll()
                             .requestMatchers("/v3/api-docs/**").permitAll()
                             .requestMatchers("/swagger-resources/**").permitAll()
-                            .requestMatchers("/home").permitAll()
                             .requestMatchers("/auth/**").permitAll()
-                            .requestMatchers("/likes/**").permitAll()
-                            .requestMatchers("/messages/**").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/post/{id}").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/post/all").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/post/{id}/comments/**").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/users/search").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/post/friends/**").authenticated()
+                            .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                             .anyRequest().authenticated()
                 );
         return http.build();
