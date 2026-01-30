@@ -12,7 +12,5 @@ public class MessageDTORequest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime sent;
 
-    private Long from;
-
     private Long to;
 }
