@@ -1,11 +1,11 @@
-    package com.magvy.experis.javalava_backend.domain.entitites;
+package com.magvy.experis.javalava_backend.domain.entitites;
 
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
 
-    @Data
+@Data
 @Entity
 @Table(name = "users")
 public class User implements Serializable {

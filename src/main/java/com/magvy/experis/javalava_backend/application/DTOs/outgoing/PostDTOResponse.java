@@ -1,12 +1,10 @@
 package com.magvy.experis.javalava_backend.application.DTOs.outgoing;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Getter
 public class PostDTOResponse {

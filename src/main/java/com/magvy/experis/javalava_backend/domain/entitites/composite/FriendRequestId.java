@@ -1,7 +1,5 @@
 package com.magvy.experis.javalava_backend.domain.entitites.composite;
 
-import com.magvy.experis.javalava_backend.domain.entitites.User;
-
 import java.io.Serializable;
 import java.util.Objects;
 
