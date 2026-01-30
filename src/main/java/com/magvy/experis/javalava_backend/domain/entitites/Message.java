@@ -1,9 +1,8 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
+
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.cglib.core.Local;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Data

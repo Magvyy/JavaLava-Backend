@@ -1,10 +1,9 @@
 package com.magvy.experis.javalava_backend.application.DTOs.outgoing;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import lombok.Getter;
-import java.sql.Date;
+
 import java.time.LocalDateTime;
 
 @Getter

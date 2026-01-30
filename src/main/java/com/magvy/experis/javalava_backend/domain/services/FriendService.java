@@ -8,7 +8,6 @@ import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendRequestId;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRequestRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -92,7 +91,7 @@ public class FriendService {
 
                     return new UserSearchResponse(
                             other.getId(),
-                            other.getUsername()
+                            other.getUserName()
                     );
                 })
                 .toList();

@@ -2,7 +2,6 @@ package com.magvy.experis.javalava_backend.domain.entitites.composite;
 
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
-import jakarta.persistence.IdClass;
 
 import java.io.Serializable;
 

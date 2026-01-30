@@ -2,7 +2,6 @@ package com.magvy.experis.javalava_backend.domain.entitites;
 
 import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendRequestId;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,6 +1,5 @@
-    package com.magvy.experis.javalava_backend.domain.entitites;
+package com.magvy.experis.javalava_backend.domain.entitites;
 
-import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.LikeId;
 import jakarta.persistence.*;
 import lombok.Data;

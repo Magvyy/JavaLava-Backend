@@ -1,4 +1,4 @@
-    package com.magvy.experis.javalava_backend.domain.entitites;
+package com.magvy.experis.javalava_backend.domain.entitites;
 
 import jakarta.persistence.*;
 import lombok.Data;
