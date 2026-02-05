@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
-import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserSearchResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserAlreadyExistsException;
@@ -50,7 +50,7 @@ public class UserService implements UserDetailsService {
         return ResponseEntity.ok(null);
     }
 
-    public List<UserSearchResponse> search(String query) {
+    public List<UserDTOResponse> search(String query) {
         //length longer than 2 to avoid too many results / better performance
         if (query == null || query.trim().length() < 2) {
             return List.of();

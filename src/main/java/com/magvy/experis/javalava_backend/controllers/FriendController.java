@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserSearchResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.FriendService;
@@ -25,7 +25,7 @@ public class FriendController extends BaseAuthHController{
         return friendService.sendFriendRequest(user, userId);
     }
     @GetMapping("/requests")
-    public ResponseEntity<List<UserSearchResponse>> getFriendRequests(@AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<List<UserDTOResponse>> getFriendRequests(@AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
         return friendService.getFriendRequests(user);
     }
@@ -45,7 +45,7 @@ public class FriendController extends BaseAuthHController{
         return friendService.removeFriend(user, friendId);
     }
     @GetMapping
-    public ResponseEntity<List<UserSearchResponse>> getFriendsList(@AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<List<UserDTOResponse>> getFriendsList(@AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
         return friendService.getFriendsList(user);
     }

@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.infrastructure.repositories;
 
-import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserSearchResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long>, ReadOnlyUserR
     Optional<User> findByUserName(String username);
 
     @Query("""
-        SELECT new com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserSearchResponse(
+        SELECT new com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse(
             u.id,
             u.userName
         )
@@ -27,5 +27,5 @@ public interface UserRepository extends JpaRepository<User, Long>, ReadOnlyUserR
         WHERE
             LOWER(u.userName) LIKE LOWER(CONCAT(:query, '%'))
     """)
-    List<UserSearchResponse> searchUsers(@Param("query") String query, Pageable pageable);
+    List<UserDTOResponse> searchUsers(@Param("query") String query, Pageable pageable);
 }

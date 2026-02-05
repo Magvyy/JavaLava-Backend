@@ -10,9 +10,7 @@ import java.time.LocalDateTime;
 public class PostDTOResponse {
     private Long id;
 
-    private String userName;
-
-    private Long userId;
+    private UserDTOResponse user;
 
     private String content;
 
@@ -21,14 +19,15 @@ public class PostDTOResponse {
 
     private boolean visible;
 
+    private boolean liked;
+
     private int likeCount;
 
     private int commentCount;
 
     public PostDTOResponse(Post post, int likeCount, int commentCount) {
         this.id = post.getId();
-        this.userName = post.getUser().getUserName();
-        this.userId = post.getUser().getId();
+        this.user = new UserDTOResponse(post.getUser());
         this.content = post.getContent();
         this.published = post.getPublished().toLocalDateTime();
         this.visible = post.isVisible();
@@ -36,12 +35,26 @@ public class PostDTOResponse {
         this.commentCount = commentCount;
     }
 
-    public PostDTOResponse(Post post) {
+    public PostDTOResponse(Post post, boolean liked, int likeCount, int commentCount) {
         this.id = post.getId();
-        this.userName = post.getUser().getUserName();
-        this.userId = post.getUser().getId();
+        this.user = new UserDTOResponse(post.getUser());
         this.content = post.getContent();
         this.published = post.getPublished().toLocalDateTime();
         this.visible = post.isVisible();
+        this.liked = liked;
+        this.likeCount = likeCount;
+        this.commentCount = commentCount;
+    }
+
+    public PostDTOResponse(Post post) {
+        this.id = post.getId();
+        this.user = new UserDTOResponse(post.getUser());
+        this.content = post.getContent();
+        this.published = post.getPublished().toLocalDateTime();
+        this.visible = post.isVisible();
+    }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
     }
 }

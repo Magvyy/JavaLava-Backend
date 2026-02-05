@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserSearchResponse;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Friend;
 import com.magvy.experis.javalava_backend.domain.entitites.FriendRequest;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
@@ -83,35 +83,29 @@ public class FriendService {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<List<UserSearchResponse>> getFriendsList(User user) {
+    public ResponseEntity<List<UserDTOResponse>> getFriendsList(User user) {
         Long id = user.getId();
         List<Friend> friends = friendRepository.findAllByUser(id);
-        List<UserSearchResponse> response = friends.stream()
+        List<UserDTOResponse> response = friends.stream()
                 .map(friend -> {
                     User other =
                             friend.getUser1().getId().equals(id)
                                     ? friend.getUser2()
                                     : friend.getUser1();
 
-                    return new UserSearchResponse(
-                            other.getId(),
-                            other.getUserName()
-                    );
+                    return new UserDTOResponse(other);
                 })
                 .toList();
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<List<UserSearchResponse>> getFriendRequests(User user) {
+    public ResponseEntity<List<UserDTOResponse>> getFriendRequests(User user) {
         Long id = user.getId();
         List<FriendRequest> requests = friendRequestRepository.findAllByToId(id);
-        List<UserSearchResponse> response = requests.stream()
+        List<UserDTOResponse> response = requests.stream()
                 .map(request -> {
                     User from = request.getFrom();
-                    return new UserSearchResponse(
-                            from.getId(),
-                            from.getUserName()
-                    );
+                    return new UserDTOResponse(from);
                 })
                 .toList();
         return ResponseEntity.ok(response);
