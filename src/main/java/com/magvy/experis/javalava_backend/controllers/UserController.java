@@ -21,4 +21,9 @@ public class UserController {
     public List<UserDTOResponse> searchUsers(@RequestParam String q){
         return userService.search(q);
     }
+
+    @GetMapping("/{userId}")
+    public UserDTOResponse getUserById(@PathVariable Long userId){
+        return userService.convertToDTO(userService.getUserById(userId));
+    }
 }
