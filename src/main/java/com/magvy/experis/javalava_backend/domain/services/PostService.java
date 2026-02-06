@@ -50,18 +50,18 @@ public class PostService {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         if (user.isEmpty()) {
-            return pageToDTOList(postRepository.findByVisibleTrue(pageable));
+            return pageToDTOList(postRepository.findByVisibleTrue(pageable), (long) -1);
         }
-        return pageToDTOList(postRepository.findPostsForUser(user.get().getId(), pageable));
+        return pageToDTOList(postRepository.findPostsForUser(user.get().getId(), pageable), user.get().getId());
     }
 
     public List<PostDTOResponse> loadPostsByUser(int page, Optional<User> user, Long selectedId) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         if (user.isEmpty()) {
-            return pageToDTOList(postRepository.findByVisibleTrueAndUserId(selectedId, pageable));
+            return pageToDTOList(postRepository.findByVisibleTrueAndUserId(selectedId, pageable), (long) -1);
         }
-        return pageToDTOList(postRepository.findPostsFromUser(user.get().getId(), selectedId, pageable));
+        return pageToDTOList(postRepository.findPostsFromUser(user.get().getId(), selectedId, pageable), user.get().getId());
     }
 
     public List<PostDTOResponse> loadPostsByFriends(int page, User user) {
@@ -70,13 +70,14 @@ public class PostService {
         if (user == null) {
             throw new MissingUserException("Couldn't find user in database");
         }
-        return pageToDTOList(postRepository.findPostsFromFriends(user.getId(), pageable));
+        return pageToDTOList(postRepository.findPostsFromFriends(user.getId(), pageable), user.getId());
     }
 
-    private List<PostDTOResponse> pageToDTOList(Page<Post> posts) {
+    private List<PostDTOResponse> pageToDTOList(Page<Post> posts, Long id) {
         return posts.stream()
                 .map(post -> new PostDTOResponse(
                         post,
+                        likeRepository.existsByPost_idAndUser_Id(post.getId(), id),
                         (int)likeRepository.countByPost_Id(post.getId()),
                         (int)commentRepository.countByPost(post)
                 ))
