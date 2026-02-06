@@ -1,13 +1,16 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ProfileDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserAlreadyExistsException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserNotFoundException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,15 +24,18 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FriendService friendService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, FriendService friendService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.friendService = friendService;
     }
 
     public User getUserById(Long id) {
@@ -61,6 +67,14 @@ public class UserService implements UserDetailsService {
 
         Pageable limit = PageRequest.of(0, 10);
         return userRepository.searchUsers(query.trim(), limit);
+    }
+    public ProfileDTOResponse getProfile(Long id, Optional<User> requester) {
+        User user = getUserById(id);
+        if(requester.isEmpty()) {
+            return new ProfileDTOResponse(user, null);
+        }
+        FriendStatus friendStatus = friendService.getFriendStatus(id, requester.get());
+        return new ProfileDTOResponse(user, friendStatus);
     }
 
     @Override
