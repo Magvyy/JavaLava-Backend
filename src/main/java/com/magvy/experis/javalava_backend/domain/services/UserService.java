@@ -43,14 +43,13 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-    public ResponseEntity<Map<String, String>> register(AuthDTO authDTO) {
+    public void register(AuthDTO authDTO) {
         // Validate input
         if (userRepository.existsByUserName(authDTO.getUserName())) {
             throw new UserAlreadyExistsException("Username is taken");
         }
         User user = convertToEntity(authDTO);
         userRepository.save(user);
-        return ResponseEntity.ok(null);
     }
 
     public List<UserDTOResponse> search(String query) {
