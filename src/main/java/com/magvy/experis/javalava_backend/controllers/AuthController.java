@@ -49,13 +49,17 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(authDTO.getUserName(), authDTO.getPassword())
         );
         String jwt = jwtUtil.generateToken(authDTO.getUserName());
-        Cookie jwtCookie = new Cookie("jwt", jwt);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(false);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(60 * 60);
 
-        response.addCookie(jwtCookie);
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserDetails details) {
+            Cookie jwtCookie = new Cookie("jwt", jwt);
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setSecure(false);
+            jwtCookie.setPath("/");
+            jwtCookie.setMaxAge(60 * 60);
+            response.addCookie(jwtCookie);
+        }
+
         return ResponseEntity.ok("Authenticated");
     }
 
