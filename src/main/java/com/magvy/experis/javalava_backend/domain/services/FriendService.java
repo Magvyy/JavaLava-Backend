@@ -6,6 +6,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.FriendRequest;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendRequestId;
+import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRequestRepository;
 import org.springframework.http.HttpStatus;
@@ -123,5 +124,19 @@ public class FriendService {
         }
 
         return request;
+    }
+
+    public FriendStatus getFriendStatus(Long id, User requester) {
+        Long requesterId = requester.getId();
+        if (isFriends(requesterId, id)) {
+            return FriendStatus.FRIENDS;
+        }
+        if (friendRequestRepository.existsByFromIdAndToId(requesterId, id)) {
+            return FriendStatus.PENDING;
+        }
+        if (friendRequestRepository.existsByFromIdAndToId(id, requesterId)) {
+            return FriendStatus.REQUESTED;
+        }
+        return FriendStatus.NOT_FRIENDS;
     }
 }
