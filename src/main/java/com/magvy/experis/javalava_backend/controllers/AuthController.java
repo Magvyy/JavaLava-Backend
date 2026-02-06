@@ -52,7 +52,7 @@ public class AuthController {
 
         Object principal = authentication.getPrincipal();
         if (principal instanceof CustomUserDetails details) {
-            Cookie jwtCookie = new Cookie("jwt", jwt);
+            Cookie jwtCookie = new Cookie("access_token", jwt);
             jwtCookie.setHttpOnly(true);
             jwtCookie.setSecure(false);
             jwtCookie.setPath("/");
