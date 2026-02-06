@@ -30,12 +30,10 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final FriendService friendService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, FriendService friendService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.friendService = friendService;
     }
 
     public User getUserById(Long id) {
@@ -68,12 +66,8 @@ public class UserService implements UserDetailsService {
         Pageable limit = PageRequest.of(0, 10);
         return userRepository.searchUsers(query.trim(), limit);
     }
-    public ProfileDTOResponse getProfile(Long id, Optional<User> requester) {
+    public ProfileDTOResponse getProfile(Long id, FriendStatus friendStatus) {
         User user = getUserById(id);
-        if(requester.isEmpty()) {
-            return new ProfileDTOResponse(user, null);
-        }
-        FriendStatus friendStatus = friendService.getFriendStatus(id, requester.get());
         return new ProfileDTOResponse(user, friendStatus);
     }
 
