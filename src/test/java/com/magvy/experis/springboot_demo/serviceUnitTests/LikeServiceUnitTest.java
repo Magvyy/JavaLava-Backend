@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -38,6 +39,15 @@ public class LikeServiceUnitTest {
 
     AutoCloseable mocks;
 
+    Long user_id = 1L;
+    Long post_id = 2L;
+    LikeDTORequest likeDtoRequest = new LikeDTORequest(user_id, post_id);
+
+    // Initialize the user and post with some arbitrary content (not important)
+    User user = new User(user_id, "Tom Bombadill", "MyPassword");
+    Post post = new Post(post_id, "Some content", LocalDateTime.now(), true, user);
+
+
     @BeforeEach
     void setUp(){
         mocks = MockitoAnnotations.openMocks(this);
@@ -51,19 +61,9 @@ public class LikeServiceUnitTest {
 
     @Test
     void likePostSavesLike_WhenLikeDoesntExist() {
-        Long user_id = 1L;
-        Long post_id = 1L;
-
-        LikeDTORequest likeDtoRequest = new LikeDTORequest(user_id, post_id);
         when(likeRepository.existsByPost_idAndUser_Id(post_id, user_id)).thenReturn(false);
-
-        // Initialize the user and post with some arbitrary content (not important)
-        User user = new User(user_id, "Tom Bombadill", "MyPassword");
-        Post post = new Post(post_id, "Some content", LocalDateTime.now(), true, user);
-
         when(userRepository.getReferenceById(user_id)).thenReturn(user);
         when(postRepository.getReferenceById(post_id)).thenReturn(post);
-
         // Method so we can see the like-object passed to the save-parameter
         when(likeRepository.save(any(Like.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -82,16 +82,32 @@ public class LikeServiceUnitTest {
 
     @Test
     void likePostReturnConflict_WhenLikeAlreadyExist() {
-        Long user_id = 1L;
-        Long post_id = 1L;
-        LikeDTORequest likeDtoRequest = new LikeDTORequest(user_id, post_id);
-
         // Like already exists
         when(likeRepository.existsByPost_idAndUser_Id(post_id, user_id)).thenReturn(true);
 
         ResponseEntity<String> response = likeService.likePost(likeDtoRequest);
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         verify(likeRepository, never()).save(any(Like.class));
+    }
+
+
+    @Test
+    void unLikePostReturnOkOrNoContent_WhenLikeExists() {
+        when(likeRepository.existsByPost_idAndUser_Id(post_id, user_id)).thenReturn(true);
+        when(userRepository.getReferenceById(user_id)).thenReturn(user);
+        when(postRepository.getReferenceById(post_id)).thenReturn(post);
+        doAnswer(invocation -> invocation.getArgument(0)).when(likeRepository).delete(any(Like.class));
+
+        LikeDTORequest dto = new LikeDTORequest(user_id, post_id);
+        ResponseEntity<String> response = likeService.unlikePost(dto);
+        assertTrue(HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.NO_CONTENT.equals(response.getStatusCode()));
+
+        ArgumentCaptor<Like> captor = ArgumentCaptor.forClass(Like.class);
+        verify(likeRepository, times(1)).delete(captor.capture());
+        Like deletedLike = captor.getValue();
+        assertNotNull(deletedLike);
+        assertEquals(deletedLike.getPost(), post);
+        assertEquals(deletedLike.getUser(), user);
     }
 
 }
