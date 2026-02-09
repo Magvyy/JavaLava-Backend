@@ -87,7 +87,7 @@ public class CommentService {
             return HttpStatus.NOT_FOUND;
         }
         Comment comment = oComment.get();
-        if (!comment.getUser().getId().equals(user.getId())) {
+        if (!comment.getUser().getId().equals(user.getId()) && !userService.isAdmin(user.getId())) {
             return HttpStatus.UNAUTHORIZED;
         }
         commentRepository.delete(comment);

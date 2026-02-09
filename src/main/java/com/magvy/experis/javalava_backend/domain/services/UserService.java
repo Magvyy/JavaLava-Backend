@@ -35,6 +35,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
+    public boolean isAdmin(Long id) {
+        return getUserById(id).getRole() == RoleEnum.ADMIN;
+    }
+
     public User convertToEntity(AuthDTO authDTO) {
         User user = new User();
         user.setRole(RoleEnum.USER);
