@@ -98,8 +98,7 @@ public class LikeServiceUnitTest {
         when(postRepository.getReferenceById(post_id)).thenReturn(post);
         doAnswer(invocation -> invocation.getArgument(0)).when(likeRepository).delete(any(Like.class));
 
-        LikeDTORequest dto = new LikeDTORequest(user_id, post_id);
-        ResponseEntity<String> response = likeService.unlikePost(dto);
+        ResponseEntity<String> response = likeService.unlikePost(likeDtoRequest);
         assertTrue(HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.NO_CONTENT.equals(response.getStatusCode()));
 
         ArgumentCaptor<Like> captor = ArgumentCaptor.forClass(Like.class);
@@ -108,6 +107,16 @@ public class LikeServiceUnitTest {
         assertNotNull(deletedLike);
         assertEquals(deletedLike.getPost(), post);
         assertEquals(deletedLike.getUser(), user);
+    }
+
+    @Test
+    void unLikePostReturnNotFound_WhenLikeDoesntExist() {
+        when(likeRepository.existsByPost_idAndUser_Id(post_id, user_id)).thenReturn(false);
+
+        ResponseEntity<String> response = likeService.unlikePost(likeDtoRequest);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(likeRepository, never()).delete(any(Like.class));
     }
 
 }
