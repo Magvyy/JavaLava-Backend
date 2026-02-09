@@ -22,6 +22,7 @@ public class User implements Serializable {
     private String password;
 
     @Column(name = "role")
+    @Enumerated(EnumType.STRING)
     private RoleEnum role;
 
     public User(Long id, String userName, String password) {
