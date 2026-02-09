@@ -79,4 +79,9 @@ public class UserService implements UserDetailsService {
     public UserDTOResponse convertToDTO(User user) {
         return new UserDTOResponse(user);
     }
+
+    public void deleteUser(Long userId) {
+        User user = getUserById(userId);
+        userRepository.delete(user);
+    }
 }

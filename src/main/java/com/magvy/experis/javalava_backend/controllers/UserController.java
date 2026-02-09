@@ -8,6 +8,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
 import com.magvy.experis.javalava_backend.domain.services.FriendService;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,5 +44,11 @@ public class UserController extends BaseAuthHController {
         }
         FriendStatus friendStatus = friendService.getFriendStatus(userId, user.get());
         return userService.getProfile(userId, friendStatus);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("delete/{userId}")
+    public void deleteUser(@PathVariable Long userId){
+        userService.deleteUser(userId);
     }
 }
