@@ -1,8 +1,10 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
 
+import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import javax.management.relation.Role;
 import java.io.Serializable;
 
 @Data
@@ -18,6 +20,9 @@ public class User implements Serializable {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "role")
+    private RoleEnum role;
 
     public User(Long id, String userName, String password) {
         this.id = id;
