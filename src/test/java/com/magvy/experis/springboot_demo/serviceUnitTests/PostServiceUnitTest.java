@@ -45,12 +45,19 @@ public class PostServiceUnitTest {
     void setup(){
         mocks = MockitoAnnotations.openMocks(this);
         postService = new PostService(postRepository, likeRepository, commentRepository, friendService);
+        user = new User(1L, "", "");
+        postOwner = new User(2L, "", "");
+        post = new Post(1L, "", LocalDateTime.now(), true, postOwner);
     }
 
     @AfterEach
     void breakDown() throws Exception {
         if (mocks != null) mocks.close();
     }
+
+    User user;
+    User postOwner;
+    Post post;
 
 
 
@@ -127,8 +134,40 @@ public class PostServiceUnitTest {
         verify(postRepository, never()).findByVisibleTrueAndUserId(anyLong(), any(Pageable.class));
     }
 
+    @Test
+    void isPostVisibleToUser_WhenPostNotVisible_ReturnsFalse(){
+        post.setVisible(false);
+        when(friendService.isFriends(anyLong(), anyLong())).thenReturn(false);
+        assertFalse(postService.isPostVisibleToUser(post, null));
+        assertFalse(postService.isPostVisibleToUser(post, user));
+    }
 
+    @Test
+    void isPostVisibleToUser_WhenPostVisible_ReturnsTrue(){
+        assertTrue(postService.isPostVisibleToUser(post, null));
+        assertTrue(postService.isPostVisibleToUser(post, user));
+        verify(friendService, never()).isFriends(anyLong(), anyLong());
+    }
 
+    @Test
+    void isPostVisibleToUser_WhenUserAndCreatorFriendsAndPostNotVisible_ReturnsTrue(){
+        post.setVisible(false);
+        when(friendService.isFriends(anyLong(), anyLong())).thenAnswer(invocation -> {
+            Long userId1 = invocation.getArgument(0);
+            Long userId2 = invocation.getArgument(1);
+            if ((userId1 == 1L && userId2 == 2L) || (userId1 == 2L && userId2 == 1L)) return true;
+            else return false;
+        });
+        assertTrue(postService.isPostVisibleToUser(post, user));
+        verify(friendService, times(1)).isFriends(anyLong(), anyLong());
+    }
+
+    @Test
+    void isPostVisibleToUser_WhenUserIsCreatorAndPostNotVisible_ReturnsTrue(){
+        post.setVisible(false);
+        assertTrue(postService.isPostVisibleToUser(post, postOwner));
+        verify(friendService, never()).isFriends(anyLong(), anyLong());
+    }
 
 
 }
