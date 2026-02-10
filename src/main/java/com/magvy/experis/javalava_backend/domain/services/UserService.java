@@ -82,6 +82,9 @@ public class UserService implements UserDetailsService {
 
     public void deleteUser(Long userId) {
         User user = getUserById(userId);
+        if (user.getRole() == RoleEnum.ADMIN) {
+            throw new IllegalArgumentException("Cannot delete admin user");
+        }
         userRepository.delete(user);
     }
 }
