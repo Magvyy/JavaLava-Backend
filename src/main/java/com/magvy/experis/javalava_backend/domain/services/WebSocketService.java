@@ -14,4 +14,8 @@ public class WebSocketService {
     public void sendMessage(String username, String message) {
         simpMessagingTemplate.convertAndSendToUser(username,"/queue", message);
     }
+
+    public void sendNotification(String username, String notification) {
+        simpMessagingTemplate.convertAndSendToUser(username,"/queue/notifications", notification);
+    }
 }
