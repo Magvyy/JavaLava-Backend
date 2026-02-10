@@ -39,6 +39,7 @@ public class SecurityConfig {
                             .requestMatchers("/swagger-ui/**").permitAll()
                             .requestMatchers("/v3/api-docs/**").permitAll()
                             .requestMatchers("/swagger-resources/**").permitAll()
+                            .requestMatchers("/websocket/**").permitAll()
                             .requestMatchers("/auth/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/post/friends/**").authenticated()
