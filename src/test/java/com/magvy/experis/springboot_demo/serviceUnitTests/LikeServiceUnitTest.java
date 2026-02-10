@@ -118,5 +118,4 @@ public class LikeServiceUnitTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(likeRepository, never()).delete(any(Like.class));
     }
-
 }

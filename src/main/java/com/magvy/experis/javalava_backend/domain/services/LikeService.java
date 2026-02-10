@@ -32,7 +32,7 @@ public class LikeService {
     }
 
     public ResponseEntity<String> likePost(LikeDTORequest likeDTORequest){
-        if (likeRepository.existsByPost_idAndUser_Id(likeDTORequest.getUserId(), likeDTORequest.getPostId())){
+        if (likeRepository.existsByPost_idAndUser_Id(likeDTORequest.getPostId(), likeDTORequest.getUserId())){
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         // Lazy loading, user and post only loaded once needed
