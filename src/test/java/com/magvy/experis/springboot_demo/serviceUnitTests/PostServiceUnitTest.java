@@ -2,8 +2,10 @@ package com.magvy.experis.springboot_demo.serviceUnitTests;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
+import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
 import com.magvy.experis.javalava_backend.domain.services.FriendService;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
@@ -12,6 +14,7 @@ import com.magvy.experis.javalava_backend.infrastructure.repositories.PostReposi
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.*;
@@ -169,5 +172,37 @@ public class PostServiceUnitTest {
         verify(friendService, never()).isFriends(anyLong(), anyLong());
     }
 
+    @Test
+    void createPost_WhenNullUser_ThrowsRuntimeException(){
+        PostDTORequest postDTORequest = mock(PostDTORequest.class);
+        when(postDTORequest.getContent()).thenReturn("Content");
+        when(postDTORequest.getPublished()).thenReturn(LocalDateTime.of(2001,1, 1, 1, 1));
+        when(postDTORequest.isVisible()).thenReturn(true);
+
+        assertThrows(RuntimeException.class, () -> postService.createPost(null, postDTORequest));
+    }
+
+    @Test
+    void createPost_WhenValidUser_ReturnsPostWithCorrectValues(){
+        PostDTORequest postDTORequest = mock(PostDTORequest.class);
+        when(postDTORequest.getContent()).thenReturn("Content");
+        when(postDTORequest.getPublished()).thenReturn(LocalDateTime.of(2001,1, 1, 1, 1));
+        when(postDTORequest.isVisible()).thenReturn(true);
+
+
+        ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
+        // FinISHe|
+
+        when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation);
+        verify(postRepository, times(1)).save(captor.capture());
+    }
+
+//    public Post createPost(User user, PostDTORequest postDTORequest) {
+//        if (user == null) {
+//            throw new UnauthorizedActionException("Cannot create a post as an anonymous user.");
+//        }
+//        Post post = convertToEntity(null, postDTORequest, user);
+//        return postRepository.save(post);
+//    }
 
 }
