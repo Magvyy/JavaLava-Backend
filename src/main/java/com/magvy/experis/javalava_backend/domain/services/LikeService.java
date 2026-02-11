@@ -15,15 +15,17 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final WebSocketService webSocketService;
 
 
     @Autowired
     public LikeService(LikeRepository likeRepository,
                        UserRepository userRepository,
-                       PostRepository postRepository){
+                       PostRepository postRepository, WebSocketService webSocketService){
         this.likeRepository = likeRepository;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.webSocketService = webSocketService;
     }
 
     private Like convertToEntity(LikeDTORequest likeDTORequest) {
@@ -38,6 +40,8 @@ public class LikeService {
         // Lazy loading, user and post only loaded once needed
         Like newLike = convertToEntity(likeDTORequest);
         likeRepository.save(newLike);
+        webSocketService.sendNotification(newLike.getPost().getUser().getUserName(),
+                "Your post has a new like from " + newLike.getUser().getUserName());
         return ResponseEntity.noContent().build();
     }
 
