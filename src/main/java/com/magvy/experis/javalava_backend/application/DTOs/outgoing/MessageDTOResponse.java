@@ -10,27 +10,21 @@ import java.time.LocalDateTime;
 public class MessageDTOResponse {
     private Long id;
 
+    private UserDTOResponse from;
+
+    private UserDTOResponse to;
+
     private String content;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime sent;
 
-    private String from;
-
-    private String to;
-
-    private Long fromId;
-
-    private Long toId;
-
     public MessageDTOResponse(Message message) {
         this.id = message.getId();
+        this.from = new UserDTOResponse(message.getFrom());
+        this.to = new UserDTOResponse(message.getTo());
         this.content = message.getContent();
         this.sent = message.getSent();
-        this.from = message.getFrom().getUserName();
-        this.to = message.getTo().getUserName();
-        this.fromId = message.getFrom().getId();
-        this.toId = message.getTo().getId();
     }
 
     public MessageDTOResponse() {
