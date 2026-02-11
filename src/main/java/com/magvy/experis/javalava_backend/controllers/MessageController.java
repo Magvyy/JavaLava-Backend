@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/message")
+@RequestMapping("/messages")
 public class MessageController extends BaseAuthHController {
 
     private final MessageService messageService;
@@ -27,6 +27,13 @@ public class MessageController extends BaseAuthHController {
         User user = throwIfUserNull(principal);
         Message message = messageService.sendMessage(messageDTORequest, user);
         return new ResponseEntity<>(new MessageDTOResponse(message), HttpStatus.OK);
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<MessageDTOResponse>> getMessages(@AuthenticationPrincipal CustomUserDetails principal) {
+        User user = throwIfUserNull(principal);
+        List<MessageDTOResponse> messages = messageService.getMessages(user);
+        return new ResponseEntity<>(messages, HttpStatus.OK);
     }
 
     @GetMapping("/{sender_id}")
