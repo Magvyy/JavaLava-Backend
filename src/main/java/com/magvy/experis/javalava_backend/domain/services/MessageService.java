@@ -23,12 +23,12 @@ public class MessageService {
     }
 
     private Message ConvertToEntity(MessageDTORequest messageDTORequest, User sender) {
-        User receiver = userService.getUserById(messageDTORequest.getTo());
+        User receiver = userService.getUserById(messageDTORequest.getToUserId());
         return new Message(messageDTORequest.getContent(), messageDTORequest.getSent(), sender, receiver);
     }
 
     public Message sendMessage(MessageDTORequest messageDTORequest, User sender) {
-        User recipient = userService.getUserById(messageDTORequest.getTo());
+        User recipient = userService.getUserById(messageDTORequest.getToUserId());
 
 //       if (!friendService.isFriend(recipient, sender)) { TODO IMPLEMENT Friends
 //          throw new IllegalArgumentException("Can only send message to a friend");
@@ -54,6 +54,15 @@ public class MessageService {
             messageDTOResponses.add(new MessageDTOResponse(message));
         }
 
+        return messageDTOResponses;
+    }
+
+    public List<MessageDTOResponse> getMessages(User receiver) {
+        List<Message> messageList = messageRepository.getConversations(receiver.getId());
+        List<MessageDTOResponse> messageDTOResponses = new ArrayList<>();
+        for (Message message : messageList) {
+            messageDTOResponses.add(new MessageDTOResponse(message));
+        }
         return messageDTOResponses;
     }
 
