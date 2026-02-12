@@ -7,17 +7,29 @@ import com.magvy.experis.javalava_backend.App;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.controllers.AuthController;
 import com.magvy.experis.javalava_backend.controllers.PostController;
+import com.magvy.experis.javalava_backend.domain.services.WebSocketService;
+import org.jspecify.annotations.NonNull;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
+import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.simp.stomp.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.socket.WebSocketHttpHeaders;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+import org.springframework.web.socket.messaging.WebSocketStompClient;
+
+import java.util.concurrent.*;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @AutoConfigureWebTestClient
@@ -43,6 +55,12 @@ public class AuthorizationIntegrationTest {
    @Autowired
    private WebTestClient webTestClient;
 
+   @Autowired
+   private WebSocketService webSocketService;
+
+   @LocalServerPort
+   private Integer port;
+
    @Test
    void contextLoads(){
        assertThat(authController).isNotNull();
@@ -53,7 +71,7 @@ public class AuthorizationIntegrationTest {
     @Test
     void loginAsAdmin_SuccessfullyDeleteOtherUserPost() throws JsonProcessingException {
         // 1 Register regular user
-        AuthDTO authDTO = new AuthDTO("testUser", "password");
+        AuthDTO authDTO = new AuthDTO("testUser2", "password");
 
         MultiValueMap<String, ResponseCookie> result = webTestClient.post().uri("/auth/register")
                 .bodyValue(authDTO)
@@ -112,4 +130,77 @@ public class AuthorizationIntegrationTest {
                 .expectStatus().is4xxClientError();
     }
 
+    @Test
+    void loginAsRegularUserConnectToWebsocketServerAndReceiveMessage() throws ExecutionException, InterruptedException, TimeoutException {
+        BlockingQueue<String> blockingQueue = new LinkedBlockingQueue<>();
+        CountDownLatch connectionLatch = new CountDownLatch(1);
+        CountDownLatch messageReceivedLatch = new CountDownLatch(1);
+
+       //1 Register regular user
+        String url = "ws://localhost:" + port + "/websocket";
+        AuthDTO authDTO = new AuthDTO("testUser", "password");
+        MultiValueMap<String, ResponseCookie> result = webTestClient.post().uri("/auth/register")
+                .bodyValue(authDTO)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(String.class)
+                .returnResult().getResponseCookies();
+
+        String userCookie = result.get("access_token").getFirst().getValue();
+
+        WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
+        stompClient.setMessageConverter(new StringMessageConverter());
+
+        WebSocketHttpHeaders webSocketHttpHeaders = new WebSocketHttpHeaders();
+        webSocketHttpHeaders.add("Cookie", "access_token="+ userCookie);
+
+        StompHeaders stompHeaders = new StompHeaders();
+        stompHeaders.add("Cookie", "access_token="+ userCookie);
+
+
+        // 2 SessionHandler to handle connection and messages from backend
+        StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {
+            @Override
+            public void afterConnected(StompSession session, @NonNull StompHeaders connectedHeaders) {
+                System.out.println("WebSocket connection established");
+                connectionLatch.countDown();
+
+                session.subscribe("/user/queue/notifications", this);
+            }
+            @Override
+            public void handleFrame(@NonNull StompHeaders headers, Object payload) {
+                String message = payload != null ? payload.toString() : "null";
+                System.out.println("Received message: " + message);
+                boolean offered = blockingQueue.offer(message);
+                if (offered) {
+                    messageReceivedLatch.countDown();
+                }
+            }
+            @Override
+            public void handleTransportError(@NonNull StompSession session, Throwable exception) {
+                System.err.println("WebSocket transport error: " + exception.getMessage());
+                messageReceivedLatch.countDown();
+                connectionLatch.countDown();
+            }
+            @Override
+            public void handleException(@NonNull StompSession session, StompCommand command, @NonNull StompHeaders headers, byte @NonNull [] payload, Throwable exception) {
+                System.err.println("WebSocket error: " + exception.getMessage());
+                messageReceivedLatch.countDown();
+                connectionLatch.countDown();
+            }
+        };
+
+        // 3 Connect to WebSocket server
+        StompSession session = stompClient.connectAsync(url, webSocketHttpHeaders, stompHeaders, sessionHandler).get(5, SECONDS);
+        boolean isConnected = connectionLatch.await(5, SECONDS);
+        assertThat(isConnected).as("WebSocket connection established").isTrue();
+
+        webSocketService.sendNotification("testUser", "Hello from test!");
+        boolean messageReceived = messageReceivedLatch.await(5, SECONDS);
+        assertThat(messageReceived).as("Received message: Hello from test!").isTrue();
+
+        String receivedMessage = blockingQueue.poll(5, SECONDS);
+        assertThat(receivedMessage).as("Received message content").isEqualTo("Hello from test!");
+
+    }
 }
