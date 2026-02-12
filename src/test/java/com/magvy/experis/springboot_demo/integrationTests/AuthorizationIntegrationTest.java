@@ -7,7 +7,8 @@ import com.magvy.experis.javalava_backend.App;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.controllers.AuthController;
 import com.magvy.experis.javalava_backend.controllers.PostController;
-import com.magvy.experis.javalava_backend.domain.services.WebSocketService;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class AuthorizationIntegrationTest {
    private WebTestClient webTestClient;
 
    @Autowired
-   private WebSocketService webSocketService;
+   private UserRepository userRepository;
 
    @LocalServerPort
    private Integer port;
@@ -104,11 +105,12 @@ public class AuthorizationIntegrationTest {
         AuthDTO adminAuthDTO = new AuthDTO("admin", "admin");
 
         MultiValueMap<String, ResponseCookie> adminResult = webTestClient.post().uri("/auth/login")
-               .bodyValue(authDTO)
-               .exchange()
-               .expectStatus().is2xxSuccessful()
-               .expectBody(String.class)
-               .returnResult().getResponseCookies();
+                .bodyValue(adminAuthDTO)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody(String.class)
+                .returnResult().getResponseCookies();
 
 //        // 5 Delete post as admin
         webTestClient.delete().uri(String.format("/post/%s", post_id))
@@ -237,6 +239,9 @@ public class AuthorizationIntegrationTest {
         StompSession session = stompClient.connectAsync(url, webSocketHttpHeaders, stompHeaders, sessionHandler).get(5, SECONDS);
         boolean isConnected = connectionLatch.await(5, SECONDS);
         assertThat(isConnected).as("WebSocket connection established").isTrue();
+        User user = userRepository.findByUserName("testUser").orElseThrow();
+
+        Long userId = user.getId();
 
         //Register another user to send message to testUser over WebSocket
         AuthDTO anotherUserAuthDTO = new AuthDTO("anotherUser", "password");
@@ -250,13 +255,13 @@ public class AuthorizationIntegrationTest {
         webTestClient.post().uri("/message")
                 .cookie("access_token", anotherResult.get("access_token").getFirst().getValue())
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("""
+                .bodyValue(String.format("""
                   {
                     "content": "This is the test!",
                     "sent": "09-02-2026 14:30:00",
-                    "to": 2
+                    "to": %s
                   }
-                """)
+                """, userId))
                 .exchange()
                 .expectStatus().is2xxSuccessful();
 
