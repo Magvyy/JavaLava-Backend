@@ -73,12 +73,10 @@ public class AuthorizationIntegrationTest {
                 .expectStatus().is2xxSuccessful();
 
         //3 Read post as regular user
-        EntityExchangeResult<String> post =  webTestClient.get().uri("/post/1")
+        webTestClient.get().uri("/post/1")
             .cookie("access_token", result.get("access_token").getFirst().getValue())
             .exchange()
-            .expectStatus().is2xxSuccessful()
-            .expectBody(String.class)
-            .returnResult();
+            .expectStatus().is2xxSuccessful();
 
         // 4 Login as admin
         AuthDTO adminAuthDTO = new AuthDTO("admin", "admin");
@@ -101,8 +99,6 @@ public class AuthorizationIntegrationTest {
         webTestClient.get().uri("/post/1")
                 .cookie("access_token", result.get("access_token").getFirst().getValue())
                 .exchange()
-                .expectStatus().is4xxClientError()
-                .expectBody(String.class)
-                .returnResult();
+                .expectStatus().is4xxClientError();
     }
 }
