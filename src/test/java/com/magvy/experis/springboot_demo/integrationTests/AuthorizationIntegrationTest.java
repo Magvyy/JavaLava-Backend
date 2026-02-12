@@ -37,15 +37,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = App.class)
 public class AuthorizationIntegrationTest {
 
-
-    // 1. Create user with registerMapping
-    // 2. Login user with login endpoint
-    // 3. Create post with /post endpoint
-    // 3.1 Verify post created
-    // 4. Login as admin
-    // 5. Call delete at endpoint post/{userId}
-    // 6. Verify post deleted.
-
    @Autowired
    private AuthController authController;
 
@@ -129,7 +120,6 @@ public class AuthorizationIntegrationTest {
                 .exchange()
                 .expectStatus().is4xxClientError();
     }
-
 
     @Test
     void loginAsUser_UnSuccessfullyDeleteOtherUserPost() throws JsonProcessingException {
