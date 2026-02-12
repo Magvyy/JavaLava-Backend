@@ -1,6 +1,7 @@
 package com.magvy.experis.javalava_backend.application.security.config;
 
 import com.magvy.experis.javalava_backend.application.security.filter.JwtFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,10 +16,12 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final CustomAuthenticationProvider customAuthenticationProvider;
+    private final String jwt_cookie_name;
 
-    public SecurityConfig(JwtFilter jwtFilter, CustomAuthenticationProvider customAuthenticationProvider) {
+    public SecurityConfig(JwtFilter jwtFilter, CustomAuthenticationProvider customAuthenticationProvider, @Value("${jwt.name}") String jwt_cookie_name) {
         this.jwtFilter = jwtFilter;
         this.customAuthenticationProvider = customAuthenticationProvider;
+        this.jwt_cookie_name = jwt_cookie_name;
     }
 
     @Bean
@@ -44,6 +47,11 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/post/friends/**").authenticated()
                             .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                             .anyRequest().authenticated()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout")
+                        .deleteCookies(jwt_cookie_name)
+                        .logoutSuccessUrl("/")
                 );
         return http.build();
     }
