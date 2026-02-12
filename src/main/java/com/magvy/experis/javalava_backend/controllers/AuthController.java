@@ -1,6 +1,7 @@
 package com.magvy.experis.javalava_backend.controllers;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.DefaultResponseDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
@@ -8,8 +9,6 @@ import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,8 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -40,17 +37,17 @@ public class AuthController extends BaseAuthHController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity <?> LoginPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
-        return AuthHandler(authDTO, response);
+    public ResponseEntity <DefaultResponseDTO> loginPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
+        return authHandler(authDTO, response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity <?> RegisterPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
+    public ResponseEntity <DefaultResponseDTO> registerPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
         userService.register(authDTO);
-        return AuthHandler(authDTO, response);
+        return authHandler(authDTO, response);
     }
 
-    private ResponseEntity <?> AuthHandler(AuthDTO authDTO, HttpServletResponse response) {
+    private ResponseEntity <DefaultResponseDTO> authHandler(AuthDTO authDTO, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authDTO.getUserName(), authDTO.getPassword())
         );
@@ -66,7 +63,7 @@ public class AuthController extends BaseAuthHController {
             response.addCookie(jwtCookie);
         }
 
-        return ResponseEntity.ok("Authenticated");
+        return ResponseEntity.ok(new DefaultResponseDTO("Authenticated"));
     }
 
 }
