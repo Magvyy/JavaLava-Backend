@@ -59,17 +59,21 @@ public class AuthorizationIntegrationTest {
        assertThat(webTestClient).isNotNull();
    }
 
+   MultiValueMap<String, ResponseCookie> getResultCookieFromRegister(AuthDTO authDTO){
+       return webTestClient.post().uri("/auth/register")
+               .bodyValue(authDTO)
+               .exchange()
+               .expectStatus().is2xxSuccessful()
+               .expectBody(String.class)
+               .returnResult().getResponseCookies();
+   }
+
     @Test
     void loginAsAdmin_SuccessfullyDeleteOtherUserPost() throws JsonProcessingException {
         // 1 Register regular user
         AuthDTO authDTO = new AuthDTO("testUser2", "password");
 
-        MultiValueMap<String, ResponseCookie> result = webTestClient.post().uri("/auth/register")
-                .bodyValue(authDTO)
-                .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody(String.class)
-                .returnResult().getResponseCookies();
+        MultiValueMap<String, ResponseCookie> result = getResultCookieFromRegister(authDTO);
 
         // 2 create post as regular user
         EntityExchangeResult<String> post = webTestClient.post().uri("/post")
@@ -101,12 +105,11 @@ public class AuthorizationIntegrationTest {
         AuthDTO adminAuthDTO = new AuthDTO("admin", "admin");
 
         MultiValueMap<String, ResponseCookie> adminResult = webTestClient.post().uri("/auth/login")
-                .bodyValue(adminAuthDTO)
-                .exchange()
-                .expectStatus()
-                .is2xxSuccessful()
-                .expectBody(String.class)
-                .returnResult().getResponseCookies();
+               .bodyValue(authDTO)
+               .exchange()
+               .expectStatus().is2xxSuccessful()
+               .expectBody(String.class)
+               .returnResult().getResponseCookies();
 
 //        // 5 Delete post as admin
         webTestClient.delete().uri(String.format("/post/%s", post_id))
@@ -126,12 +129,7 @@ public class AuthorizationIntegrationTest {
 
        // Register user to create the post
         AuthDTO userDTO = new AuthDTO("kfdlsajfk", "password");
-        MultiValueMap<String, ResponseCookie> userCookieResult = webTestClient.post().uri("/auth/register")
-                .bodyValue(userDTO)
-                .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody(String.class)
-                .returnResult().getResponseCookies();
+        MultiValueMap<String, ResponseCookie> userCookieResult = getResultCookieFromRegister(userDTO);
 
         // Create the post
         EntityExchangeResult<String> post = webTestClient.post().uri("/post")
@@ -161,12 +159,7 @@ public class AuthorizationIntegrationTest {
 
         // Create new user to attempt delete
         AuthDTO otherUserDTO = new AuthDTO("jklsdklj", "password");
-        MultiValueMap<String, ResponseCookie> otherUserCookieResult = webTestClient.post().uri("/auth/register")
-                .bodyValue(otherUserDTO)
-                .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody(String.class)
-                .returnResult().getResponseCookies();
+        MultiValueMap<String, ResponseCookie> otherUserCookieResult = getResultCookieFromRegister(otherUserDTO);
 
 //        // Try delete post as other user
         webTestClient.delete().uri(String.format("/post/%s", post_id))
