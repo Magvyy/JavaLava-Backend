@@ -1,9 +1,13 @@
 package com.magvy.experis.springboot_demo.integrationTests;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magvy.experis.javalava_backend.App;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.controllers.AuthController;
 import com.magvy.experis.javalava_backend.controllers.PostController;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,7 +51,7 @@ public class AuthorizationIntegrationTest {
    }
 
     @Test
-    void loginAsAdmin_SuccessfullyDeleteOtherUserPost()  {
+    void loginAsAdmin_SuccessfullyDeleteOtherUserPost() throws JsonProcessingException {
         // 1 Register regular user
         AuthDTO authDTO = new AuthDTO("testUser", "password");
 
@@ -59,7 +63,7 @@ public class AuthorizationIntegrationTest {
                 .returnResult().getResponseCookies();
 
         // 2 create post as regular user
-        webTestClient.post().uri("/post")
+        EntityExchangeResult<String> post = webTestClient.post().uri("/post")
                 .cookie("access_token", result.get("access_token").getFirst().getValue())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("""
@@ -70,10 +74,16 @@ public class AuthorizationIntegrationTest {
                   }
                 """)
                 .exchange()
-                .expectStatus().is2xxSuccessful();
+                .expectStatus().is2xxSuccessful()
+                .expectBody(String.class)
+                .returnResult();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(post.getResponseBody());
+        int post_id = jsonNode.get("id").asInt();
 
         //3 Read post as regular user
-        webTestClient.get().uri("/post/1")
+        webTestClient.get().uri(String.format("/post/%s", post_id))
             .cookie("access_token", result.get("access_token").getFirst().getValue())
             .exchange()
             .expectStatus().is2xxSuccessful();
@@ -89,16 +99,17 @@ public class AuthorizationIntegrationTest {
                 .expectBody(String.class)
                 .returnResult().getResponseCookies();
 
-        // 5 Delete post as admin
-        webTestClient.delete().uri("/post/1")
+//        // 5 Delete post as admin
+        webTestClient.delete().uri(String.format("/post/%s", post_id))
                 .cookie("access_token", adminResult.get("access_token").getFirst().getValue())
                 .exchange()
                 .expectStatus().is2xxSuccessful();
 
         // 6 Verify post deleted
-        webTestClient.get().uri("/post/1")
+        webTestClient.get().uri(String.format("/post/%s", post_id))
                 .cookie("access_token", result.get("access_token").getFirst().getValue())
                 .exchange()
                 .expectStatus().is4xxClientError();
     }
+
 }
