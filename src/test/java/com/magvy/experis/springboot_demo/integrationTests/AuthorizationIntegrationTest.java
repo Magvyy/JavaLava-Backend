@@ -130,6 +130,67 @@ public class AuthorizationIntegrationTest {
                 .expectStatus().is4xxClientError();
     }
 
+
+    @Test
+    void loginAsUser_UnSuccessfullyDeleteOtherUserPost() throws JsonProcessingException {
+
+       // Register user to create the post
+        AuthDTO userDTO = new AuthDTO("kfdlsajfk", "password");
+        MultiValueMap<String, ResponseCookie> userCookieResult = webTestClient.post().uri("/auth/register")
+                .bodyValue(userDTO)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(String.class)
+                .returnResult().getResponseCookies();
+
+        // Create the post
+        EntityExchangeResult<String> post = webTestClient.post().uri("/post")
+                .cookie("access_token", userCookieResult.get("access_token").getFirst().getValue())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("""
+                  {
+                    "content": "This is a post content",
+                    "published": "09-02-2026 14:30:00",
+                     "visible": true
+                  }
+                """)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(String.class)
+                .returnResult();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(post.getResponseBody());
+        int post_id = jsonNode.get("id").asInt();
+
+        // Ensure post is created
+        webTestClient.get().uri(String.format("/post/%s", post_id))
+                .cookie("access_token", userCookieResult.get("access_token").getFirst().getValue())
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+
+        // Create new user to attempt delete
+        AuthDTO otherUserDTO = new AuthDTO("jklsdklj", "password");
+        MultiValueMap<String, ResponseCookie> otherUserCookieResult = webTestClient.post().uri("/auth/register")
+                .bodyValue(otherUserDTO)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(String.class)
+                .returnResult().getResponseCookies();
+
+//        // Try delete post as other user
+        webTestClient.delete().uri(String.format("/post/%s", post_id))
+                .cookie("access_token", otherUserCookieResult.get("access_token").getFirst().getValue())
+                .exchange()
+                .expectStatus().is4xxClientError();
+
+        // 6 Verify post not deleted
+        webTestClient.get().uri(String.format("/post/%s", post_id))
+                .cookie("access_token", userCookieResult.get("access_token").getFirst().getValue())
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
     @Test
     void loginAsRegularUserConnectToWebsocketServerAndReceiveMessage() throws ExecutionException, InterruptedException, TimeoutException {
         BlockingQueue<String> blockingQueue = new LinkedBlockingQueue<>();
