@@ -33,12 +33,10 @@ public class MessageController extends BaseAuthHController {
         return new ResponseEntity<>(new MessageDTOResponse(message), HttpStatus.OK);
     }
 
-    @GetMapping("/{sender_id}")
-    public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable Long sender_id, @AuthenticationPrincipal CustomUserDetails principal) {
+    @GetMapping("/{from_id}/{page}")
+    public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable Long from_id, @PathVariable int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
-        List<MessageDTOResponse> messageHistory = messageService.getMessageHistory(user, sender_id);
-
+        List<MessageDTOResponse> messageHistory = messageService.getMessageHistory(user, from_id, page);
         return new ResponseEntity<>(messageHistory, HttpStatus.OK);
     }
-
 }

@@ -5,6 +5,10 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTORe
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.MessageRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,6 +19,7 @@ import java.util.List;
 public class MessageService {
     private final MessageRepository messageRepository;
     private final UserService userService;
+    private final int pageSize = 10;
 
 
     public MessageService(MessageRepository messageRepository, UserService userService) {
@@ -22,39 +27,36 @@ public class MessageService {
         this.userService = userService;
     }
 
-    private Message ConvertToEntity(MessageDTORequest messageDTORequest, User sender) {
-        User receiver = userService.getUserById(messageDTORequest.getTo());
-        return new Message(messageDTORequest.getContent(), messageDTORequest.getSent(), sender, receiver);
+    private Message ConvertToEntity(MessageDTORequest messageDTORequest, User from) {
+        User to = userService.getUserById(messageDTORequest.getTo());
+        return new Message(messageDTORequest.getContent(), messageDTORequest.getSent(), from, to);
     }
 
-    public Message sendMessage(MessageDTORequest messageDTORequest, User sender) {
-        User recipient = userService.getUserById(messageDTORequest.getTo());
+    public Message sendMessage(MessageDTORequest messageDTORequest, User from) {
+        User to = userService.getUserById(messageDTORequest.getTo());
 
-//       if (!friendService.isFriend(recipient, sender)) { TODO IMPLEMENT Friends
-//          throw new IllegalArgumentException("Can only send message to a friend");
-//       }
-        if (recipient == null) {
+        if (to == null) {
             throw new IllegalArgumentException("Recipient cannot be null");
         }
-        if (sender == null) {
-            throw new IllegalArgumentException("Sender cannot be null");
-        }
-        if (sender.equals(recipient)) {
+        if (from.equals(to)) {
             throw new IllegalArgumentException("Sender and Receiver are the same");
         }
-        Message message = ConvertToEntity(messageDTORequest, sender);
+        Message message = ConvertToEntity(messageDTORequest, from);
         return messageRepository.save(message);
     }
 
-    public List<MessageDTOResponse> getMessageHistory(User receiver, Long sender_id) {
-        User sender = userService.getUserById(sender_id);
-        List<Message> messageList = messageRepository.findByToAndFrom(receiver, sender);
-        List<MessageDTOResponse> messageDTOResponses = new ArrayList<>();
-        for (Message message : messageList) {
-            messageDTOResponses.add(new MessageDTOResponse(message));
-        }
+    private List<MessageDTOResponse> pageToDTOList(Page<Message> messages) {
+        return messages.stream()
+                .map(MessageDTOResponse::new)
+                .toList();
+    }
 
-        return messageDTOResponses;
+    public List<MessageDTOResponse> getMessageHistory(User to, Long from_id, int page) {
+        Sort sort = Sort.by("sent").descending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        User from = userService.getUserById(from_id);
+        Page<Message> messagePage = messageRepository.findByToAndFrom(to, from, pageable);
+        return pageToDTOList(messagePage);
     }
 
 }
