@@ -20,7 +20,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.stomp.*;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.reactive.server.EntityExchangeResult;
+import org.springframework.test.web.reactive.server.ExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.socket.WebSocketHttpHeaders;
@@ -202,14 +202,14 @@ public class AuthorizationIntegrationTest {
         stompHeaders.add("Cookie", "access_token="+ userCookie);
 
 
-        // 2 SessionHandler to handle connection and messages from backend
+        //2 SessionHandler to handle connection and messages from backend
         StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {
             @Override
             public void afterConnected(StompSession session, @NonNull StompHeaders connectedHeaders) {
                 System.out.println("WebSocket connection established");
                 connectionLatch.countDown();
 
-                session.subscribe("/user/queue/notifications", this);
+                session.subscribe("/user/queue/messages", this);
             }
             @Override
             public void handleFrame(@NonNull StompHeaders headers, Object payload) {
@@ -239,12 +239,34 @@ public class AuthorizationIntegrationTest {
         boolean isConnected = connectionLatch.await(5, SECONDS);
         assertThat(isConnected).as("WebSocket connection established").isTrue();
 
-        webSocketService.sendNotification("testUser", "Hello from test!");
-        boolean messageReceived = messageReceivedLatch.await(5, SECONDS);
-        assertThat(messageReceived).as("Received message: Hello from test!").isTrue();
+        //Register another user to send message to testUser over WebSocket
+        AuthDTO anotherUserAuthDTO = new AuthDTO("anotherUser", "password");
+        MultiValueMap<String, ResponseCookie> anotherResult = webTestClient.post().uri("/auth/register")
+                .bodyValue(anotherUserAuthDTO)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(String.class)
+                .returnResult().getResponseCookies();
 
-        String receivedMessage = blockingQueue.poll(5, SECONDS);
-        assertThat(receivedMessage).as("Received message content").isEqualTo("Hello from test!");
+        webTestClient.post().uri("/message")
+                .cookie("access_token", anotherResult.get("access_token").getFirst().getValue())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("""
+                  {
+                    "content": "This is the test!",
+                    "sent": "09-02-2026 14:30:00",
+                    "to": 2
+                  }
+                """)
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+
+        boolean messageReceived = messageReceivedLatch.await(5, SECONDS);
+        assertThat(messageReceived).as("Received message: This is the test!").isTrue();
+
+        String receivedMessage = blockingQueue.peek();
+        assertThat(receivedMessage).isEqualTo("This is the test!");
+        session.disconnect();
 
     }
 }
