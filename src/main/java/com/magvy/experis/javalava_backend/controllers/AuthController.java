@@ -8,17 +8,12 @@ import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -54,9 +49,16 @@ public class AuthController extends BaseAuthHController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authDTO.getUserName(), authDTO.getPassword())
         );
-        String jwt = jwtUtil.generateToken(authDTO.getUserName());
 
         Object principal = authentication.getPrincipal();
+        String role = null;
+        if (principal instanceof CustomUserDetails details) {
+            User user = details.getUser();
+            role = user.getRole().name();
+        }
+
+        String jwt = jwtUtil.generateToken(authDTO.getUserName(), role);
+
         if (principal instanceof CustomUserDetails details) {
             Cookie jwtCookie = new Cookie("access_token", jwt);
             jwtCookie.setHttpOnly(true);

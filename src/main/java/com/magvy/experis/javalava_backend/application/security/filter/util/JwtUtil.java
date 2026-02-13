@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class JwtUtil {
@@ -18,7 +20,16 @@ public class JwtUtil {
     }
 
     public String generateToken(String userName) {
+        return generateToken(userName, null);
+    }
+
+    public String generateToken(String userName, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        if (role != null) {
+            claims.put("role", role);
+        }
         return Jwts.builder()
+                .claims(claims)
                 .subject(userName)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
@@ -34,7 +45,16 @@ public class JwtUtil {
                 .getPayload()
                 .getSubject();
     }
-    
+
+    public String extractRole(String token) {
+        return (String) Jwts.parser()
+                .verifyWith(KEY)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role");
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
