@@ -2,8 +2,8 @@ package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.MessageDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.Message;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.Message;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.MessageRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

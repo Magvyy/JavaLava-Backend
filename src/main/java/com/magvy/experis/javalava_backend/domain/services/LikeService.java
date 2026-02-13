@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTORequest;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.Like;
+import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;

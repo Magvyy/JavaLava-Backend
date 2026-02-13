@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.infrastructure.initializers;
 
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.*;
+import com.magvy.experis.javalava_backend.domain.entitites.*;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;

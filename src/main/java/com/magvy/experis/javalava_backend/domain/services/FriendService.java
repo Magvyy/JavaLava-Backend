@@ -1,11 +1,11 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.Friend;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.FriendRequest;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.composite.FriendId;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.composite.FriendRequestId;
+import com.magvy.experis.javalava_backend.domain.entitites.Friend;
+import com.magvy.experis.javalava_backend.domain.entitites.FriendRequest;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
+import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendRequestId;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRequestRepository;

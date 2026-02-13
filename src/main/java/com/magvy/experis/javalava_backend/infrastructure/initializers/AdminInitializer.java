@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.infrastructure.initializers;
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.jspecify.annotations.NonNull;

@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.infrastructure.readonly;
 
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.Optional;

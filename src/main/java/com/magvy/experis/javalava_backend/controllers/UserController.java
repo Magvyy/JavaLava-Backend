@@ -4,7 +4,7 @@ package com.magvy.experis.javalava_backend.controllers;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ProfileDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
 import com.magvy.experis.javalava_backend.domain.services.FriendService;
 import com.magvy.experis.javalava_backend.domain.services.UserService;

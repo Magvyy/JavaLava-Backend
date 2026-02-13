@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.application.security.config;
 
-import com.magvy.experis.javalava_backend.domain.enums.entitites.Role;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.Role;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

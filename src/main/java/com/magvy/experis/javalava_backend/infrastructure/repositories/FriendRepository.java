@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.infrastructure.repositories;
 
-import com.magvy.experis.javalava_backend.domain.enums.entitites.Friend;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.composite.FriendId;
+import com.magvy.experis.javalava_backend.domain.entitites.Friend;
+import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

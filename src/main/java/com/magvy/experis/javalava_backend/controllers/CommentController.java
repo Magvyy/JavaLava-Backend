@@ -3,7 +3,7 @@ package com.magvy.experis.javalava_backend.controllers;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.CommentDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.CommentDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.CommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

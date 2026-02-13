@@ -3,7 +3,7 @@ package com.magvy.experis.javalava_backend.controllers;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.Post;
+import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 

@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.application.DTOs.outgoing;
 
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import lombok.Getter;
 
 @Getter

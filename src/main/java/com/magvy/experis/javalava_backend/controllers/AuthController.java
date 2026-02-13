@@ -5,7 +5,7 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.DefaultRespo
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

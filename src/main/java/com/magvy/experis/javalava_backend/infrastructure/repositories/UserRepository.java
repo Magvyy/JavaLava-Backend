@@ -1,9 +1,8 @@
 package com.magvy.experis.javalava_backend.infrastructure.repositories;
 
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.infrastructure.readonly.ReadOnlyUserRepository;
-import org.jspecify.annotations.NullMarked;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

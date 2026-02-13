@@ -5,7 +5,7 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ProfileDTORe
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserAlreadyExistsException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserNotFoundException;
