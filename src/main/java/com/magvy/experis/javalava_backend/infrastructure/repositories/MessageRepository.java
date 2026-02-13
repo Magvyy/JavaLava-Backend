@@ -14,8 +14,13 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findByToAndFrom(User to, User from);
     List<Message> getMessageByFrom(User from, User to);
 
+    List<Message> findByFromAndToOrFromAndTo(
+            User from1, User to1,
+            User from2, User to2
+    );
+
     @Query(value = """
-    SELECT DISTINCT ON (other_user_id) *
+    SELECT distinct on (other_user_id) *
     FROM (
         SELECT *,
             CASE
@@ -25,7 +30,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
         FROM messages
         WHERE from_user_id = :id OR to_user_id = :id
     ) sub
-    ORDER BY other_user_id, sent ASC;
+    ORDER BY other_user_id, sent DESC;
     """, nativeQuery = true)
     List<Message> getConversations(Long id);
 }
