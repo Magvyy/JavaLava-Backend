@@ -32,11 +32,18 @@ public class MessageController extends BaseAuthHController {
     @GetMapping()
     public ResponseEntity<List<MessageDTOResponse>> getMessages(@AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
-        List<MessageDTOResponse> messages = messageService.getMessages(user);
+        List<MessageDTOResponse> messages = messageService.getConversations(user);
         return new ResponseEntity<>(messages, HttpStatus.OK);
     }
 
     @GetMapping("/{sender_id}")
+    public ResponseEntity<List<MessageDTOResponse>> getConversation(@PathVariable Long sender_id, @AuthenticationPrincipal CustomUserDetails principal) {
+        User user = throwIfUserNull(principal);
+        List<MessageDTOResponse> conversation = messageService.getConversation(user, sender_id);
+        return new ResponseEntity<>(conversation, HttpStatus.OK);
+    }
+
+    @GetMapping("/someother_endpoint/{sender_id}")
     public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable Long sender_id, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
         List<MessageDTOResponse> messageHistory = messageService.getMessageHistory(user, sender_id);
