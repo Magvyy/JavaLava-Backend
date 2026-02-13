@@ -33,6 +33,7 @@ public class MessageService {
 //       if (!friendService.isFriend(recipient, sender)) { TODO IMPLEMENT Friends
 //          throw new IllegalArgumentException("Can only send message to a friend");
 //       }
+
         if (recipient == null) {
             throw new IllegalArgumentException("Recipient cannot be null");
         }
@@ -46,6 +47,17 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
+    public List<MessageDTOResponse> getConversation(User receiver, Long sender_id) {
+        User sender = userService.getUserById(sender_id);
+        List<Message> messageList = messageRepository.findByFromAndToOrFromAndTo(receiver, sender, sender, receiver);
+        List<MessageDTOResponse> messageDTOResponses = new ArrayList<>();
+        for (Message message : messageList) {
+            messageDTOResponses.add(new MessageDTOResponse(message));
+        }
+
+        return messageDTOResponses;
+    }
+
     public List<MessageDTOResponse> getMessageHistory(User receiver, Long sender_id) {
         User sender = userService.getUserById(sender_id);
         List<Message> messageList = messageRepository.findByToAndFrom(receiver, sender);
@@ -57,7 +69,7 @@ public class MessageService {
         return messageDTOResponses;
     }
 
-    public List<MessageDTOResponse> getMessages(User receiver) {
+    public List<MessageDTOResponse> getConversations(User receiver) {
         List<Message> messageList = messageRepository.getConversations(receiver.getId());
         List<MessageDTOResponse> messageDTOResponses = new ArrayList<>();
         for (Message message : messageList) {
