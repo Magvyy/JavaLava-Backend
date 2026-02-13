@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-@Entity
 @Getter
 @Setter
+@Entity
 @Table(name = "friends")
 public class Friend {
 
@@ -17,12 +17,12 @@ public class Friend {
 
     @MapsId("user1")
     @ManyToOne
-    @JoinColumn(name = "user_id_1")
+    @JoinColumn(name = "user_id_1", nullable = false)
     private User user1;
 
     @MapsId("user2")
     @ManyToOne
-    @JoinColumn(name = "user_id_2")
+    @JoinColumn(name = "user_id_2", nullable = false)
     private User user2;
 
     public Friend() {}

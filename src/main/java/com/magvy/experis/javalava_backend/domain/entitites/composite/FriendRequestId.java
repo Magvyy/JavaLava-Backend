@@ -1,8 +1,11 @@
 package com.magvy.experis.javalava_backend.domain.entitites.composite;
 
+import jakarta.persistence.Embeddable;
+
 import java.io.Serializable;
 import java.util.Objects;
 
+@Embeddable
 public class FriendRequestId implements Serializable {
     private Long from; // user id
     private Long to;   // user id

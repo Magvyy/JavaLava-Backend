@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-@Entity
 @Getter
 @Setter
+@Entity
 @Table(name = "friend_requests")
 public class FriendRequest {
 

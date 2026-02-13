@@ -2,17 +2,19 @@ package com.magvy.experis.javalava_backend.domain.entitites.composite;
 
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
+import jakarta.persistence.Embeddable;
 
 import java.io.Serializable;
 
+@Embeddable
 public class LikeId implements Serializable {
-    private Long user;
-    private Long post;
+    private Long userId;
+    private Long postId;
 
     LikeId(){};
     public LikeId(User user, Post post) {
-        this.user = user.getId();
-        this.post = post.getId();
+        this.userId = user.getId();
+        this.postId = post.getId();
     }
 
     @Override
@@ -20,11 +22,11 @@ public class LikeId implements Serializable {
         if (this == o) return true;
         if (this.getClass() != o.getClass()) return false;
         LikeId that = (LikeId) o;
-        return this.user.equals(that.user) && this.post.equals(that.post);
+        return this.userId.equals(that.userId) && this.postId.equals(that.postId);
     }
 
     @Override
     public int hashCode() {
-        return user.hashCode() + post.hashCode();
+        return userId.hashCode() + postId.hashCode();
     }
 }

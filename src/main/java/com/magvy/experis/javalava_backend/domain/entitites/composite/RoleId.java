@@ -1,8 +1,8 @@
 package com.magvy.experis.javalava_backend.domain.entitites.composite;
 
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -10,20 +10,15 @@ import java.io.Serializable;
 @Getter
 @Embeddable
 public class RoleId implements Serializable {
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private RoleEnum role;
-
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    public RoleId() {
+    @Column(name = "role", nullable = false)
+    private RoleEnum role;
 
-    }
-
-    public RoleId(User user, RoleEnum role) {
-        this.userId = user.getId();
+    RoleId(){};
+    public RoleId(Long userId, RoleEnum role) {
+        this.userId = userId;
         this.role = role;
     }
 
