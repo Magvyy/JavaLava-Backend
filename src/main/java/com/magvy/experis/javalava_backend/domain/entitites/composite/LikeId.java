@@ -6,13 +6,13 @@ import com.magvy.experis.javalava_backend.domain.entitites.User;
 import java.io.Serializable;
 
 public class LikeId implements Serializable {
-    private User user;
-    private Post post;
+    private Long user;
+    private Long post;
 
     LikeId(){};
     public LikeId(User user, Post post) {
-        this.user = user;
-        this.post = post;
+        this.user = user.getId();
+        this.post = post.getId();
     }
 
     @Override
@@ -20,7 +20,7 @@ public class LikeId implements Serializable {
         if (this == o) return true;
         if (this.getClass() != o.getClass()) return false;
         LikeId that = (LikeId) o;
-        return this.user.getId() == that.user.getId() && this.post.getId() == that.post.getId();
+        return this.user.equals(that.user) && this.post.equals(that.post);
     }
 
     @Override
