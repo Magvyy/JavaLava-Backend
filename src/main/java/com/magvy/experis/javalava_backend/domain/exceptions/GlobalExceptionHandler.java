@@ -1,7 +1,10 @@
 package com.magvy.experis.javalava_backend.domain.exceptions;
 
 
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.DefaultResponseDTO;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,13 +44,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedActionException.class)
     public ResponseEntity<Map<String, String>> handleUnauthorizedDeletionException(UnauthorizedActionException exception) {
         Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Unauthorized Deletion.  ");
+        errorResponse.put("error", "Unauthorized Deletion.");
         errorResponse.put("message", exception.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
+
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleUserNotFound(UserNotFoundException ex) {
-        return ex.getMessage();
+    public ResponseEntity<DefaultResponseDTO> handleUserNotFound(UserNotFoundException exception) {
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UnauthenticatedUserException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<DefaultResponseDTO> onUnauthenticatedUser(UnauthenticatedUserException exception) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, HttpStatus.UNAUTHORIZED);
     }
 }
