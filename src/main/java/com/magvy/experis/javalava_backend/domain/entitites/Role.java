@@ -1,21 +1,31 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
 
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
+import com.magvy.experis.javalava_backend.domain.entitites.composite.RoleId;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "roles")
 public class Role {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private RoleEnum role;
+    @EmbeddedId
+    private RoleId id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    public Role() {
+
+    }
+
+    public Role(User user, RoleEnum role) {
+        this.id = new RoleId(user, role);
+    }
+
+    public RoleEnum getRole() {
+        return id.getRole();
+    }
 }
