@@ -28,8 +28,8 @@ public class FriendRequest {
     public FriendRequest() {}
 
     public FriendRequest(User from, User to) {
+        this.id = new FriendRequestId(from.getId(), to.getId());
         this.from = from;
         this.to = to;
-        this.id = new FriendRequestId(from.getId(), to.getId());
     }
 }

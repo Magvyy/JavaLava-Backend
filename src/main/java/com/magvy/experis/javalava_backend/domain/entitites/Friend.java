@@ -25,8 +25,6 @@ public class Friend {
     @JoinColumn(name = "user_id_2", nullable = false)
     private User user2;
 
-    public Friend() {}
-
     public Friend(User a, User b) {
         if (a.getId() < b.getId()) {
             this.user1 = a;
@@ -36,5 +34,9 @@ public class Friend {
             this.user2 = a;
         }
         this.id = new FriendId(this.user1.getId(), this.user2.getId());
+    }
+
+    public Friend() {
+
     }
 }

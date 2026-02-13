@@ -2,10 +2,13 @@ package com.magvy.experis.javalava_backend.domain.entitites;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "messages")
 public class Message {

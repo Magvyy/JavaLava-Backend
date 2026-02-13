@@ -24,10 +24,13 @@ public class Like {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    public Like() {};
-    public Like(User user, Post post){
+    public Like(User user, Post post) {
+        this.id = new LikeId(user, post);
         this.post = post;
         this.user = user;
     }
 
+    public Like() {
+
+    }
 }

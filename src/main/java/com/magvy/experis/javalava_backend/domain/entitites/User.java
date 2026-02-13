@@ -3,11 +3,13 @@ package com.magvy.experis.javalava_backend.domain.entitites;
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class User {
@@ -21,7 +23,7 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
     private List<Role> roles;
 
     public void addRole(RoleEnum role) {
