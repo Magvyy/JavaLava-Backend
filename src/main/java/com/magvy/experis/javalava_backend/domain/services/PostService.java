@@ -5,7 +5,7 @@ import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTOReque
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.MissingPostException;
-import com.magvy.experis.javalava_backend.domain.exceptions.MissingUserException;
+import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
@@ -68,7 +68,7 @@ public class PostService {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         if (user == null) {
-            throw new MissingUserException("Couldn't find user in database");
+            throw new UnauthenticatedUserException("Couldn't find user in database");
         }
         return pageToDTOList(postRepository.findPostsFromFriends(user.getId(), pageable), user.getId());
     }
