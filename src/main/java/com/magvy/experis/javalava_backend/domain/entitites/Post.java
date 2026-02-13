@@ -24,6 +24,9 @@ public class Post {
     private User user;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE) // Use CascadeType.REMOVE or ALL
+    private List<Like> likes;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE) // Use CascadeType.REMOVE or ALL
     private List<Comment> comments;
 
     public Post(Long id, String content, LocalDateTime published, boolean visible, User user) {
