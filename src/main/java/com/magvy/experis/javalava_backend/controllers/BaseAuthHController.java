@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.controllers;
 
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
 import org.springframework.web.bind.annotation.RestController;
 

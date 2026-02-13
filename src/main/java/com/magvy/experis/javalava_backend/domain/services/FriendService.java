@@ -1,11 +1,11 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
-import com.magvy.experis.javalava_backend.domain.entitites.Friend;
-import com.magvy.experis.javalava_backend.domain.entitites.FriendRequest;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
-import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
-import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendRequestId;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.Friend;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.FriendRequest;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.composite.FriendId;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.composite.FriendRequestId;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRequestRepository;
@@ -22,8 +22,10 @@ public class FriendService {
     private final FriendRepository friendRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final UserService userService;
+    private final WebSocketService webSocketService;
 
-    public FriendService(FriendRepository friendRepository, FriendRequestRepository friendRequestRepository, UserService userService) {
+    public FriendService(FriendRepository friendRepository, FriendRequestRepository friendRequestRepository, UserService userService, WebSocketService webSocketService) {
+        this.webSocketService = webSocketService;
         this.userService = userService;
         this.friendRepository = friendRepository;
         this.friendRequestRepository = friendRequestRepository;
@@ -49,6 +51,11 @@ public class FriendService {
                 to
         );
         friendRequestRepository.save(friendRequest);
+        webSocketService.sendNotification(
+                to.getUserName(),
+                "New friend request from " + from.getUserName()
+        );
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -64,6 +71,8 @@ public class FriendService {
         Friend friend = new Friend(user, friendUser);
         friendRepository.save(friend);
         friendRequestRepository.delete(request);
+        webSocketService.sendNotification(friendUser.getUserName(),
+                "Your friend request to " + user.getUserName() + " has been accepted");
         return ResponseEntity.noContent().build();
     }
 

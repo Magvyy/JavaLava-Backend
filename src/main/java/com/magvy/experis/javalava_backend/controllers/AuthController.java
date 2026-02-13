@@ -5,10 +5,11 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.DefaultRespo
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,6 +39,7 @@ public class AuthController extends BaseAuthHController {
 
     @PostMapping("/login")
     public ResponseEntity <DefaultResponseDTO> loginPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
+        System.out.println("?");
         return authHandler(authDTO, response);
     }
 
@@ -51,19 +53,22 @@ public class AuthController extends BaseAuthHController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authDTO.getUserName(), authDTO.getPassword())
         );
-        String jwt = jwtUtil.generateToken(authDTO.getUserName());
 
         Object principal = authentication.getPrincipal();
+        System.out.println(principal);
         if (principal instanceof CustomUserDetails details) {
+            User user = details.getUser();
+            String jwt = jwtUtil.generateToken(user.getUserName());
             Cookie jwtCookie = new Cookie("access_token", jwt);
             jwtCookie.setHttpOnly(true);
             jwtCookie.setSecure(false);
             jwtCookie.setPath("/");
             jwtCookie.setMaxAge(60 * 60);
             response.addCookie(jwtCookie);
+            return ResponseEntity.ok(new DefaultResponseDTO("Authenticated"));
         }
 
-        return ResponseEntity.ok(new DefaultResponseDTO("Authenticated"));
+        return new ResponseEntity<>(new DefaultResponseDTO("Unauthenticated"), HttpStatus.UNAUTHORIZED);
     }
 
 }

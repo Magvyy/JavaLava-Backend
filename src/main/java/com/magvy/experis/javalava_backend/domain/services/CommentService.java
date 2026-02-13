@@ -2,9 +2,9 @@ package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.CommentDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.CommentDTOResponse;
-import com.magvy.experis.javalava_backend.domain.entitites.Comment;
-import com.magvy.experis.javalava_backend.domain.entitites.Post;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.Comment;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.Post;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
@@ -23,12 +23,14 @@ public class CommentService {
 
     private final UserService userService;
     private final PostService postService;
+    private final WebSocketService webSocketService;
     private final CommentRepository commentRepository;
     private final int pageSize = 10;
 
-    public CommentService(UserService userService, PostService postService, CommentRepository commentRepository) {
+    public CommentService(UserService userService, PostService postService, WebSocketService webSocketService, CommentRepository commentRepository) {
         this.userService = userService;
         this.postService = postService;
+        this.webSocketService = webSocketService;
         this.commentRepository = commentRepository;
     }
 
@@ -39,6 +41,10 @@ public class CommentService {
         }
         Comment comment = convertToEntity(postId, user, commentDTO);
         comment = commentRepository.save(comment);
+        webSocketService.sendNotification(
+                postService.findByID(postId).getUser().getUserName(),
+                "New comment on your post from " + user.getUserName()
+        );
         CommentDTOResponse commentDTOResponse = new CommentDTOResponse(comment);
         return new ResponseEntity<>(commentDTOResponse, HttpStatus.OK);
     }
@@ -87,7 +93,7 @@ public class CommentService {
             return HttpStatus.NOT_FOUND;
         }
         Comment comment = oComment.get();
-        if (!comment.getUser().getId().equals(user.getId())) {
+        if (!comment.getUser().getId().equals(user.getId()) && !userService.isAdmin(user.getId())) {
             return HttpStatus.UNAUTHORIZED;
         }
         commentRepository.delete(comment);

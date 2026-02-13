@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTORequest;
-import com.magvy.experis.javalava_backend.domain.entitites.Like;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.Like;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
@@ -15,15 +15,17 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final WebSocketService webSocketService;
 
 
     @Autowired
     public LikeService(LikeRepository likeRepository,
                        UserRepository userRepository,
-                       PostRepository postRepository){
+                       PostRepository postRepository, WebSocketService webSocketService){
         this.likeRepository = likeRepository;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.webSocketService = webSocketService;
     }
 
     private Like convertToEntity(LikeDTORequest likeDTORequest) {
@@ -32,12 +34,14 @@ public class LikeService {
     }
 
     public ResponseEntity<String> likePost(LikeDTORequest likeDTORequest){
-        if (likeRepository.existsByPost_idAndUser_Id(likeDTORequest.getUserId(), likeDTORequest.getPostId())){
+        if (likeRepository.existsByPost_idAndUser_Id(likeDTORequest.getPostId(), likeDTORequest.getUserId())){
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         // Lazy loading, user and post only loaded once needed
         Like newLike = convertToEntity(likeDTORequest);
         likeRepository.save(newLike);
+        webSocketService.sendNotification(newLike.getPost().getUser().getUserName(),
+                "Your post has a new like from " + newLike.getUser().getUserName());
         return ResponseEntity.noContent().build();
     }
 

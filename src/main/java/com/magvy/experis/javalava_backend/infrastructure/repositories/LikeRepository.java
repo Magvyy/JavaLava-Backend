@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.infrastructure.repositories;
 
-import com.magvy.experis.javalava_backend.domain.entitites.Like;
-import com.magvy.experis.javalava_backend.domain.entitites.composite.LikeId;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.Like;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.composite.LikeId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

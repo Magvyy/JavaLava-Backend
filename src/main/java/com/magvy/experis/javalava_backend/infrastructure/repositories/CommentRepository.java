@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.infrastructure.repositories;
 
-import com.magvy.experis.javalava_backend.domain.entitites.Comment;
-import com.magvy.experis.javalava_backend.domain.entitites.Post;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.Comment;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

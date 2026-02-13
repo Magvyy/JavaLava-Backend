@@ -2,8 +2,8 @@ package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
-import com.magvy.experis.javalava_backend.domain.entitites.Post;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.Post;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.MissingPostException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
@@ -26,9 +26,11 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final FriendService friendService;
+    private final UserService userService;
     private final int pageSize = 10;
 
-    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, FriendService friendService) {
+    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, FriendService friendService, UserService userService) {
+        this.userService = userService;
         this.friendService = friendService;
         this.postRepository = postRepository;
         this.likeRepository = likeRepository;
@@ -141,7 +143,7 @@ public class PostService {
             throw new MissingPostException("Can't delete a missing post.");
         }
         Post post = oPost.get();
-        if (!post.getUser().getId().equals(user.getId())) {
+        if (!post.getUser().getId().equals(user.getId()) && !userService.isAdmin(user.getId())) {
             throw new UnauthorizedActionException("User does not own this post.");
         }
         postRepository.delete(post);

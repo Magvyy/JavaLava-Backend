@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -57,7 +58,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnauthenticatedUserException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<DefaultResponseDTO> onUnauthenticatedUser(UnauthenticatedUserException exception) {
+    public ResponseEntity<DefaultResponseDTO> handleUnauthenticatedUser(UnauthenticatedUserException exception) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<DefaultResponseDTO> handleUserNameNotFound(UsernameNotFoundException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, HttpStatus.UNAUTHORIZED);

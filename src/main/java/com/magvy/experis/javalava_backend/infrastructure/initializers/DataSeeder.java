@@ -1,7 +1,7 @@
-package com.magvy.experis.javalava_backend.infrastructure.seed;
+package com.magvy.experis.javalava_backend.infrastructure.initializers;
 
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
-import com.magvy.experis.javalava_backend.domain.entitites.*;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.*;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 public class DataSeeder {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final MessageRepository messageRepository;
@@ -40,29 +39,20 @@ public class DataSeeder {
             // ========================
 
             User john = userRepository.save(
-                    new User(null, "john", passwordEncoder.encode("password"))
+                    new User("john", passwordEncoder.encode("password"))
             );
 
             User alice = userRepository.save(
-                    new User(null, "alice", passwordEncoder.encode("password"))
+                    new User("alice", passwordEncoder.encode("password"))
             );
 
             User bob = userRepository.save(
-                    new User(null, "bob", passwordEncoder.encode("password"))
+                    new User("bob", passwordEncoder.encode("password"))
             );
 
             User emma = userRepository.save(
-                    new User(null, "emma", passwordEncoder.encode("password"))
+                    new User("emma", passwordEncoder.encode("password"))
             );
-
-            // ========================
-            // ROLES
-            // ========================
-
-            roleRepository.save(createRole(john, RoleEnum.ADMIN));
-            roleRepository.save(createRole(alice, RoleEnum.USER));
-            roleRepository.save(createRole(bob, RoleEnum.USER));
-            roleRepository.save(createRole(emma, RoleEnum.USER));
 
             // ========================
             // FRIENDS

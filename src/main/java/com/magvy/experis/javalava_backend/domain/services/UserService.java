@@ -3,28 +3,23 @@ package com.magvy.experis.javalava_backend.domain.services;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ProfileDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
+import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.enums.entitites.User;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserAlreadyExistsException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserNotFoundException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.jspecify.annotations.NullMarked;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -40,11 +35,15 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
+    public boolean isAdmin(Long id) {
+        return getUserById(id).getRoles().stream().anyMatch(role -> role.getRole() == RoleEnum.ADMIN);
+    }
+
     public User convertToEntity(AuthDTO authDTO) {
-        User user = new User();
-        user.setUserName(authDTO.getUserName());
-        user.setPassword(passwordEncoder.encode(authDTO.getPassword()));
-        return user;
+        return new User(
+                authDTO.getUserName(),
+                passwordEncoder.encode(authDTO.getPassword())
+        );
     }
 
     public void register(AuthDTO authDTO) {
@@ -78,5 +77,13 @@ public class UserService implements UserDetailsService {
     }
     public UserDTOResponse convertToDTO(User user) {
         return new UserDTOResponse(user);
+    }
+
+    public void deleteUser(Long userId) {
+        User user = getUserById(userId);
+        if (isAdmin(userId)) {
+            throw new IllegalArgumentException("Cannot delete admin user");
+        }
+        userRepository.delete(user);
     }
 }

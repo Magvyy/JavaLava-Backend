@@ -37,6 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @NullMarked
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = extractJwtFromCookies(request);
+        System.out.println(request.getMethod());
         if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
