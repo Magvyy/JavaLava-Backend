@@ -39,5 +39,4 @@ public class Message {
         this.from = from;
         this.to = to;
     }
-
 }
