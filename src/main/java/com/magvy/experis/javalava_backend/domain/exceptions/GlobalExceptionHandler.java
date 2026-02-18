@@ -2,6 +2,9 @@ package com.magvy.experis.javalava_backend.domain.exceptions;
 
 
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.DefaultResponseDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ErrorDTOResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,5 +74,16 @@ public class GlobalExceptionHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorDTOResponse> handleException(ResponseStatusException exception, HttpServletRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ErrorDTOResponse error = new ErrorDTOResponse(
+                exception.getStatusCode().value(),
+                exception.getMessage()
+        );
+        return new ResponseEntity<>(error, headers, HttpStatus.UNAUTHORIZED);
     }
 }
