@@ -28,8 +28,8 @@ public class UserController extends BaseAuthHController {
     }
 
     @GetMapping("/search")
-    public List<UserDTOResponse> searchUsers(@RequestParam String q){
-        return userService.search(q);
+    public List<UserDTOResponse> searchUsers(@RequestParam String q, @RequestParam int page){
+        return userService.search(q, page);
     }
 
     @GetMapping("/{userId}")

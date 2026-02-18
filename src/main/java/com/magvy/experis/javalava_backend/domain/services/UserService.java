@@ -55,13 +55,13 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public List<UserDTOResponse> search(String query) {
+    public List<UserDTOResponse> search(String query, int page) {
         //length longer than 2 to avoid too many results / better performance
-        if (query == null || query.trim().length() < 2) {
+        if (query == null) {
             return List.of();
         }
 
-        Pageable limit = PageRequest.of(0, 10);
+        Pageable limit = PageRequest.of(page, 10);
         return userRepository.searchUsers(query.trim(), limit);
     }
     public ProfileDTOResponse getProfile(Long id, FriendStatus friendStatus) {
