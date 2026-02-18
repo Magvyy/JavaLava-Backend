@@ -34,6 +34,13 @@ public class DataSeeder {
                 return;
             }
 
+            User admin = new User(
+                    "admin",
+                    passwordEncoder.encode("admin")
+            );
+            admin.addRole(RoleEnum.ADMIN);
+            userRepository.save(admin);
+
             // ========================
             // USERS
             // ========================
