@@ -1,5 +1,6 @@
 package com.magvy.experis.javalava_backend.controllers;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.MessageDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ConversationDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
@@ -34,9 +35,9 @@ public class MessageController extends BaseAuthHController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<MessageDTOResponse>> getConversations(@RequestParam(value = "page") int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<List<ConversationDTOResponse>> getConversations(@RequestParam(value = "page") int page, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
-        List<MessageDTOResponse> messages = messageService.getConversations(user, page);
+        List<ConversationDTOResponse> messages = messageService.getConversations(user, page);
         return new ResponseEntity<>(messages, HttpStatus.OK);
     }
 

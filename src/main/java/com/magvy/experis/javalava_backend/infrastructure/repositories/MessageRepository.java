@@ -16,9 +16,10 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     Page<Message> findByToAndFrom(User to, User from, Pageable pageable);
     List<Message> getMessageByFrom(User from, User to);
 
-    List<Message> findByFromAndToOrFromAndTo(
+    Page<Message> findByFromAndToOrFromAndTo(
             User from1, User to1,
-            User from2, User to2
+            User from2, User to2,
+            Pageable pageable
     );
 
     @Query(value = """
@@ -32,8 +33,9 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
         FROM messages
         WHERE from_user_id = :id OR to_user_id = :id
     ) sub
-    ORDER BY other_user_id, sent DESC;
+    ORDER BY other_user_id, sent DESC
+    LIMIT :limit OFFSET :offset
     """, nativeQuery = true)
-    List<Message> getConversations(Long id);
+    List<Message> getConversationsOrderBySentDesc(Long id, int limit, int offset);
 }
 

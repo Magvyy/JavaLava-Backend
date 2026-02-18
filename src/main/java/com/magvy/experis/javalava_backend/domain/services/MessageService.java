@@ -1,6 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.MessageDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ConversationDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,7 +19,7 @@ import java.util.List;
 public class MessageService {
     private final MessageRepository messageRepository;
     private final UserService userService;
-    private final int pageSize = 10;
+        private final int pageSize = 20;
 
 
     public MessageService(MessageRepository messageRepository, UserService userService) {
@@ -46,24 +46,19 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public List<MessageDTOResponse> getConversations(User recipient, int page) {
-        Sort sort = Sort.by("sent").descending();
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
-        List<Message> messageList = messageRepository.getConversations(recipient.getId());
-        List<MessageDTOResponse> messageDTOResponses = new ArrayList<>();
-        for (Message message : messageList) {
-            messageDTOResponses.add(new MessageDTOResponse(message));
-        }
-        return messageDTOResponses;
+    public List<ConversationDTOResponse> getConversations(User authUser, int page) {
+        List<Message> messageList = messageRepository.getConversationsOrderBySentDesc(authUser.getId(), pageSize, page * pageSize);
+        return messageList.stream()
+                .map(msg -> new ConversationDTOResponse(msg, authUser))
+                .toList().reversed();
     }
 
     public List<MessageDTOResponse> getConversation(User recipient, Long sender_id, int page) {
         Sort sort = Sort.by("sent").descending();
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         User sender = userService.getUserById(sender_id);
-        Page<Message> messagePage = messageRepository.findByToAndFrom(recipient, sender, pageable);
-        List<Message> messageList = messageRepository.findByFromAndToOrFromAndTo(recipient, sender, sender, recipient);
-        return pageToDTOList(messagePage);
+        Page<Message> messageList = messageRepository.findByFromAndToOrFromAndTo(recipient, sender, sender, recipient, pageable);
+        return pageToDTOList(messageList).reversed();
     }
 
     private List<MessageDTOResponse> pageToDTOList(Page<Message> messages) {
