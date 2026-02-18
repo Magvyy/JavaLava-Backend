@@ -30,7 +30,7 @@ public class MessageController extends BaseAuthHController {
     public ResponseEntity<MessageDTOResponse> sendMessage(@RequestBody MessageDTORequest messageDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
         Message message = messageService.sendMessage(messageDTORequest, user);
-        websocketService.sendMessage(message.getTo().getUserName(), message.getContent());
+        websocketService.sendMessage(message.getTo().getUserName(), message);
         return new ResponseEntity<>(new MessageDTOResponse(message), HttpStatus.OK);
     }
 
