@@ -1,11 +1,9 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
-import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
-import com.magvy.experis.javalava_backend.domain.entitites.Role;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostNotFoundException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;

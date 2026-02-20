@@ -2,8 +2,6 @@ package com.magvy.experis.javalava_backend.application.security.filter;
 
 import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
-import com.sun.tools.jconsole.JConsoleContext;
-import com.sun.tools.jconsole.JConsolePlugin;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
