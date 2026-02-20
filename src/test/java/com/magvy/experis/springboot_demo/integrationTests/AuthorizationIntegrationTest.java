@@ -84,7 +84,7 @@ public class AuthorizationIntegrationTest {
        assertThat(webTestClient).isNotNull();
     }
 
-    MultiValueMap<String, ResponseCookie> getResultCookieFromRegister(AuthDTO authDTO){
+    MultiValueMap<String, ResponseCookie> getResultCookieFromRegister(AuthDTO authDTO) {
        return webTestClient.post().uri("/auth/register")
                .bodyValue(authDTO)
                .exchange()

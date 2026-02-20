@@ -19,7 +19,7 @@ import java.util.List;
 public class MessageService {
     private final MessageRepository messageRepository;
     private final UserService userService;
-        private final int pageSize = 20;
+    private final int pageSize = 20;
 
 
     public MessageService(MessageRepository messageRepository, UserService userService) {

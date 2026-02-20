@@ -18,6 +18,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private String frontend;
 
     public WebSocketConfig() {
+
     }
 
     @Override
