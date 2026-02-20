@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magvy.experis.javalava_backend.App;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
+import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import com.magvy.experis.javalava_backend.controllers.AuthController;
 import com.magvy.experis.javalava_backend.controllers.PostController;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.jspecify.annotations.NonNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,56 +20,79 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
-import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.converter.JacksonJsonMessageConverter;
 import org.springframework.messaging.simp.stomp.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.socket.WebSocketHttpHeaders;
+import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.concurrent.*;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = App.class)
 public class AuthorizationIntegrationTest {
 
-   @Autowired
-   private AuthController authController;
+    @Autowired
+    private AuthController authController;
 
-   @Autowired
-   private PostController postController;
+    @Autowired
+    private PostController postController;
 
-   @Autowired
-   private WebTestClient webTestClient;
+    @Autowired
+    private WebTestClient webTestClient;
 
-   @Autowired
-   private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-   @LocalServerPort
-   private Integer port;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-   @Test
-   void contextLoads(){
+    @LocalServerPort
+    private Integer port;
+
+    private User addUser(User user) {
+        if (userRepository.existsByUserName(user.getUserName())) return userRepository.findByUserName(user.getUserName()).orElseThrow();
+        return userRepository.save(user);
+    }
+
+    @BeforeEach
+    public void setup() {
+       User admin = new User(
+               "admin",
+               passwordEncoder.encode("admin")
+       );
+       admin.addRole(RoleEnum.ADMIN);
+       addUser(admin);
+    }
+
+    @Test
+    void contextLoads(){
        assertThat(authController).isNotNull();
        assertThat(postController).isNotNull();
        assertThat(webTestClient).isNotNull();
-   }
+    }
 
-   MultiValueMap<String, ResponseCookie> getResultCookieFromRegister(AuthDTO authDTO){
+    MultiValueMap<String, ResponseCookie> getResultCookieFromRegister(AuthDTO authDTO){
        return webTestClient.post().uri("/auth/register")
                .bodyValue(authDTO)
                .exchange()
                .expectStatus().is2xxSuccessful()
                .expectBody(String.class)
                .returnResult().getResponseCookies();
-   }
+    }
 
     @Test
     void loginAsAdmin_SuccessfullyDeleteOtherUserPost() throws JsonProcessingException {
@@ -76,7 +102,7 @@ public class AuthorizationIntegrationTest {
         MultiValueMap<String, ResponseCookie> result = getResultCookieFromRegister(authDTO);
 
         // 2 create post as regular user
-        EntityExchangeResult<String> post = webTestClient.post().uri("/post")
+        EntityExchangeResult<String> post = webTestClient.post().uri("/posts")
                 .cookie("access_token", result.get("access_token").getFirst().getValue())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("""
@@ -96,7 +122,7 @@ public class AuthorizationIntegrationTest {
         int post_id = jsonNode.get("id").asInt();
 
         //3 Read post as regular user
-        webTestClient.get().uri(String.format("/post/%s", post_id))
+        webTestClient.get().uri(String.format("/posts/%s", post_id))
             .cookie("access_token", result.get("access_token").getFirst().getValue())
             .exchange()
             .expectStatus().is2xxSuccessful();
@@ -112,14 +138,14 @@ public class AuthorizationIntegrationTest {
                 .expectBody(String.class)
                 .returnResult().getResponseCookies();
 
-//        // 5 Delete post as admin
-        webTestClient.delete().uri(String.format("/post/%s", post_id))
+    //        // 5 Delete post as admin
+        webTestClient.delete().uri(String.format("/posts/%s", post_id))
                 .cookie("access_token", adminResult.get("access_token").getFirst().getValue())
                 .exchange()
                 .expectStatus().is2xxSuccessful();
 
         // 6 Verify post deleted
-        webTestClient.get().uri(String.format("/post/%s", post_id))
+        webTestClient.get().uri(String.format("/posts/%s", post_id))
                 .cookie("access_token", result.get("access_token").getFirst().getValue())
                 .exchange()
                 .expectStatus().is4xxClientError();
@@ -133,7 +159,7 @@ public class AuthorizationIntegrationTest {
         MultiValueMap<String, ResponseCookie> userCookieResult = getResultCookieFromRegister(userDTO);
 
         // Create the post
-        EntityExchangeResult<String> post = webTestClient.post().uri("/post")
+        EntityExchangeResult<String> post = webTestClient.post().uri("/posts")
                 .cookie("access_token", userCookieResult.get("access_token").getFirst().getValue())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("""
@@ -153,7 +179,7 @@ public class AuthorizationIntegrationTest {
         int post_id = jsonNode.get("id").asInt();
 
         // Ensure post is created
-        webTestClient.get().uri(String.format("/post/%s", post_id))
+        webTestClient.get().uri(String.format("/posts/%s", post_id))
                 .cookie("access_token", userCookieResult.get("access_token").getFirst().getValue())
                 .exchange()
                 .expectStatus().is2xxSuccessful();
@@ -162,14 +188,14 @@ public class AuthorizationIntegrationTest {
         AuthDTO otherUserDTO = new AuthDTO("jklsdklj", "password");
         MultiValueMap<String, ResponseCookie> otherUserCookieResult = getResultCookieFromRegister(otherUserDTO);
 
-//        // Try delete post as other user
-        webTestClient.delete().uri(String.format("/post/%s", post_id))
+    //        // Try delete post as other user
+        webTestClient.delete().uri(String.format("/posts/%s", post_id))
                 .cookie("access_token", otherUserCookieResult.get("access_token").getFirst().getValue())
                 .exchange()
                 .expectStatus().is4xxClientError();
 
         // 6 Verify post not deleted
-        webTestClient.get().uri(String.format("/post/%s", post_id))
+        webTestClient.get().uri(String.format("/posts/%s", post_id))
                 .cookie("access_token", userCookieResult.get("access_token").getFirst().getValue())
                 .exchange()
                 .expectStatus().is2xxSuccessful();
@@ -193,8 +219,9 @@ public class AuthorizationIntegrationTest {
 
         String userCookie = result.get("access_token").getFirst().getValue();
 
-        WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
-        stompClient.setMessageConverter(new StringMessageConverter());
+        WebSocketClient webSocketClient = new StandardWebSocketClient();
+        WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
+        stompClient.setMessageConverter(new JacksonJsonMessageConverter());
 
         WebSocketHttpHeaders webSocketHttpHeaders = new WebSocketHttpHeaders();
         webSocketHttpHeaders.add("Cookie", "access_token="+ userCookie);
@@ -206,6 +233,12 @@ public class AuthorizationIntegrationTest {
         //2 SessionHandler to handle connection and messages from backend
         StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {
             @Override
+            @NonNull
+            public Type getPayloadType(@NonNull StompHeaders headers) {
+                return MessageDTOResponse.class;
+            }
+
+            @Override
             public void afterConnected(StompSession session, @NonNull StompHeaders connectedHeaders) {
                 System.out.println("WebSocket connection established");
                 connectionLatch.countDown();
@@ -214,9 +247,9 @@ public class AuthorizationIntegrationTest {
             }
             @Override
             public void handleFrame(@NonNull StompHeaders headers, Object payload) {
-                String message = payload != null ? payload.toString() : "null";
-                System.out.println("Received message: " + message);
-                boolean offered = blockingQueue.offer(message);
+                MessageDTOResponse message = (MessageDTOResponse) payload;
+                System.out.println("Received message: " + message.getContent());
+                boolean offered = blockingQueue.offer(message.getContent());
                 if (offered) {
                     messageReceivedLatch.countDown();
                 }
@@ -252,14 +285,13 @@ public class AuthorizationIntegrationTest {
                 .expectBody(String.class)
                 .returnResult().getResponseCookies();
 
-        webTestClient.post().uri("/message")
+        webTestClient.post().uri("/messages")
                 .cookie("access_token", anotherResult.get("access_token").getFirst().getValue())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(String.format("""
                   {
                     "content": "This is the test!",
-                    "sent": "09-02-2026 14:30:00",
-                    "to": %s
+                    "to_user_id": %s
                   }
                 """, userId))
                 .exchange()
@@ -271,6 +303,5 @@ public class AuthorizationIntegrationTest {
         String receivedMessage = blockingQueue.peek();
         assertThat(receivedMessage).isEqualTo("This is the test!");
         session.disconnect();
-
     }
 }
