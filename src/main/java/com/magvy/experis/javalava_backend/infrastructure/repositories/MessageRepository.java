@@ -22,20 +22,35 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             Pageable pageable
     );
 
-    @Query(value = """
-    SELECT distinct on (other_user_id) *
-    FROM (
-        SELECT *,
-            CASE
-                WHEN from_user_id = :id THEN to_user_id
-                ELSE from_user_id
-            END AS other_user_id
-        FROM messages
-        WHERE from_user_id = :id OR to_user_id = :id
-    ) sub
-    ORDER BY other_user_id, sent DESC
-    LIMIT :limit OFFSET :offset
-    """, nativeQuery = true)
-    List<Message> getConversationsOrderBySentDesc(Long id, int limit, int offset);
+    @Query(
+        value = """
+            SELECT *
+                FROM (
+                SELECT DISTINCT ON (other_user_id) *
+                FROM (
+                    SELECT *,
+                        CASE
+                            WHEN from_user_id = :id THEN to_user_id
+                            ELSE from_user_id
+                        END AS other_user_id
+                    FROM messages
+                    WHERE from_user_id = :id OR to_user_id = :id
+                ) sub
+                ORDER BY other_user_id, sent DESC
+            )
+        """,
+        countQuery = """
+            SELECT COUNT(DISTINCT
+                CASE
+                    WHEN from_user_id = :id THEN to_user_id
+                    ELSE from_user_id
+                END
+            )
+            FROM messages
+            WHERE from_user_id = :id OR to_user_id = :id
+        """,
+        nativeQuery = true
+    )
+    Page<Message> getConversationsOrderBySentDesc(Long id, Pageable pageable);
 }
 
