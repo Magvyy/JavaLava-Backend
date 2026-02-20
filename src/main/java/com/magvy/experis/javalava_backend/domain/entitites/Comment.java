@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
@@ -21,7 +20,7 @@ public class Comment {
     private String content;
 
     @Column(name = "published", nullable = false)
-    private Timestamp published;
+    private LocalDateTime published;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
@@ -31,9 +30,16 @@ public class Comment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    public Comment(String content, Post post, User user) {
+        this.content = content;
+        this.published = LocalDateTime.now();
+        this.post = post;
+        this.user = user;
+    }
+
     public Comment(String content, LocalDateTime published, Post post, User user) {
         this.content = content;
-        this.published = Timestamp.valueOf(published);
+        this.published = published;
         this.post = post;
         this.user = user;
     }

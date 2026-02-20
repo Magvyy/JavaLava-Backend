@@ -39,4 +39,11 @@ public class Message {
         this.from = from;
         this.to = to;
     }
+
+    public Message(String content, User from, User to) {
+        this.content = content.trim();
+        this.sent = LocalDateTime.now();
+        this.from = from;
+        this.to = to;
+    }
 }
