@@ -35,11 +35,14 @@ public class CommentService {
     }
 
 
-    public ResponseEntity<CommentDTOResponse> createPost(Long postId, User user, CommentDTORequest commentDTO) {
+    public ResponseEntity<CommentDTOResponse> createPost(Long postId, User user, CommentDTORequest commentDTORequest) {
         if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
             throw new UnauthenticatedUserException("User not authorized to create comments on this post");
         }
-        Comment comment = convertToEntity(postId, user, commentDTO);
+        if (commentDTORequest.getContent().trim().isEmpty()) {
+            throw new IllegalArgumentException("Content must be something.");
+        }
+        Comment comment = convertToEntity(postId, user, commentDTORequest);
         comment = commentRepository.save(comment);
         webSocketService.sendNotification(
                 postService.findByID(postId).getUser().getUserName(),
@@ -52,15 +55,14 @@ public class CommentService {
     public Comment convertToEntity(Long postId, User user, CommentDTORequest commentDTO) {
         return new Comment(
                 commentDTO.getContent(),
-                commentDTO.getPublished(),
                 postService.findByID(postId),
                 user
         );
     }
 
-    public List<CommentDTOResponse> loadCommentsByPost(Long postId, Optional<User> user, int page) {
+    public List<CommentDTOResponse> loadCommentsByPost(Long postId, Optional<User> user, int offset) {
         Sort sort = Sort.by("published").descending();
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
         Post post = postService.findByID(postId);
         if (user.isEmpty()) {
             if (!postService.findByID(postId).isVisible()) {
@@ -74,6 +76,9 @@ public class CommentService {
     }
 
     public ResponseEntity<CommentDTOResponse> edit(Long commentId, User user, CommentDTORequest commentDTORequest) {
+        if (commentDTORequest.getContent().trim().isEmpty()) {
+            throw new IllegalArgumentException("Content must be something.");
+        }
         Optional<Comment> oComment = commentRepository.findById(commentId);
         if (oComment.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

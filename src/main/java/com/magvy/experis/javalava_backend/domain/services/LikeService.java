@@ -19,9 +19,7 @@ public class LikeService {
 
 
     @Autowired
-    public LikeService(LikeRepository likeRepository,
-                       UserRepository userRepository,
-                       PostRepository postRepository, WebSocketService webSocketService){
+    public LikeService(LikeRepository likeRepository, UserRepository userRepository, PostRepository postRepository, WebSocketService webSocketService){
         this.likeRepository = likeRepository;
         this.userRepository = userRepository;
         this.postRepository = postRepository;

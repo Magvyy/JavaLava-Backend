@@ -25,6 +25,7 @@ import java.util.List;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final int pageSize = 10;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -55,13 +56,13 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public List<UserDTOResponse> search(String query, int page) {
+    public List<UserDTOResponse> search(String query, int offset) {
         //length longer than 2 to avoid too many results / better performance
         if (query == null) {
             return List.of();
         }
 
-        Pageable limit = PageRequest.of(page, 10);
+        Pageable limit = PageRequest.of(offset / pageSize, pageSize);
         return userRepository.searchUsers(query.trim(), limit);
     }
     public ProfileDTOResponse getProfile(Long id, FriendStatus friendStatus) {
@@ -79,10 +80,13 @@ public class UserService implements UserDetailsService {
         return new UserDTOResponse(user);
     }
 
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long userId, User authUser) {
         User user = getUserById(userId);
         if (isAdmin(userId)) {
             throw new IllegalArgumentException("Cannot delete admin user");
+        }
+        if (!authUser.getId().equals(user.getId()) && !isAdmin(authUser.getId())) {
+            throw new IllegalArgumentException("Cannot delete this user");
         }
         userRepository.delete(user);
     }

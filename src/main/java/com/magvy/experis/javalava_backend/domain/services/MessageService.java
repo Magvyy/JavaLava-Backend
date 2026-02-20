@@ -27,13 +27,20 @@ public class MessageService {
         this.userService = userService;
     }
 
-    private Message ConvertToEntity(MessageDTORequest messageDTORequest, User sender) {
-        User recipient = userService.getUserById(messageDTORequest.getToUserId());
-        return new Message(messageDTORequest.getContent(), messageDTORequest.getSent(), sender, recipient);
+    private Message ConvertToEntity(MessageDTORequest messageDTORequest, User sender, User recipient) {
+        return new Message(
+                messageDTORequest.getContent(),
+                sender,
+                recipient
+        );
     }
 
     public Message sendMessage(MessageDTORequest messageDTORequest, User sender) {
         User recipient = userService.getUserById(messageDTORequest.getToUserId());
+
+        if (messageDTORequest.getContent().trim().isEmpty()) {
+            throw new IllegalArgumentException("Content must be something.");
+        }
 
         if (recipient == null) {
             throw new IllegalArgumentException("Recipient cannot be null");
@@ -42,20 +49,22 @@ public class MessageService {
         if (sender.equals(recipient)) {
             throw new IllegalArgumentException("Sender and recipient are the same");
         }
-        Message message = ConvertToEntity(messageDTORequest, sender);
+        Message message = ConvertToEntity(messageDTORequest, sender, recipient);
         return messageRepository.save(message);
     }
 
-    public List<ConversationDTOResponse> getConversations(User authUser, int page) {
-        List<Message> messageList = messageRepository.getConversationsOrderBySentDesc(authUser.getId(), pageSize, page * pageSize);
+    public List<ConversationDTOResponse> getConversations(User authUser, int offset) {
+        Sort sort = Sort.by("sent").descending();
+        Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
+        Page<Message> messageList = messageRepository.getConversationsOrderBySentDesc(authUser.getId(), pageable);
         return messageList.stream()
                 .map(msg -> new ConversationDTOResponse(msg, authUser))
-                .toList().reversed();
+                .toList();
     }
 
-    public List<MessageDTOResponse> getConversation(User recipient, Long sender_id, int page) {
+    public List<MessageDTOResponse> getConversation(User recipient, Long sender_id, int offset) {
         Sort sort = Sort.by("sent").descending();
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
         User sender = userService.getUserById(sender_id);
         Page<Message> messageList = messageRepository.findByFromAndToOrFromAndTo(recipient, sender, sender, recipient, pageable);
         return pageToDTOList(messageList).reversed();
