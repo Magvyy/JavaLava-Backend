@@ -1,5 +1,7 @@
 package com.magvy.experis.javalava_backend.application.security.config;
 
+import com.magvy.experis.javalava_backend.application.handlers.CustomAccessDeniedHandler;
+import com.magvy.experis.javalava_backend.application.handlers.CustomAuthenticationEntryPoint;
 import com.magvy.experis.javalava_backend.application.security.filter.JwtFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +11,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -19,11 +23,15 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final CustomAuthenticationProvider customAuthenticationProvider;
     private final String jwt_cookie_name;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-    public SecurityConfig(JwtFilter jwtFilter, CustomAuthenticationProvider customAuthenticationProvider, @Value("${jwt.name}") String jwt_cookie_name) {
+    public SecurityConfig(JwtFilter jwtFilter, CustomAuthenticationProvider customAuthenticationProvider, @Value("${jwt.name}") String jwt_cookie_name, CustomAuthenticationEntryPoint customAuthenticationEntryPoint, CustomAccessDeniedHandler customAccessDeniedHandler) {
         this.jwtFilter = jwtFilter;
         this.customAuthenticationProvider = customAuthenticationProvider;
         this.jwt_cookie_name = jwt_cookie_name;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
     }
 
     @Bean
@@ -33,11 +41,14 @@ public class SecurityConfig {
         return authenticationManagerBuilder.build();
     }
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                //.anonymous(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorizeHttpRequests ->
                     authorizeHttpRequests
@@ -45,16 +56,21 @@ public class SecurityConfig {
                             .requestMatchers("/v3/api-docs/**").permitAll()
                             .requestMatchers("/swagger-resources/**").permitAll()
                             .requestMatchers("/auth/**").permitAll()
-                            .requestMatchers("/websocket/**").authenticated()
-                            .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/post/friends/**").authenticated()
+                            .requestMatchers("/websocket/**").hasRole("USER")
+                            .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
+                            .requestMatchers("/posts/friends/**").hasRole("USER")
+                            .requestMatchers("/messages/**").hasRole("USER")
                             .anyRequest().authenticated()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .deleteCookies(jwt_cookie_name)
                         .logoutSuccessUrl("/")
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
                 );
         return http.build();
     }
