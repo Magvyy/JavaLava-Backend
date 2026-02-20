@@ -1,4 +1,5 @@
 package com.magvy.experis.javalava_backend.application.security.config;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -13,7 +14,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    private static final String JWT_COOKIE_NAME = "access_token";
+    @Value("${api.front-end}")
+    private String frontend;
 
     public WebSocketConfig() {
     }
@@ -21,7 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket")
-                .setAllowedOrigins("*");
+                .setAllowedOrigins(frontend);
     }
 
     @Override
