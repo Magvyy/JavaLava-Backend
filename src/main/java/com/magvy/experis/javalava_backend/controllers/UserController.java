@@ -28,8 +28,8 @@ public class UserController extends BaseAuthHController {
     }
 
     @GetMapping("/search")
-    public List<UserDTOResponse> searchUsers(@RequestParam String q, @RequestParam int page){
-        return userService.search(q, page);
+    public List<UserDTOResponse> searchUsers(@RequestParam String q, @RequestParam int offset){
+        return userService.search(q, offset);
     }
 
     @GetMapping("/{userId}")
@@ -37,7 +37,7 @@ public class UserController extends BaseAuthHController {
         return userService.convertToDTO(userService.getUserById(userId));
     }
     @GetMapping("/profile/{userId}")
-    public ProfileDTOResponse getUserById(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal){
+    public ProfileDTOResponse getUserById(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal) {
         Optional<User> user = getUserIfAuth(principal);
         if (user.isEmpty()) {
             return userService.getProfile(userId, null);
@@ -48,7 +48,8 @@ public class UserController extends BaseAuthHController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("delete/{userId}")
-    public void deleteUser(@PathVariable Long userId){
-        userService.deleteUser(userId);
+    public void deleteUser(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal) {
+        User user = throwIfUserNull(principal);
+        userService.deleteUser(userId, user);
     }
 }
