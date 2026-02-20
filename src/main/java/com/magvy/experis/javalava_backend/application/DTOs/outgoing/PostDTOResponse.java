@@ -29,7 +29,7 @@ public class PostDTOResponse {
         this.id = post.getId();
         this.user = new UserDTOResponse(post.getUser());
         this.content = post.getContent();
-        this.published = post.getPublished().toLocalDateTime();
+        this.published = post.getPublished();
         this.visible = post.isVisible();
         this.likeCount = likeCount;
         this.commentCount = commentCount;
@@ -39,7 +39,7 @@ public class PostDTOResponse {
         this.id = post.getId();
         this.user = new UserDTOResponse(post.getUser());
         this.content = post.getContent();
-        this.published = post.getPublished().toLocalDateTime();
+        this.published = post.getPublished();
         this.visible = post.isVisible();
         this.liked = liked;
         this.likeCount = likeCount;
@@ -50,11 +50,7 @@ public class PostDTOResponse {
         this.id = post.getId();
         this.user = new UserDTOResponse(post.getUser());
         this.content = post.getContent();
-        this.published = post.getPublished().toLocalDateTime();
+        this.published = post.getPublished();
         this.visible = post.isVisible();
-    }
-
-    public void setLiked(boolean liked) {
-        this.liked = liked;
     }
 }

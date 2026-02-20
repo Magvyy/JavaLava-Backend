@@ -9,6 +9,6 @@ import java.time.LocalDateTime;
 public class CommentDTORequest {
     private String content;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
-    private LocalDateTime published;
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+//    private LocalDateTime published;
 }
