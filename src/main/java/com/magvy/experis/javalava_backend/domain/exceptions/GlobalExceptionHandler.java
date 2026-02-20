@@ -4,7 +4,6 @@ package com.magvy.experis.javalava_backend.domain.exceptions;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.DefaultResponseDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ErrorDTOResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,42 +15,27 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Map<String, String>> handleAuthenticationException(AuthenticationException exception) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Authentication Failed.");
-        errorResponse.put("message", exception.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<DefaultResponseDTO> handleAuthenticationException(AuthenticationException exception) {
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Map<String, String>> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Registration Failed.");
-        errorResponse.put("message", exception.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    public ResponseEntity<DefaultResponseDTO> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(MissingPostException.class)
-    public ResponseEntity<Map<String, String>> handleMissingPostException(MissingPostException exception) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Post not found.");
-        errorResponse.put("message", exception.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<DefaultResponseDTO> handleMissingPostException(PostNotFoundException exception) {
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UnauthorizedActionException.class)
-    public ResponseEntity<Map<String, String>> handleUnauthorizedDeletionException(UnauthorizedActionException exception) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Unauthorized Deletion.");
-        errorResponse.put("message", exception.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<DefaultResponseDTO> handleUnauthorizedDeletionException(UnauthorizedActionException exception) {
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
