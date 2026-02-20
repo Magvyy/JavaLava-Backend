@@ -1,12 +1,13 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -14,21 +15,30 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private Timestamp published;
+    @Column(name = "published", nullable = false)
+    private LocalDateTime published;
 
     @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public Comment(String content, Post post, User user) {
+        this.content = content;
+        this.published = LocalDateTime.now();
+        this.post = post;
+        this.user = user;
+    }
 
     public Comment(String content, LocalDateTime published, Post post, User user) {
         this.content = content;
-        this.published = Timestamp.valueOf(published);
+        this.published = published;
         this.post = post;
         this.user = user;
     }

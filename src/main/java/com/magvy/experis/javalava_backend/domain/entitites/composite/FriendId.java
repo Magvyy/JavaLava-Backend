@@ -1,13 +1,22 @@
 package com.magvy.experis.javalava_backend.domain.entitites.composite;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.Objects;
 
+@Getter
+@Setter
+@Embeddable
 public class FriendId implements Serializable {
+    @Column(name = "from_user_id", nullable = false)
     private Long user1;
-    private Long user2;
 
-    public FriendId() {}
+    @Column(name = "to_user_id", nullable = false)
+    private Long user2;
 
     public FriendId(Long user1, Long user2) {
         if (user1 < user2) {
@@ -19,9 +28,14 @@ public class FriendId implements Serializable {
         }
     }
 
+    public FriendId() {
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+        if (o == null) return false;
         if (!(o instanceof FriendId that)) return false;
         return Objects.equals(user1, that.user1) && Objects.equals(user2, that.user2);
     }

@@ -5,6 +5,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.LikeService;
+import com.magvy.experis.javalava_backend.domain.services.WebSocketService;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
@@ -14,9 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 public class LikeServiceUnitTest {
 
     @Mock
@@ -34,6 +36,9 @@ public class LikeServiceUnitTest {
 
     @Mock
     PostRepository postRepository;
+
+    @Mock
+    WebSocketService webSocketService;
 
     LikeService likeService;
 
@@ -51,7 +56,7 @@ public class LikeServiceUnitTest {
     @BeforeEach
     void setUp(){
         mocks = MockitoAnnotations.openMocks(this);
-        likeService = new LikeService(likeRepository, userRepository, postRepository);
+        likeService = new LikeService(likeRepository, userRepository, postRepository, webSocketService);
     }
 
     @AfterEach

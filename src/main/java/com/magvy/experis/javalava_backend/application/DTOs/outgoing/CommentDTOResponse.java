@@ -22,7 +22,7 @@ public class CommentDTOResponse {
     public CommentDTOResponse(Comment comment) {
         this.id = comment.getId();
         this.content = comment.getContent();
-        this.published = comment.getPublished().toLocalDateTime();
+        this.published = comment.getPublished();
         this.user = new UserDTOResponse(comment.getUser());
         this.postId = comment.getPost().getId();
     }

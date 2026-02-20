@@ -2,29 +2,44 @@ package com.magvy.experis.javalava_backend.domain.entitites.composite;
 
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
+@Getter
+@Setter
+@Embeddable
 public class LikeId implements Serializable {
-    private User user;
-    private Post post;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    LikeId(){};
+    @Column(name = "post_id", nullable = false)
+    private Long postId;
+
     public LikeId(User user, Post post) {
-        this.user = user;
-        this.post = post;
+        this.userId = user.getId();
+        this.postId = post.getId();
+    }
+
+    public LikeId() {
+
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (this.getClass() != o.getClass()) return false;
+        if (o == null) return false;
+        if (!(o instanceof LikeId)) return false;
         LikeId that = (LikeId) o;
-        return this.user.getId() == that.user.getId() && this.post.getId() == that.post.getId();
+        return this.userId.equals(that.userId) && this.postId.equals(that.postId);
     }
 
     @Override
     public int hashCode() {
-        return user.hashCode() + post.hashCode();
+        return Objects.hash(userId, postId);
     }
 }

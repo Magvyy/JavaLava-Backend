@@ -2,12 +2,11 @@ package com.magvy.experis.springboot_demo.serviceUnitTests;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
-import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
-import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
 import com.magvy.experis.javalava_backend.domain.services.FriendService;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
+import com.magvy.experis.javalava_backend.domain.services.UserService;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
@@ -40,6 +39,9 @@ public class PostServiceUnitTest {
     @Mock
     CommentRepository commentRepository;
 
+    @Mock
+    UserService userService;
+
     AutoCloseable mocks;
 
     PostService postService;
@@ -47,7 +49,7 @@ public class PostServiceUnitTest {
     @BeforeEach
     void setup(){
         mocks = MockitoAnnotations.openMocks(this);
-        postService = new PostService(postRepository, likeRepository, commentRepository, friendService);
+        postService = new PostService(postRepository, likeRepository, commentRepository, friendService, userService);
         user = new User(1L, "", "");
         postOwner = new User(2L, "", "");
         post = new Post(1L, "", LocalDateTime.now(), true, postOwner);
@@ -61,8 +63,6 @@ public class PostServiceUnitTest {
     User user;
     User postOwner;
     Post post;
-
-
 
     @Test
     void loadPostByUserWhenUserIsEmpty_ReturnsAllFoundPostsByTargetOrdered(){
@@ -176,7 +176,6 @@ public class PostServiceUnitTest {
     void createPost_WhenNullUser_ThrowsRuntimeException(){
         PostDTORequest postDTORequest = mock(PostDTORequest.class);
         when(postDTORequest.getContent()).thenReturn("Content");
-        when(postDTORequest.getPublished()).thenReturn(LocalDateTime.of(2001,1, 1, 1, 1));
         when(postDTORequest.isVisible()).thenReturn(true);
 
         assertThrows(RuntimeException.class, () -> postService.createPost(null, postDTORequest));
@@ -186,23 +185,16 @@ public class PostServiceUnitTest {
     void createPost_WhenValidUser_ReturnsPostWithCorrectValues(){
         PostDTORequest postDTORequest = mock(PostDTORequest.class);
         when(postDTORequest.getContent()).thenReturn("Content");
-        when(postDTORequest.getPublished()).thenReturn(LocalDateTime.of(2001,1, 1, 1, 1));
         when(postDTORequest.isVisible()).thenReturn(true);
 
-
         ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
-        // FinISHe|
 
-        when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation);
+        when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Post post = postService.createPost(user, postDTORequest);
         verify(postRepository, times(1)).save(captor.capture());
+
+        assertEquals(post.getContent(), postDTORequest.getContent());
+        assertEquals(post.isVisible(), postDTORequest.isVisible());
+        assertEquals(post.getUser().getId(), user.getId());
     }
-
-//    public Post createPost(User user, PostDTORequest postDTORequest) {
-//        if (user == null) {
-//            throw new UnauthorizedActionException("Cannot create a post as an anonymous user.");
-//        }
-//        Post post = convertToEntity(null, postDTORequest, user);
-//        return postRepository.save(post);
-//    }
-
 }

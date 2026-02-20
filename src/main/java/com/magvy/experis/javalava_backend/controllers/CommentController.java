@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/post/{postId}/comments")
+@RequestMapping("/posts/{postId}/comments")
 public class CommentController extends BaseAuthHController {
     private final CommentService commentService;
 
@@ -29,9 +29,9 @@ public class CommentController extends BaseAuthHController {
         return commentService.createPost(postId, user, commentDTO);
     }
     @GetMapping()
-    public List<CommentDTOResponse> getComments(@PathVariable Long postId, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<CommentDTOResponse> getComments(@PathVariable Long postId, @RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         Optional<User> user = getUserIfAuth(principal);
-        return commentService.loadCommentsByPost(postId, user, page);
+        return commentService.loadCommentsByPost(postId, user, offset);
     }
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentDTOResponse> updateComment(@PathVariable Long commentId, @RequestBody CommentDTORequest commentDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {

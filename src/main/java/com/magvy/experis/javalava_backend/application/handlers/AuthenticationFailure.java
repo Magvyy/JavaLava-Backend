@@ -1,4 +1,4 @@
-package com.magvy.experis.javalava_backend.application.security.config;
+package com.magvy.experis.javalava_backend.application.handlers;
 
 import com.magvy.experis.javalava_backend.domain.exceptions.GlobalExceptionHandler;
 import jakarta.servlet.ServletException;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class CustomAuthenticationFailure implements AuthenticationFailureHandler {
+public class AuthenticationFailure implements AuthenticationFailureHandler {
 
     @Autowired
     @Qualifier("globalExceptionHandler")

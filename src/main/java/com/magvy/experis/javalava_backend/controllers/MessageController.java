@@ -1,5 +1,6 @@
 package com.magvy.experis.javalava_backend.controllers;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.MessageDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ConversationDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/message")
+@RequestMapping("/messages")
 public class MessageController extends BaseAuthHController {
 
     private final MessageService messageService;
@@ -29,14 +30,21 @@ public class MessageController extends BaseAuthHController {
     public ResponseEntity<MessageDTOResponse> sendMessage(@RequestBody MessageDTORequest messageDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
         Message message = messageService.sendMessage(messageDTORequest, user);
-        websocketService.sendMessage(message.getTo().getUserName(), message.getContent());
+        websocketService.sendMessage(message.getTo().getUserName(), message);
         return new ResponseEntity<>(new MessageDTOResponse(message), HttpStatus.OK);
     }
 
-    @GetMapping("/{from_id}/{page}")
-    public ResponseEntity<List<MessageDTOResponse>> readMessage(@PathVariable Long from_id, @PathVariable int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    @GetMapping()
+    public ResponseEntity<List<ConversationDTOResponse>> getConversations(@RequestParam(value = "offset") int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
-        List<MessageDTOResponse> messageHistory = messageService.getMessageHistory(user, from_id, page);
-        return new ResponseEntity<>(messageHistory, HttpStatus.OK);
+        List<ConversationDTOResponse> messages = messageService.getConversations(user, offset);
+        return new ResponseEntity<>(messages, HttpStatus.OK);
+    }
+
+    @GetMapping("/{sender_id}")
+    public ResponseEntity<List<MessageDTOResponse>> getConversation(@PathVariable Long sender_id, @RequestParam(value = "offset") int offset, @AuthenticationPrincipal CustomUserDetails principal) {
+        User user = throwIfUserNull(principal);
+        List<MessageDTOResponse> conversation = messageService.getConversation(user, sender_id, offset);
+        return new ResponseEntity<>(conversation, HttpStatus.OK);
     }
 }

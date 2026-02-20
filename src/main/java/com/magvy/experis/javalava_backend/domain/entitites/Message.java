@@ -1,11 +1,13 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "messages")
 public class Message {
@@ -13,16 +15,18 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "content", nullable = false)
     private String content;
 
+    @Column(name = "sent", nullable = false)
     private LocalDateTime sent;
 
     @ManyToOne
-    @JoinColumn(name = "from_user_id")
+    @JoinColumn(name = "from_user_id", nullable = false)
     private User from;
 
     @ManyToOne
-    @JoinColumn(name = "to_user_id")
+    @JoinColumn(name = "to_user_id", nullable = false)
     private User to;
 
 
@@ -35,4 +39,10 @@ public class Message {
         this.to = to;
     }
 
+    public Message(String content, User from, User to) {
+        this.content = content.trim();
+        this.sent = LocalDateTime.now();
+        this.from = from;
+        this.to = to;
+    }
 }

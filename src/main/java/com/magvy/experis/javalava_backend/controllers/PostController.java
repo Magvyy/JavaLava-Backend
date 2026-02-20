@@ -1,5 +1,6 @@
 package com.magvy.experis.javalava_backend.controllers;
 
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
@@ -18,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/post")
+@RequestMapping("/posts")
 public class PostController extends BaseAuthHController{
     private final PostService postService;
 
@@ -47,6 +48,15 @@ public class PostController extends BaseAuthHController{
         }
     }
 
+    @GetMapping("{id}/perms")
+    public ResponseEntity<PermissionsDTOResponse> getPostPermissions(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+        Optional<User> user = getUserIfAuth(principal);
+        PermissionsDTOResponse perms = postService.getPermissions(id, user.orElse(null));
+        return new ResponseEntity<>(perms, HttpStatus.OK);
+    }
+
     @PutMapping("{id}")
     public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
@@ -64,21 +74,21 @@ public class PostController extends BaseAuthHController{
     }
 
     @GetMapping("/user/{id}")
-    public List<PostDTOResponse> loadPostByUserHandler(@PathVariable Long id, @RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> loadPostByUserHandler(@PathVariable Long id, @RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         Optional<User> user = getUserIfAuth(principal);
-        return postService.loadPostsByUser(page, user, id);
+        return postService.loadPostsByUser(offset, user, id);
     }
 
     @GetMapping("/all")
-    public List<PostDTOResponse> loadPostHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> loadPostHandler(@RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         Optional<User> user = getUserIfAuth(principal);
-        return postService.loadPosts(page, user);
+        return postService.loadPosts(offset, user);
     }
 
     @GetMapping("/friends")
-    public List<PostDTOResponse> loadPostByFriendsHandler(@RequestParam int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public List<PostDTOResponse> loadPostByFriendsHandler(@RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
-        return postService.loadPostsByFriends(page, user);
+        return postService.loadPostsByFriends(offset, user);
     }
 
 }
