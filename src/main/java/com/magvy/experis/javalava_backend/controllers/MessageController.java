@@ -35,16 +35,16 @@ public class MessageController extends BaseAuthHController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<ConversationDTOResponse>> getConversations(@RequestParam(value = "page") int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<List<ConversationDTOResponse>> getConversations(@RequestParam(value = "offset") int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
-        List<ConversationDTOResponse> messages = messageService.getConversations(user, page);
+        List<ConversationDTOResponse> messages = messageService.getConversations(user, offset);
         return new ResponseEntity<>(messages, HttpStatus.OK);
     }
 
     @GetMapping("/{sender_id}")
-    public ResponseEntity<List<MessageDTOResponse>> getConversation(@PathVariable Long sender_id, @RequestParam(value = "page") int page, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<List<MessageDTOResponse>> getConversation(@PathVariable Long sender_id, @RequestParam(value = "offset") int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
-        List<MessageDTOResponse> conversation = messageService.getConversation(user, sender_id, page);
+        List<MessageDTOResponse> conversation = messageService.getConversation(user, sender_id, offset);
         return new ResponseEntity<>(conversation, HttpStatus.OK);
     }
 }
