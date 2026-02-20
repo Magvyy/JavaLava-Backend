@@ -39,7 +39,6 @@ public class AuthController extends BaseAuthHController {
 
     @PostMapping("/login")
     public ResponseEntity <DefaultResponseDTO> loginPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
-        System.out.println("?");
         return authHandler(authDTO, response);
     }
 
@@ -55,7 +54,6 @@ public class AuthController extends BaseAuthHController {
         );
 
         Object principal = authentication.getPrincipal();
-        System.out.println(principal);
         if (principal instanceof CustomUserDetails details) {
             User user = details.getUser();
             String jwt = jwtUtil.generateToken(user.getUserName());
