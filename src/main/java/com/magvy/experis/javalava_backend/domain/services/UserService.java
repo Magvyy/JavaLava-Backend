@@ -15,9 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @Service
@@ -32,11 +32,13 @@ public class UserService implements UserDetailsService {
     }
 
     public void createUser(AuthDTO authDTO) {
-        // Validate input
-        if (userRepository.existsByUserName(authDTO.getUserName())) {
-            throw new UserException("Username is taken", HttpStatus.CONFLICT);
-        }
         User user = userUtil.convertToEntity(authDTO);
+
+        if (userUtil.isUserNameTaken(authDTO.getUserName())) throw new UserException("Username is taken", HttpStatus.CONFLICT);
+
+        if (!userUtil.isValidUserName(user.getUserName())) throw new IllegalArgumentException("Username is invalid");
+        if (!userUtil.isValidPassword(user.getPassword())) throw new IllegalArgumentException("Password is invalid");
+
         userRepository.save(user);
     }
 
@@ -45,14 +47,10 @@ public class UserService implements UserDetailsService {
         return new UserDTOResponse(user);
     }
 
-    public void deleteUser(Long userId, User authUser) {
+    public void deleteUser(Long userId) throws AccessDeniedException {
         User user = userUtil.getUserById(userId);
-        if (userUtil.isAdmin(userId)) {
-            throw new IllegalArgumentException("Cannot delete admin user");
-        }
-        if (!authUser.getId().equals(user.getId()) && !userUtil.isAdmin(authUser.getId())) {
-            throw new IllegalArgumentException("Cannot delete this user");
-        }
+        if (userUtil.isAdmin(userId)) throw new AccessDeniedException("Cannot delete admin user");
+        if (!userUtil.authenticatedUserHasId(userId) && !userUtil.authenticatedUserIsAdmin()) throw new AccessDeniedException("Cannot delete this user");
         userRepository.delete(user);
     }
 
@@ -62,7 +60,6 @@ public class UserService implements UserDetailsService {
     }
 
     public List<UserDTOResponse> search(String query, int offset) {
-        //length longer than 2 to avoid too many results / better performance
         if (query == null) {
             return List.of();
         }

@@ -9,22 +9,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class UserUtil {
+    private final SecurityUtil securityUtil;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserUtil(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserUtil(SecurityUtil securityUtil, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.securityUtil = securityUtil;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-    }
-
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
-    }
-
-    public boolean isAdmin(Long id) {
-        return getUserById(id).getRoles().stream().anyMatch(role -> role.getRole() == RoleEnum.ADMIN);
     }
 
     public User convertToEntity(AuthDTO authDTO) {
@@ -32,5 +28,36 @@ public class UserUtil {
                 authDTO.getUserName(),
                 passwordEncoder.encode(authDTO.getPassword())
         );
+    }
+
+    public boolean isUserNameTaken(String userName) {
+        Optional<User> oUser = userRepository.findByUserName(userName);
+        return oUser.isPresent();
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
+    }
+
+    public boolean authenticatedUserHasId(Long id) {
+        User authenticatedUser = securityUtil.getAuthenticatedUser();
+        return authenticatedUser.getId().equals(id);
+    }
+
+    public boolean authenticatedUserIsAdmin() {
+        User authenticatedUser = securityUtil.getAuthenticatedUser();
+        return isAdmin(authenticatedUser.getId());
+    }
+
+    public boolean isAdmin(Long id) {
+        return getUserById(id).getRoles().stream().anyMatch(role -> role.getRole() == RoleEnum.ADMIN);
+    }
+
+    public boolean isValidUserName(String userName) {
+        return !userName.trim().isEmpty();
+    }
+
+    public boolean isValidPassword(String userName) {
+        return !userName.trim().isEmpty();
     }
 }

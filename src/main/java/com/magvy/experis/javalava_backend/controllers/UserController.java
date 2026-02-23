@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,8 +50,8 @@ public class UserController extends BaseAuthHController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("delete/{userId}")
-    public void deleteUser(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        userService.deleteUser(userId, user);
+    public void deleteUser(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal) throws AccessDeniedException {
+        throwIfUserNull(principal);
+        userService.deleteUser(userId);
     }
 }
