@@ -22,16 +22,14 @@ public class LikeController extends BaseAuthController {
 
     @PostMapping("/like/post/{postId}")
     public ResponseEntity<Void> LikePutHandler(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails principal){
-        Long userId = throwIfUserNull(principal).getId();
-        LikeDTORequest likeDTORequest = new LikeDTORequest(userId, postId);
-        likeService.likePost(likeDTORequest);
+        throwIfUserNull(principal);
+        likeService.likePost(postId);
         return ResponseUtil.wrapEntity(null);
     }
     @DeleteMapping("/unlike/post/{postId}")
     public ResponseEntity<Void> LikeDeleteHandler(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails principal){
-        Long userId = throwIfUserNull(principal).getId();
-        LikeDTORequest likeDTORequest = new LikeDTORequest(userId, postId);
-        likeService.unlikePost(likeDTORequest);
+        throwIfUserNull(principal);
+        likeService.unlikePost(postId);
         return ResponseUtil.wrapEntity(null);
     }
 }

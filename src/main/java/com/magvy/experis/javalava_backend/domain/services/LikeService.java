@@ -1,6 +1,5 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTORequest;
 import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.LikeId;
 import com.magvy.experis.javalava_backend.domain.exceptions.LikeException;
@@ -24,11 +23,11 @@ public class LikeService {
         this.webSocketService = webSocketService;
     }
 
-    public void likePost(LikeDTORequest likeDTORequest) {
-        LikeId likeId = likeUtil.createLikeId(likeDTORequest);
+    public void likePost(Long postId) {
+        LikeId likeId = likeUtil.createLikeId(postId);
         if (likeRepository.existsById(likeId)) throw new LikeException("User has already liked this post", HttpStatus.CONFLICT);
         // Lazy loading, user and post only loaded once needed
-        Like like = likeUtil.convertToEntity(likeDTORequest);
+        Like like = likeUtil.convertToEntity(postId);
         like = likeRepository.save(like);
         webSocketService.sendNotification(
                 like.getPost().getUser().getUserName(),
@@ -36,10 +35,10 @@ public class LikeService {
         );
     }
 
-    public void unlikePost(LikeDTORequest likeDTORequest){
-        LikeId likeId = likeUtil.createLikeId(likeDTORequest);
+    public void unlikePost(Long postId) {
+        LikeId likeId = likeUtil.createLikeId(postId);
         if (!likeRepository.existsById(likeId)) throw new LikeException("User has not liked this post", HttpStatus.BAD_REQUEST);
-        Like like = likeUtil.convertToEntity(likeDTORequest);
+        Like like = likeUtil.convertToEntity(postId);
         likeRepository.delete(like);
     }
 }

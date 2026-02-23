@@ -10,6 +10,7 @@ import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionEx
 import com.magvy.experis.javalava_backend.domain.util.PostUtil;
 import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,7 +39,8 @@ public class PostService {
         if (!securityUtil.isAuthenticated()) return postUtil.pageToDTOList(postRepository.findByVisibleTrue(pageable), (long) -1);
 
         Long authenticatedUserId = securityUtil.getAuthenticatedUser().getId();
-        return postUtil.pageToDTOList(postRepository.findPostsForUser(authenticatedUserId, pageable), authenticatedUserId);
+        Page<Post> posts = postRepository.findPostsForUser(authenticatedUserId, pageable);
+        return postUtil.pageToDTOList(posts, authenticatedUserId);
     }
 
     public List<PostDTOResponse> loadPostsByUser(int offset, Long selectedId) {
@@ -48,14 +50,16 @@ public class PostService {
         if (!securityUtil.isAuthenticated()) return postUtil.pageToDTOList(postRepository.findByVisibleTrueAndUserId(selectedId, pageable), (long) -1);
 
         Long authenticatedUserId = securityUtil.getAuthenticatedUser().getId();
-        return postUtil.pageToDTOList(postRepository.findPostsFromUser(authenticatedUserId, selectedId, pageable), authenticatedUserId);
+        Page<Post> posts = postRepository.findPostsFromUser(authenticatedUserId, selectedId, pageable);
+        return postUtil.pageToDTOList(posts, authenticatedUserId);
     }
 
     public List<PostDTOResponse> loadPostsByFriends(int offset) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
         Long authenticatedUserId = securityUtil.getAuthenticatedUser().getId();
-        return postUtil.pageToDTOList(postRepository.findPostsFromFriends(authenticatedUserId, pageable), authenticatedUserId);
+        Page<Post> posts = postRepository.findPostsFromFriends(authenticatedUserId, pageable);
+        return postUtil.pageToDTOList(posts, authenticatedUserId);
     }
 
     public PostDTOResponse createPost(PostDTORequest postDTORequest) {

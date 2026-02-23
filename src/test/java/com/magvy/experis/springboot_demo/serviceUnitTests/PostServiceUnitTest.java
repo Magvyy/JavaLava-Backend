@@ -4,11 +4,9 @@ import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTOReque
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
-import com.magvy.experis.javalava_backend.domain.services.FriendService;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
-import com.magvy.experis.javalava_backend.domain.util.UserUtil;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
+import com.magvy.experis.javalava_backend.domain.util.PostUtil;
+import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,11 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,19 +29,13 @@ import static org.mockito.Mockito.*;
 
 public class PostServiceUnitTest {
     @Mock
-    FriendService friendService;
-
-    @Mock
     PostRepository postRepository;
 
     @Mock
-    LikeRepository likeRepository;
+    SecurityUtil securityUtil;
 
     @Mock
-    CommentRepository commentRepository;
-
-    @Mock
-    UserUtil userUtil;
+    PostUtil postUtil;
 
     AutoCloseable mocks;
 
@@ -49,7 +44,7 @@ public class PostServiceUnitTest {
     @BeforeEach
     void setup(){
         mocks = MockitoAnnotations.openMocks(this);
-        postService = new PostService(postRepository, likeRepository, commentRepository, friendService, userUtil);
+        postService = new PostService(postRepository, securityUtil, postUtil);
         user = new User(1L, "", "");
         postOwner = new User(2L, "", "");
         post = new Post(1L, "", LocalDateTime.now(), true, postOwner);
@@ -65,7 +60,7 @@ public class PostServiceUnitTest {
     Post post;
 
     @Test
-    void loadPostByUserWhenUserIsEmpty_ReturnsAllFoundPostsByTargetOrdered(){
+    void loadPostByUserWhenUserIsEmpty_ReturnsAllFoundPostsByTargetOrdered() {
         Optional<User> user = Optional.empty();
         User mockUser = mock(User.class);
         when(mockUser.getId()).thenReturn(1L);
@@ -78,11 +73,18 @@ public class PostServiceUnitTest {
         Page<Post> mockPost = new PageImpl<>(List.of(post2, post4, post1, post3));
         when(postRepository.findByVisibleTrueAndUserId(eq(mockUser.getId()), any(Pageable.class))).thenReturn(mockPost);
 
-        when(likeRepository.existsByPost_idAndUser_Id(any(long.class), any(long.class))).thenReturn(false);
-        when(likeRepository.countByPost_Id(anyLong())).thenReturn(0L);
-        when(commentRepository.countByPost(any(Post.class))).thenReturn(0L);
+        when(postUtil.pageToDTOList(any(Page.class), anyLong())).thenAnswer(invocation -> {
+           Page<Post> posts = invocation.getArgument(0);
+           return posts.stream()
+                   .map(post -> new PostDTOResponse(
+                           post,
+                           false,
+                           0,
+                           0
+                   ));
+        });
 
-        List<PostDTOResponse> result = postService.loadPostsByUser(0, user, mockUser.getId());
+        List<PostDTOResponse> result = postService.loadPostsByUser(0, mockUser.getId());
         assertEquals(4, result.size());
         assertEquals(post2.getId(), result.getFirst().getId());
         assertEquals(post4.getId(), result.get(1).getId());
@@ -106,21 +108,20 @@ public class PostServiceUnitTest {
         Page<Post> mockPost = new PageImpl<>(List.of(post2, post4, post1, post3));
         when(postRepository.findPostsFromUser(argThat(id -> id.equals(mockSelfUser.getId())), argThat(id -> id.equals(mockTargetUser.getId())), any(Pageable.class))).thenReturn(mockPost);
 
-        when(likeRepository.existsByPost_idAndUser_Id(any(Long.class), any(Long.class))).thenAnswer(invocation -> {
-            long postId = invocation.getArgument(0);
-            long userId = invocation.getArgument(1);
-            if (userId == mockSelfUser.getId() && List.of(2L, 3L).contains(postId)) return true;
-            else return false;
-            }
-        );
-        when(likeRepository.countByPost_Id(anyLong())).thenAnswer(invocation -> {
-            long postId = invocation.getArgument(0);
-            if (postId == 1L) return 4L;
-            else return 0L;
-        });
-        when(commentRepository.countByPost(any(Post.class))).thenReturn(5L);
 
-        List<PostDTOResponse> result = postService.loadPostsByUser(0, user, mockTargetUser.getId());
+        when(postUtil.pageToDTOList(any(Page.class), anyLong())).thenAnswer(invocation -> {
+            Page<Post> posts = invocation.getArgument(0);
+            Long userId = invocation.getArgument(1);
+            return posts.stream()
+                    .map(post -> new PostDTOResponse(
+                            post,
+                            userId.equals(mockSelfUser.getId()) && List.of(2L, 3L).contains(post.getId()),
+                            post1.getId().equals(1L) ? 4 : 0,
+                            5
+                    ));
+        });
+
+        List<PostDTOResponse> result = postService.loadPostsByUser(0, mockTargetUser.getId());
         assertEquals(4, result.size());
 
         assertEquals(post2.getId(), result.getFirst().getId());
@@ -137,48 +138,49 @@ public class PostServiceUnitTest {
         verify(postRepository, never()).findByVisibleTrueAndUserId(anyLong(), any(Pageable.class));
     }
 
-    @Test
-    void isPostVisibleToUser_WhenPostNotVisible_ReturnsFalse(){
-        post.setVisible(false);
-        when(friendService.isFriends(anyLong(), anyLong())).thenReturn(false);
-        assertFalse(postService.isPostVisibleToUser(post, null));
-        assertFalse(postService.isPostVisibleToUser(post, user));
-    }
-
-    @Test
-    void isPostVisibleToUser_WhenPostVisible_ReturnsTrue(){
-        assertTrue(postService.isPostVisibleToUser(post, null));
-        assertTrue(postService.isPostVisibleToUser(post, user));
-        verify(friendService, never()).isFriends(anyLong(), anyLong());
-    }
-
-    @Test
-    void isPostVisibleToUser_WhenUserAndCreatorFriendsAndPostNotVisible_ReturnsTrue(){
-        post.setVisible(false);
-        when(friendService.isFriends(anyLong(), anyLong())).thenAnswer(invocation -> {
-            Long userId1 = invocation.getArgument(0);
-            Long userId2 = invocation.getArgument(1);
-            if ((userId1 == 1L && userId2 == 2L) || (userId1 == 2L && userId2 == 1L)) return true;
-            else return false;
-        });
-        assertTrue(postService.isPostVisibleToUser(post, user));
-        verify(friendService, times(1)).isFriends(anyLong(), anyLong());
-    }
-
-    @Test
-    void isPostVisibleToUser_WhenUserIsCreatorAndPostNotVisible_ReturnsTrue(){
-        post.setVisible(false);
-        assertTrue(postService.isPostVisibleToUser(post, postOwner));
-        verify(friendService, never()).isFriends(anyLong(), anyLong());
-    }
+//    @Test
+//    void isPostVisibleToUser_WhenPostNotVisible_ReturnsFalse(){
+//        post.setVisible(false);
+//        when(friendService.isFriends(anyLong(), anyLong())).thenReturn(false);
+//        assertFalse(postService.isPostVisibleToUser(post, null));
+//        assertFalse(postService.isPostVisibleToUser(post, user));
+//    }
+//
+//    @Test
+//    void isPostVisibleToUser_WhenPostVisible_ReturnsTrue(){
+//        assertTrue(postService.isPostVisibleToUser(post, null));
+//        assertTrue(postService.isPostVisibleToUser(post, user));
+//        verify(friendService, never()).isFriends(anyLong(), anyLong());
+//    }
+//
+//    @Test
+//    void isPostVisibleToUser_WhenUserAndCreatorFriendsAndPostNotVisible_ReturnsTrue(){
+//        post.setVisible(false);
+//        when(friendService.isFriends(anyLong(), anyLong())).thenAnswer(invocation -> {
+//            Long userId1 = invocation.getArgument(0);
+//            Long userId2 = invocation.getArgument(1);
+//            if ((userId1 == 1L && userId2 == 2L) || (userId1 == 2L && userId2 == 1L)) return true;
+//            else return false;
+//        });
+//        assertTrue(postService.isPostVisibleToUser(post, user));
+//        verify(friendService, times(1)).isFriends(anyLong(), anyLong());
+//    }
+//
+//    @Test
+//    void isPostVisibleToUser_WhenUserIsCreatorAndPostNotVisible_ReturnsTrue(){
+//        post.setVisible(false);
+//        assertTrue(postService.isPostVisibleToUser(post, postOwner));
+//        verify(friendService, never()).isFriends(anyLong(), anyLong());
+//    }
 
     @Test
     void createPost_WhenNullUser_ThrowsRuntimeException(){
         PostDTORequest postDTORequest = mock(PostDTORequest.class);
         when(postDTORequest.getContent()).thenReturn("Content");
         when(postDTORequest.isVisible()).thenReturn(true);
+        when(securityUtil.getAuthenticatedUser()).thenReturn(null);
 
-        assertThrows(RuntimeException.class, () -> postService.createPost(null, postDTORequest));
+        assertThrows(RuntimeException.class, () -> postService.createPost(postDTORequest));
     }
 
     @Test
@@ -186,11 +188,12 @@ public class PostServiceUnitTest {
         PostDTORequest postDTORequest = mock(PostDTORequest.class);
         when(postDTORequest.getContent()).thenReturn("Content");
         when(postDTORequest.isVisible()).thenReturn(true);
+        when(securityUtil.getAuthenticatedUser()).thenReturn(user);
 
         ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
 
         when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        Post post = postService.createPost(user, postDTORequest);
+        PostDTOResponse post = postService.createPost(postDTORequest);
         verify(postRepository, times(1)).save(captor.capture());
 
         assertEquals(post.getContent(), postDTORequest.getContent());

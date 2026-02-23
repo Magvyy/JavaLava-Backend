@@ -25,19 +25,19 @@ public class LikeUtil {
         this.postUtil = postUtil;
     }
 
-    public Like convertToEntity(LikeDTORequest likeDTORequest) {
-        User user = userUtil.findByIdOrThrow(likeDTORequest.getUserId());
-        Post post = postUtil.findByIdOrThrow(likeDTORequest.getPostId());
+    public Like convertToEntity(Long postId) {
+        User authenticatedUser = securityUtil.getAuthenticatedUser();
+        Post post = postUtil.findByIdOrThrow(postId);
         return new Like(
-                user,
+                authenticatedUser,
                 post
         );
     }
 
-    public LikeId createLikeId(LikeDTORequest likeDTORequest) {
-        User user = userUtil.findByIdOrThrow(likeDTORequest.getUserId());
-        Post post = postUtil.findByIdOrThrow(likeDTORequest.getPostId());
-        return new LikeId(user, post);
+    public LikeId createLikeId(Long postId) {
+        User authenticatedUser = securityUtil.getAuthenticatedUser();
+        Post post = postUtil.findByIdOrThrow(postId);
+        return new LikeId(authenticatedUser, post);
     }
 
     public Like findByIdOrThrow(LikeId id) {
