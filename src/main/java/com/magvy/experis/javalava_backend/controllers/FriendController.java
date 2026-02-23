@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/friends")
-public class FriendController extends BaseAuthHController{
+public class FriendController extends BaseAuthController {
     public final FriendService friendService;
 
     public FriendController(FriendService friendService) {

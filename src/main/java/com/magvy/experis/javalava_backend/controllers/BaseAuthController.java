@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-public abstract class BaseAuthHController {
+public abstract class BaseAuthController {
     private User getLoggedInUser(CustomUserDetails principal) {
         if (principal == null) return null;
         return principal.getUser();

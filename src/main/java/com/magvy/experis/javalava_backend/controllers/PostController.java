@@ -1,26 +1,22 @@
 package com.magvy.experis.javalava_backend.controllers;
 
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import com.magvy.experis.javalava_backend.domain.entitites.Post;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/posts")
-public class PostController extends BaseAuthHController{
+public class PostController extends BaseAuthController {
     private final PostService postService;
 
     @Autowired
@@ -32,55 +28,51 @@ public class PostController extends BaseAuthHController{
     public ResponseEntity<PostDTOResponse> createPost(@RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
         PostDTOResponse postDTOResponse = postService.createPost(postDTORequest);
-        return new ResponseEntity<>(postDTOResponse, HttpStatus.OK);
+        return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id) {
         PostDTOResponse postDTOResponse = postService.readPost(id);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
-        return new ResponseEntity<>(postDTOResponse, HttpStatus.OK);
+        return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
     @GetMapping("{id}/perms")
     public ResponseEntity<PermissionsDTOResponse> getPostPermissions(@PathVariable Long id) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
         PermissionsDTOResponse perms = postService.getPermissions(id);
-        return new ResponseEntity<>(perms, HttpStatus.OK);
+        return ResponseUtil.wrapEntity(perms);
     }
 
     @PutMapping("{id}")
     public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
         PostDTOResponse postDTOResponse = postService.updatePost(id, postDTORequest);
-        return new ResponseEntity<>(postDTOResponse, HttpStatus.OK);
+        return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<PostDTOResponse> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
+    public HttpStatus deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
         postService.deletePost(id);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
-        return new ResponseEntity<>(null, headers, HttpStatus.OK);
+        return HttpStatus.OK;
     }
 
     @GetMapping("/user/{id}")
-    public List<PostDTOResponse> loadPostByUserHandler(@PathVariable Long id, @RequestParam int offset) {
-        return postService.loadPostsByUser(offset, id);
+    public ResponseEntity<List<PostDTOResponse>> loadPostByUserHandler(@PathVariable Long id, @RequestParam int offset) {
+        List<PostDTOResponse> postDTOResponses = postService.loadPostsByUser(offset, id);
+        return ResponseUtil.wrapEntityList(postDTOResponses);
     }
 
     @GetMapping("/all")
-    public List<PostDTOResponse> loadPostHandler(@RequestParam int offset) {
-        return postService.loadPosts(offset);
+    public ResponseEntity<List<PostDTOResponse>> loadPostHandler(@RequestParam int offset) {
+        List<PostDTOResponse> postDTOResponses = postService.loadPosts(offset);
+        return ResponseUtil.wrapEntityList(postDTOResponses);
     }
 
     @GetMapping("/friends")
-    public List<PostDTOResponse> loadPostByFriendsHandler(@RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<List<PostDTOResponse>> loadPostByFriendsHandler(@RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
-        return postService.loadPostsByFriends(offset);
+        List<PostDTOResponse> postDTOResponses = postService.loadPostsByFriends(offset);
+        return ResponseUtil.wrapEntityList(postDTOResponses);
     }
-
 }

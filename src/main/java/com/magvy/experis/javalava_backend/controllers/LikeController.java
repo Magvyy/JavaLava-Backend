@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/likes")
-public class LikeController extends BaseAuthHController {
+public class LikeController extends BaseAuthController {
 
     private final LikeService likeService;
 

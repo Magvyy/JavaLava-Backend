@@ -3,6 +3,7 @@ import com.magvy.experis.javalava_backend.application.DTOs.incoming.MessageDTORe
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ConversationDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.MessageService;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/messages")
-public class MessageController extends BaseAuthHController {
+public class MessageController extends BaseAuthController {
 
     private final MessageService messageService;
     private final WebSocketService websocketService;
@@ -31,20 +32,20 @@ public class MessageController extends BaseAuthHController {
         User user = throwIfUserNull(principal);
         Message message = messageService.sendMessage(messageDTORequest, user);
         websocketService.sendMessage(message.getTo().getUserName(), message);
-        return new ResponseEntity<>(new MessageDTOResponse(message), HttpStatus.OK);
+        return ResponseUtil.wrapEntity(new MessageDTOResponse(message));
     }
 
     @GetMapping()
     public ResponseEntity<List<ConversationDTOResponse>> getConversations(@RequestParam(value = "offset") int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
         List<ConversationDTOResponse> messages = messageService.getConversations(user, offset);
-        return new ResponseEntity<>(messages, HttpStatus.OK);
+        return ResponseUtil.wrapEntity(messages);
     }
 
     @GetMapping("/{sender_id}")
     public ResponseEntity<List<MessageDTOResponse>> getConversation(@PathVariable Long sender_id, @RequestParam(value = "offset") int offset, @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
         List<MessageDTOResponse> conversation = messageService.getConversation(user, sender_id, offset);
-        return new ResponseEntity<>(conversation, HttpStatus.OK);
+        return ResponseUtil.wrapEntity(conversation);
     }
 }
