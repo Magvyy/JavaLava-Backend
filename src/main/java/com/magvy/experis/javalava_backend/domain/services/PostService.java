@@ -91,11 +91,11 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    public PermissionsDTOResponse getPermissions(Long id, User user) {
+    public PermissionsDTOResponse getPermissions(Long id) {
         Post post = postUtil.findByIdOrThrow(id);
-        boolean read = postUtil.isPostVisibleToUser(post, user);
-        boolean write = post.getUser().getId().equals(user.getId());
-        boolean delete = userUtil.isAdmin(user.getId());
+        boolean read = postUtil.isPostVisibleToAuthenticatedUser(post);
+        boolean write = postUtil.authenticatedUserOwnsPost(post);
+        boolean delete = securityUtil.authenticatedUserIsAdmin();
         return new PermissionsDTOResponse(id, read, write, delete);
     }
 }

@@ -48,11 +48,10 @@ public class PostController extends BaseAuthHController{
     }
 
     @GetMapping("{id}/perms")
-    public ResponseEntity<PermissionsDTOResponse> getPostPermissions(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<PermissionsDTOResponse> getPostPermissions(@PathVariable Long id) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
-        Optional<User> user = getUserIfAuth(principal);
-        PermissionsDTOResponse perms = postService.getPermissions(id, user.orElse(null));
+        PermissionsDTOResponse perms = postService.getPermissions(id);
         return new ResponseEntity<>(perms, HttpStatus.OK);
     }
 

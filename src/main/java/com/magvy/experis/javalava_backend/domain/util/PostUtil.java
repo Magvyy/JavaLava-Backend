@@ -14,12 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.MissingResourceException;
 
 @Component
 public class PostUtil {
     private final SecurityUtil securityUtil;
-    private final PostRepository postRepository;;
+    private final PostRepository postRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final FriendService friendService;
@@ -55,17 +54,18 @@ public class PostUtil {
         return postRepository.findById(id).orElseThrow(() -> new PostException("Post not found", HttpStatus.NOT_FOUND));
     }
 
-    public boolean isPostVisibleToUser(Post post, User user) {
+    public boolean isPostVisibleToAuthenticatedUser(Post post) {
         if (post.isVisible()) {
             return true;
         }
-        if( user == null) {
+        User authenticatedUser = securityUtil.getAuthenticatedUser();
+        if (authenticatedUser == null) {
             return false;
         }
-        if (post.getUser().getId().equals(user.getId())) {
+        if (authenticatedUserOwnsPost(post)) {
             return true;
         }
-        return friendService.isFriends(user.getId(), post.getUser().getId());
+        return friendService.isFriends(authenticatedUser.getId(), post.getUser().getId());
     }
 
     public boolean isValidContent(String content) {
