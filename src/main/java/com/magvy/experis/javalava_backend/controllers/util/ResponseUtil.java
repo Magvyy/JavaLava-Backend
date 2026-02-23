@@ -5,8 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class ResponseUtil {
 
@@ -14,11 +12,5 @@ public class ResponseUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
         return new ResponseEntity<>(entity, headers, HttpStatus.OK);
-    }
-
-    public static <T> ResponseEntity<List<T>> wrapEntityList(List<T> entityList) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
-        return new ResponseEntity<>(entityList, headers, HttpStatus.OK);
     }
 }

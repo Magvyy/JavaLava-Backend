@@ -27,7 +27,7 @@ public class UserController extends BaseAuthController {
     @GetMapping("/search")
     public ResponseEntity<List<UserDTOResponse>> searchUsers(@RequestParam String q, @RequestParam int offset) {
         List<UserDTOResponse> userDTOResponses = userService.search(q, offset);
-        return ResponseUtil.wrapEntityList(userDTOResponses);
+        return ResponseUtil.wrapEntity(userDTOResponses);
     }
 
     @GetMapping("/{userId}")
