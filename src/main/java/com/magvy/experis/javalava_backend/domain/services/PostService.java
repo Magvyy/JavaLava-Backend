@@ -6,7 +6,6 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTORespo
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
-import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
 import com.magvy.experis.javalava_backend.domain.util.PostUtil;
 import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
@@ -79,14 +78,14 @@ public class PostService {
     public PostDTOResponse updatePost(Long id, PostDTORequest postDTORequest) {
         postUtil.validate(postDTORequest);
         Post post = postUtil.findByIdOrThrow(id);
-        if (!postUtil.authenticatedUserOwnsPost(post)) throw new UnauthorizedActionException("User does not own this post.");
+        if (!postUtil.authenticatedUserOwnsPost(post)) throw new PostException("User does not have permission to edit this post", HttpStatus.FORBIDDEN);
         post = postRepository.save(post);
         return new PostDTOResponse(post);
     }
 
     public void deletePost(Long id) {
         Post post = postUtil.findByIdOrThrow(id);
-        if (!postUtil.authenticatedUserOwnsPost(post) && !securityUtil.authenticatedUserIsAdmin()) throw new UnauthorizedActionException("User does not own this post.");
+        if (!postUtil.authenticatedUserOwnsPost(post) && !securityUtil.authenticatedUserIsAdmin()) throw new PostException("User does not have permission to delete this post", HttpStatus.FORBIDDEN);
         postRepository.delete(post);
     }
 
