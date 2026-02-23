@@ -13,12 +13,10 @@ import org.springframework.stereotype.Component;
 public class CommentUtil {
     private final CommentRepository commentRepository;
     private final SecurityUtil securityUtil;
-    private final PostUtil postUtil;
 
-    public CommentUtil(CommentRepository commentRepository, SecurityUtil securityUtil, PostUtil postUtil) {
+    public CommentUtil(CommentRepository commentRepository, SecurityUtil securityUtil) {
         this.commentRepository = commentRepository;
         this.securityUtil = securityUtil;
-        this.postUtil = postUtil;
     }
 
     public Comment convertToEntity(CommentDTORequest commentDTO, Post post) {
