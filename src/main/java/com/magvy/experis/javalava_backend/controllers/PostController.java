@@ -30,15 +30,14 @@ public class PostController extends BaseAuthHController{
 
     @PostMapping()
     public ResponseEntity<PostDTOResponse> createPost(@RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        Post post = postService.createPost(user, postDTORequest);
+        throwIfUserNull(principal);
+        Post post = postService.createPost(postDTORequest);
         return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
-        Optional<User> user = getUserIfAuth(principal);
-        Optional<Post> oPost = postService.getPost(id, user);
+    public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id) {
+        Optional<Post> oPost = postService.getPost(id);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
         if (oPost.isEmpty()) {
@@ -59,36 +58,34 @@ public class PostController extends BaseAuthHController{
 
     @PutMapping("{id}")
     public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        Post post = postService.updatePost(id, user, postDTORequest);
+        throwIfUserNull(principal);
+        Post post = postService.updatePost(id, postDTORequest);
         return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<PostDTOResponse> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        postService.deletePost(id, user);
+        throwIfUserNull(principal);
+        postService.deletePost(id);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
         return new ResponseEntity<>(null, headers, HttpStatus.OK);
     }
 
     @GetMapping("/user/{id}")
-    public List<PostDTOResponse> loadPostByUserHandler(@PathVariable Long id, @RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
-        Optional<User> user = getUserIfAuth(principal);
-        return postService.loadPostsByUser(offset, user, id);
+    public List<PostDTOResponse> loadPostByUserHandler(@PathVariable Long id, @RequestParam int offset) {
+        return postService.loadPostsByUser(offset, id);
     }
 
     @GetMapping("/all")
-    public List<PostDTOResponse> loadPostHandler(@RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
-        Optional<User> user = getUserIfAuth(principal);
-        return postService.loadPosts(offset, user);
+    public List<PostDTOResponse> loadPostHandler(@RequestParam int offset) {
+        return postService.loadPosts(offset);
     }
 
     @GetMapping("/friends")
     public List<PostDTOResponse> loadPostByFriendsHandler(@RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        return postService.loadPostsByFriends(offset, user);
+        throwIfUserNull(principal);
+        return postService.loadPostsByFriends(offset);
     }
 
 }

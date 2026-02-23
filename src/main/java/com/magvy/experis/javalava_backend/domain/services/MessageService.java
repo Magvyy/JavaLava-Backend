@@ -37,7 +37,7 @@ public class MessageService {
     }
 
     public Message sendMessage(MessageDTORequest messageDTORequest, User sender) {
-        User recipient = userUtil.getUserById(messageDTORequest.getToUserId());
+        User recipient = userUtil.findByIdOrThrow(messageDTORequest.getToUserId());
 
         if (messageDTORequest.getContent().trim().isEmpty()) {
             throw new IllegalArgumentException("Content must be something.");
@@ -66,7 +66,7 @@ public class MessageService {
     public List<MessageDTOResponse> getConversation(User recipient, Long sender_id, int offset) {
         Sort sort = Sort.by("sent").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
-        User sender = userUtil.getUserById(sender_id);
+        User sender = userUtil.findByIdOrThrow(sender_id);
         Page<Message> messageList = messageRepository.findByFromAndToOrFromAndTo(recipient, sender, sender, recipient, pageable);
         return pageToDTOList(messageList).reversed();
     }

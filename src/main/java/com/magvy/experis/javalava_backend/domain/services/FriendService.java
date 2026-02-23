@@ -46,7 +46,7 @@ public class FriendService {
                 || friendRequestRepository.existsByFromIdAndToId(toId, fromId)) {
             return ResponseEntity.badRequest().build();
         }
-        User to = userUtil.getUserById(toId);
+        User to = userUtil.findByIdOrThrow(toId);
         FriendRequest friendRequest = new FriendRequest(
                 from,
                 to

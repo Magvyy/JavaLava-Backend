@@ -2,7 +2,9 @@ package com.magvy.experis.javalava_backend.domain.util;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
+import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -13,12 +15,10 @@ import java.util.Optional;
 
 @Component
 public class UserUtil {
-    private final SecurityUtil securityUtil;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserUtil(SecurityUtil securityUtil, UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.securityUtil = securityUtil;
+    public UserUtil(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -35,22 +35,12 @@ public class UserUtil {
         return oUser.isPresent();
     }
 
-    public User getUserById(Long id) {
+    public User findByIdOrThrow(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
     }
 
-    public boolean authenticatedUserHasId(Long id) {
-        User authenticatedUser = securityUtil.getAuthenticatedUser();
-        return authenticatedUser.getId().equals(id);
-    }
-
-    public boolean authenticatedUserIsAdmin() {
-        User authenticatedUser = securityUtil.getAuthenticatedUser();
-        return isAdmin(authenticatedUser.getId());
-    }
-
     public boolean isAdmin(Long id) {
-        return getUserById(id).getRoles().stream().anyMatch(role -> role.getRole() == RoleEnum.ADMIN);
+        return findByIdOrThrow(id).getRoles().stream().anyMatch(role -> role.getRole() == RoleEnum.ADMIN);
     }
 
     public boolean isValidUserName(String userName) {

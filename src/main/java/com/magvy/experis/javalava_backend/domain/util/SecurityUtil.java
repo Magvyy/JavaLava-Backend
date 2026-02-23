@@ -1,5 +1,6 @@
 package com.magvy.experis.javalava_backend.domain.util;
 
+import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
@@ -27,5 +28,23 @@ public class SecurityUtil {
             return oUser.get();
         }
         return null;
+    }
+
+    public boolean isAuthenticated() {
+        return getAuthenticatedUser() != null;
+    }
+
+    public boolean authenticatedUserHasId(Long id) {
+        User authenticatedUser = getAuthenticatedUser();
+        return authenticatedUser.getId().equals(id);
+    }
+
+    public boolean authenticatedUserIsAdmin() {
+        Long authenticatedUserId = getAuthenticatedUser().getId();
+        return findByIdOrThrow(authenticatedUserId).getRoles().stream().anyMatch(role -> role.getRole() == RoleEnum.ADMIN);
+    }
+
+    private User findByIdOrThrow(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
     }
 }

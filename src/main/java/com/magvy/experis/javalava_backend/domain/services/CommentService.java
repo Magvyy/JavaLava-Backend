@@ -7,6 +7,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
+import com.magvy.experis.javalava_backend.domain.util.PostUtil;
 import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import org.springframework.data.domain.PageRequest;
@@ -23,21 +24,21 @@ import java.util.Optional;
 public class CommentService {
 
     private final UserUtil userUtil;
-    private final PostService postService;
+    private final PostUtil postUtil;
     private final WebSocketService webSocketService;
     private final CommentRepository commentRepository;
     private final int pageSize = 10;
 
-    public CommentService(UserUtil userUtil, PostService postService, WebSocketService webSocketService, CommentRepository commentRepository) {
+    public CommentService(UserUtil userUtil, PostUtil postUtil, WebSocketService webSocketService, CommentRepository commentRepository) {
         this.userUtil = userUtil;
-        this.postService = postService;
+        this.postUtil = postUtil;
         this.webSocketService = webSocketService;
         this.commentRepository = commentRepository;
     }
 
 
     public ResponseEntity<CommentDTOResponse> createPost(Long postId, User user, CommentDTORequest commentDTORequest) {
-        if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
+        if(!postUtil.isPostVisibleToUser(postUtil.findByIdOrThrow(postId), user)) {
             throw new UserException("User not authorized to create comments on this post", HttpStatus.UNAUTHORIZED);
         }
         if (commentDTORequest.getContent().trim().isEmpty()) {
@@ -46,7 +47,7 @@ public class CommentService {
         Comment comment = convertToEntity(postId, user, commentDTORequest);
         comment = commentRepository.save(comment);
         webSocketService.sendNotification(
-                postService.findByID(postId).getUser().getUserName(),
+                postUtil.findByIdOrThrow(postId).getUser().getUserName(),
                 "New comment on your post from " + user.getUserName()
         );
         CommentDTOResponse commentDTOResponse = new CommentDTOResponse(comment);
@@ -56,7 +57,7 @@ public class CommentService {
     public Comment convertToEntity(Long postId, User user, CommentDTORequest commentDTO) {
         return new Comment(
                 commentDTO.getContent(),
-                postService.findByID(postId),
+                postUtil.findByIdOrThrow(postId),
                 user
         );
     }
@@ -64,12 +65,12 @@ public class CommentService {
     public List<CommentDTOResponse> loadCommentsByPost(Long postId, Optional<User> user, int offset) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
-        Post post = postService.findByID(postId);
+        Post post = postUtil.findByIdOrThrow(postId);
         if (user.isEmpty()) {
-            if (!postService.findByID(postId).isVisible()) {
+            if (!postUtil.findByIdOrThrow(postId).isVisible()) {
                 throw new UnauthorizedActionException("User not authorized to view comments on this post");
             }
-        } else if(!postService.isPostVisibleToUser(postService.findByID(postId), user.get())) {
+        } else if(!postUtil.isPostVisibleToUser(postUtil.findByIdOrThrow(postId), user.get())) {
             throw new UserException("User not authorized to view comments on this post", HttpStatus.UNAUTHORIZED);
         }
         List<Comment> comments = commentRepository.findByPost(post, pageable);

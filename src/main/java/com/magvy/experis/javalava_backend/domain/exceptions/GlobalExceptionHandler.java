@@ -9,9 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,11 +21,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(PostNotFoundException.class)
-    public ResponseEntity<DefaultResponseDTO> handleMissingPostException(PostNotFoundException exception) {
-        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(UnauthorizedActionException.class)
     public ResponseEntity<DefaultResponseDTO> handleUnauthorizedDeletionException(UnauthorizedActionException exception) {
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
@@ -35,6 +28,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserException.class)
     public ResponseEntity<DefaultResponseDTO> handleUserException(UserException exception) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, exception.getStatus());
+    }
+
+    @ExceptionHandler(PostException.class)
+    public ResponseEntity<DefaultResponseDTO> handlePostException(PostException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, exception.getStatus());
