@@ -12,10 +12,6 @@ import java.util.List;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
-
-    Page<Message> findByToAndFrom(User to, User from, Pageable pageable);
-    List<Message> getMessageByFrom(User from, User to);
-
     Page<Message> findByFromAndToOrFromAndTo(
             User from1, User to1,
             User from2, User to2,
