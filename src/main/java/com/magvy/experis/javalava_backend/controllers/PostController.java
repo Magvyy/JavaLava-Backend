@@ -11,10 +11,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -23,9 +26,12 @@ import java.util.Optional;
 public class PostController extends BaseAuthHController{
     private final PostService postService;
 
+    private final AttatchmentService attatchmentService;
+
     @Autowired
-    public PostController(PostService postService) {
+    public PostController(PostService postService, AttatchmentService attatchmentService) {
         this.postService = postService;
+        this.attatchmentService = attatchmentService;
     }
 
     @PostMapping()
@@ -91,4 +97,8 @@ public class PostController extends BaseAuthHController{
         return postService.loadPostsByFriends(offset, user);
     }
 
+    @PostMapping("/attatchment")
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+        return attatchmentService.uploadFile(file);
+    }
 }
