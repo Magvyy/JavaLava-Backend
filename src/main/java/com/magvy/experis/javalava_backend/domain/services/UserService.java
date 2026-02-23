@@ -3,26 +3,22 @@ package com.magvy.experis.javalava_backend.domain.services;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ProfileDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
 import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
-import org.jspecify.annotations.NullMarked;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
     private final UserRepository userRepository;
     private final SecurityUtil securityUtil;
     private final UserUtil userUtil;
@@ -68,15 +64,5 @@ public class UserService implements UserDetailsService {
 
         Pageable limit = PageRequest.of(offset / pageSize, pageSize);
         return userRepository.searchUsers(query.trim(), limit);
-    }
-
-    @Override
-    @NullMarked
-    public UserDetails loadUserByUsername(String userName)  {
-        User user = userRepository.findByUserName(userName).orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
-        return new CustomUserDetails(user);
-    }
-    public UserDTOResponse convertToDTO(User user) {
-        return new UserDTOResponse(user);
     }
 }

@@ -1,12 +1,10 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 @RestController
 public abstract class BaseAuthController {
@@ -21,13 +19,5 @@ public abstract class BaseAuthController {
             throw new UserException("User is not authenticated.", HttpStatus.UNAUTHORIZED);
         }
         return user;
-    }
-
-    protected Optional<User> getUserIfAuth(CustomUserDetails principal) {
-        User user = getLoggedInUser(principal);
-        if (user == null) {
-            return Optional.empty();
-        }
-        return Optional.of(user);
     }
 }

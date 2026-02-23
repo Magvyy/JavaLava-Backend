@@ -3,7 +3,7 @@ package com.magvy.experis.javalava_backend.controllers;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.MessageDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ConversationDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.MessageService;
 import org.springframework.http.ResponseEntity;

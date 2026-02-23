@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.controllers;
 
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.FriendService;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +30,7 @@ public class FriendController extends BaseAuthController {
     public ResponseEntity<List<UserDTOResponse>> getFriendRequests(@AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
         List<UserDTOResponse> friendRequests = friendService.getFriendRequests();
-        return ResponseUtil.wrapEntityList(friendRequests);
+        return ResponseUtil.wrapEntity(friendRequests);
     }
 
     @PostMapping("/requests/{from_user_id}/accept")
@@ -58,6 +58,6 @@ public class FriendController extends BaseAuthController {
     public ResponseEntity<List<UserDTOResponse>> getFriendsList(@AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
         List<UserDTOResponse> friends = friendService.getFriendsList();
-        return ResponseUtil.wrapEntityList(friends);
+        return ResponseUtil.wrapEntity(friends);
     }
 }

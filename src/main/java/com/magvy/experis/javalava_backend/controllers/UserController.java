@@ -3,7 +3,7 @@ package com.magvy.experis.javalava_backend.controllers;
 
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ProfileDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class UserController extends BaseAuthController {
     @GetMapping("/search")
     public ResponseEntity<List<UserDTOResponse>> searchUsers(@RequestParam String q, @RequestParam int offset) {
         List<UserDTOResponse> userDTOResponses = userService.search(q, offset);
-        return ResponseUtil.wrapEntityList(userDTOResponses);
+        return ResponseUtil.wrapEntity(userDTOResponses);
     }
 
     @GetMapping("/{userId}")

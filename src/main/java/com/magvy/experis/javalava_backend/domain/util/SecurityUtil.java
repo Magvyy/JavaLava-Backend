@@ -40,8 +40,9 @@ public class SecurityUtil {
     }
 
     public boolean authenticatedUserIsAdmin() {
-        Long authenticatedUserId = getAuthenticatedUser().getId();
-        return findByIdOrThrow(authenticatedUserId).getRoles().stream().anyMatch(role -> role.getRole() == RoleEnum.ADMIN);
+        User authenticatedUser = getAuthenticatedUser();
+        if (authenticatedUser == null) return false;
+        return findByIdOrThrow(authenticatedUser.getId()).getRoles().stream().anyMatch(role -> role.getRole() == RoleEnum.ADMIN);
     }
 
     private User findByIdOrThrow(Long id) {
