@@ -77,6 +77,7 @@ public class PostUtil {
 
     public boolean authenticatedUserOwnsPost(Post post) {
         User authenticatedUser = securityUtil.getAuthenticatedUser();
+        if (authenticatedUser == null) return false;
         return authenticatedUser.getId().equals(post.getUser().getId());
     }
 }
