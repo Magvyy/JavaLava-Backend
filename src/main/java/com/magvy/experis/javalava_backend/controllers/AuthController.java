@@ -44,7 +44,7 @@ public class AuthController extends BaseAuthHController {
 
     @PostMapping("/register")
     public ResponseEntity <DefaultResponseDTO> registerPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
-        userService.register(authDTO);
+        userService.createUser(authDTO);
         return authHandler(authDTO, response);
     }
 

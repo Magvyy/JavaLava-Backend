@@ -6,7 +6,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.FriendService;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
-import com.magvy.experis.javalava_backend.domain.services.UserService;
+import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
@@ -40,7 +40,7 @@ public class PostServiceUnitTest {
     CommentRepository commentRepository;
 
     @Mock
-    UserService userService;
+    UserUtil userUtil;
 
     AutoCloseable mocks;
 
@@ -49,7 +49,7 @@ public class PostServiceUnitTest {
     @BeforeEach
     void setup(){
         mocks = MockitoAnnotations.openMocks(this);
-        postService = new PostService(postRepository, likeRepository, commentRepository, friendService, userService);
+        postService = new PostService(postRepository, likeRepository, commentRepository, friendService, userUtil);
         user = new User(1L, "", "");
         postOwner = new User(2L, "", "");
         post = new Post(1L, "", LocalDateTime.now(), true, postOwner);

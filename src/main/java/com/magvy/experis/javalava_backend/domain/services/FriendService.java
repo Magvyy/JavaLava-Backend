@@ -7,6 +7,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendRequestId;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
+import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRequestRepository;
 import org.springframework.http.HttpStatus;
@@ -21,12 +22,12 @@ import java.util.List;
 public class FriendService {
     private final FriendRepository friendRepository;
     private final FriendRequestRepository friendRequestRepository;
-    private final UserService userService;
+    private final UserUtil userUtil;
     private final WebSocketService webSocketService;
 
-    public FriendService(FriendRepository friendRepository, FriendRequestRepository friendRequestRepository, UserService userService, WebSocketService webSocketService) {
+    public FriendService(FriendRepository friendRepository, FriendRequestRepository friendRequestRepository, UserUtil userUtil, WebSocketService webSocketService) {
         this.webSocketService = webSocketService;
-        this.userService = userService;
+        this.userUtil = userUtil;
         this.friendRepository = friendRepository;
         this.friendRequestRepository = friendRequestRepository;
     }
@@ -45,7 +46,7 @@ public class FriendService {
                 || friendRequestRepository.existsByFromIdAndToId(toId, fromId)) {
             return ResponseEntity.badRequest().build();
         }
-        User to = userService.getUserById(toId);
+        User to = userUtil.getUserById(toId);
         FriendRequest friendRequest = new FriendRequest(
                 from,
                 to

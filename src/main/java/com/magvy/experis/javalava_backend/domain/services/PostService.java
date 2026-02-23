@@ -8,6 +8,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostNotFoundException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
+import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
@@ -27,15 +28,15 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final FriendService friendService;
-    private final UserService userService;
+    private final UserUtil userUtil;
     private final int pageSize = 10;
 
-    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, FriendService friendService, UserService userService) {
+    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, FriendService friendService, UserUtil userUtil) {
         this.postRepository = postRepository;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
         this.friendService = friendService;
-        this.userService = userService;
+        this.userUtil = userUtil;
     }
   
     private Post convertToEntity(Long id, PostDTORequest postDTORequest, User user) {
@@ -150,7 +151,7 @@ public class PostService {
             throw new PostNotFoundException("Can't delete a missing post.");
         }
         Post post = oPost.get();
-        if (!post.getUser().getId().equals(user.getId()) && !userService.isAdmin(user.getId())) {
+        if (!post.getUser().getId().equals(user.getId()) && !userUtil.isAdmin(user.getId())) {
             throw new UnauthorizedActionException("User does not own this post.");
         }
         postRepository.delete(post);
@@ -162,7 +163,7 @@ public class PostService {
         Post post = uPost.get();
         boolean read = isPostVisibleToUser(post, user);
         boolean write = post.getUser().getId().equals(user.getId());
-        boolean delete = userService.isAdmin(user.getId());
+        boolean delete = userUtil.isAdmin(user.getId());
         return new PermissionsDTOResponse(id, read, write, delete);
     }
 }

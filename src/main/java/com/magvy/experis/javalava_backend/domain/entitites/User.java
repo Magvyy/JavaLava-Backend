@@ -1,5 +1,6 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
 
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class User {
         this.roles.remove(new Role(this, role));
     }
 
+    // Used for testing
     public User(Long id, String userName, String password) {
         this.id = id;
         this.userName = userName;
@@ -41,11 +43,11 @@ public class User {
         this.roles = new ArrayList<>();
     }
 
+    // Used for registering
     public User(String userName, String password) {
         this.userName = userName;
         this.password = password;
         this.roles = new ArrayList<>();
-        this.addRole(RoleEnum.USER);
     }
 
     public User() {

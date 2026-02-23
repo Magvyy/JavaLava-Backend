@@ -7,6 +7,7 @@ import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
+import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,14 +22,14 @@ import java.util.Optional;
 @Service
 public class CommentService {
 
-    private final UserService userService;
+    private final UserUtil userUtil;
     private final PostService postService;
     private final WebSocketService webSocketService;
     private final CommentRepository commentRepository;
     private final int pageSize = 10;
 
-    public CommentService(UserService userService, PostService postService, WebSocketService webSocketService, CommentRepository commentRepository) {
-        this.userService = userService;
+    public CommentService(UserUtil userUtil, PostService postService, WebSocketService webSocketService, CommentRepository commentRepository) {
+        this.userUtil = userUtil;
         this.postService = postService;
         this.webSocketService = webSocketService;
         this.commentRepository = commentRepository;
@@ -98,7 +99,7 @@ public class CommentService {
             return HttpStatus.NOT_FOUND;
         }
         Comment comment = oComment.get();
-        if (!comment.getUser().getId().equals(user.getId()) && !userService.isAdmin(user.getId())) {
+        if (!comment.getUser().getId().equals(user.getId()) && !userUtil.isAdmin(user.getId())) {
             return HttpStatus.UNAUTHORIZED;
         }
         commentRepository.delete(comment);
