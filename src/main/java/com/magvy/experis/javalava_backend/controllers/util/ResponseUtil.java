@@ -13,4 +13,10 @@ public class ResponseUtil {
         headers.add("Content-Type", "application/json; charset=utf-8");
         return new ResponseEntity<>(entity, headers, HttpStatus.OK);
     }
+
+    public static <T> ResponseEntity<T> wrapEntity(T entity, HttpStatus status) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+        return new ResponseEntity<>(entity, headers, status);
+    }
 }
