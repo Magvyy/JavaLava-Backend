@@ -5,7 +5,7 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.CommentDTORe
 import com.magvy.experis.javalava_backend.domain.entitites.Comment;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
-import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
+import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
 import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
@@ -38,7 +38,7 @@ public class CommentService {
 
     public ResponseEntity<CommentDTOResponse> createPost(Long postId, User user, CommentDTORequest commentDTORequest) {
         if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
-            throw new UnauthenticatedUserException("User not authorized to create comments on this post");
+            throw new UserException("User not authorized to create comments on this post", HttpStatus.UNAUTHORIZED);
         }
         if (commentDTORequest.getContent().trim().isEmpty()) {
             throw new IllegalArgumentException("Content must be something.");
@@ -70,7 +70,7 @@ public class CommentService {
                 throw new UnauthorizedActionException("User not authorized to view comments on this post");
             }
         } else if(!postService.isPostVisibleToUser(postService.findByID(postId), user.get())) {
-            throw new UnauthenticatedUserException("User not authorized to view comments on this post");
+            throw new UserException("User not authorized to view comments on this post", HttpStatus.UNAUTHORIZED);
         }
         List<Comment> comments = commentRepository.findByPost(post, pageable);
         return comments.stream().map(CommentDTOResponse::new).toList();

@@ -23,11 +23,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<DefaultResponseDTO> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
-        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.CONFLICT);
-    }
-
     @ExceptionHandler(PostNotFoundException.class)
     public ResponseEntity<DefaultResponseDTO> handleMissingPostException(PostNotFoundException exception) {
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.NOT_FOUND);
@@ -38,26 +33,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<DefaultResponseDTO> handleUserNotFound(UserNotFoundException exception) {
-        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler(UnauthenticatedUserException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<DefaultResponseDTO> handleUnauthenticatedUser(UnauthenticatedUserException exception) {
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<DefaultResponseDTO> handleUserException(UserException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler(UsernameNotFoundException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<DefaultResponseDTO> handleUserNameNotFound(UsernameNotFoundException exception) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, exception.getStatus());
     }
 
     @ExceptionHandler(ResponseStatusException.class)

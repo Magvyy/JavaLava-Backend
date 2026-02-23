@@ -6,7 +6,7 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTORespo
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostNotFoundException;
-import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
+import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
 import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -70,7 +71,7 @@ public class PostService {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
         if (user == null) {
-            throw new UnauthenticatedUserException("Couldn't find user in database");
+            throw new UserException("Couldn't find user in database", HttpStatus.NOT_FOUND);
         }
         return pageToDTOList(postRepository.findPostsFromFriends(user.getId(), pageable), user.getId());
     }

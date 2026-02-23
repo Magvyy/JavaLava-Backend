@@ -6,12 +6,13 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTORespo
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
-import com.magvy.experis.javalava_backend.domain.exceptions.UserAlreadyExistsException;
+import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,7 +34,7 @@ public class UserService implements UserDetailsService {
     public void createUser(AuthDTO authDTO) {
         // Validate input
         if (userRepository.existsByUserName(authDTO.getUserName())) {
-            throw new UserAlreadyExistsException("Username is taken");
+            throw new UserException("Username is taken", HttpStatus.CONFLICT);
         }
         User user = userUtil.convertToEntity(authDTO);
         userRepository.save(user);
@@ -72,8 +73,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     @NullMarked
-    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        User user = userRepository.findByUserName(userName).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public UserDetails loadUserByUsername(String userName)  {
+        User user = userRepository.findByUserName(userName).orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
         return new CustomUserDetails(user);
     }
     public UserDTOResponse convertToDTO(User user) {
