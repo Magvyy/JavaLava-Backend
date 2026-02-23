@@ -31,20 +31,16 @@ public class PostController extends BaseAuthHController{
     @PostMapping()
     public ResponseEntity<PostDTOResponse> createPost(@RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
-        Post post = postService.createPost(postDTORequest);
-        return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
+        PostDTOResponse postDTOResponse = postService.createPost(postDTORequest);
+        return new ResponseEntity<>(postDTOResponse, HttpStatus.OK);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id) {
-        Optional<Post> oPost = postService.getPost(id);
+        PostDTOResponse postDTOResponse = postService.readPost(id);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
-        if (oPost.isEmpty()) {
-            return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(new PostDTOResponse(oPost.get()), HttpStatus.OK);
-        }
+        return new ResponseEntity<>(postDTOResponse, HttpStatus.OK);
     }
 
     @GetMapping("{id}/perms")
@@ -58,8 +54,8 @@ public class PostController extends BaseAuthHController{
     @PutMapping("{id}")
     public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
-        Post post = postService.updatePost(id, postDTORequest);
-        return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
+        PostDTOResponse postDTOResponse = postService.updatePost(id, postDTORequest);
+        return new ResponseEntity<>(postDTOResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
