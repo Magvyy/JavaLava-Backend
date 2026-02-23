@@ -2,6 +2,7 @@ package com.magvy.experis.javalava_backend.application.security.config;
 
 import com.magvy.experis.javalava_backend.application.handlers.CustomAccessDeniedHandler;
 import com.magvy.experis.javalava_backend.application.handlers.CustomAuthenticationEntryPoint;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomAuthenticationProvider;
 import com.magvy.experis.javalava_backend.application.security.filter.JwtFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

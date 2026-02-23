@@ -1,4 +1,4 @@
-package com.magvy.experis.javalava_backend.application.security.config;
+package com.magvy.experis.javalava_backend.application.security.config.custom;
 
 import com.magvy.experis.javalava_backend.domain.entitites.Role;
 import com.magvy.experis.javalava_backend.domain.entitites.User;

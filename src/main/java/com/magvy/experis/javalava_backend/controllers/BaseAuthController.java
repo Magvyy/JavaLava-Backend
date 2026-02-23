@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import org.springframework.http.HttpStatus;

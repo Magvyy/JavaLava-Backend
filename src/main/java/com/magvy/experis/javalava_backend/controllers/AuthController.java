@@ -3,7 +3,7 @@ package com.magvy.experis.javalava_backend.controllers;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.DefaultResponseDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
