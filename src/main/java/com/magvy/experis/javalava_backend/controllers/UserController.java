@@ -56,9 +56,9 @@ public class UserController extends BaseAuthController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("delete/{userId}")
-    public HttpStatus deleteUser(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal) throws AccessDeniedException {
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails principal) throws AccessDeniedException {
         throwIfUserNull(principal);
         userService.deleteUser(userId);
-        return HttpStatus.OK;
+        return ResponseUtil.wrapEntity(null);
     }
 }

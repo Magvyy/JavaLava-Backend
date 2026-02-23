@@ -39,10 +39,10 @@ public class CommentController extends BaseAuthController {
         return ResponseUtil.wrapEntity(commentDTOResponse);
     }
     @DeleteMapping("/{commentId}")
-    public HttpStatus deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<?> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
         commentService.delete(commentId);
-        return HttpStatus.OK;
+        return ResponseUtil.wrapEntity(null);
     }
 
 }
