@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTORequest;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.LikeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/likes")
-public class LikeController extends BaseAuthHController {
+public class LikeController extends BaseAuthController {
 
     private final LikeService likeService;
 
@@ -20,15 +20,15 @@ public class LikeController extends BaseAuthHController {
     }
 
     @PostMapping("/like/post/{postId}")
-    public ResponseEntity<String> LikePutHandler(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails principal){
-        Long userId = throwIfUserNull(principal).getId();
-        LikeDTORequest likeDTORequest = new LikeDTORequest(userId, postId);
-        return likeService.likePost(likeDTORequest);
+    public ResponseEntity<Void> LikePutHandler(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails principal){
+        throwIfUserNull(principal);
+        likeService.likePost(postId);
+        return ResponseUtil.wrapEntity(null);
     }
     @DeleteMapping("/unlike/post/{postId}")
-    public ResponseEntity<String> LikeDeleteHandler(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails principal){
-        Long userId = throwIfUserNull(principal).getId();
-        LikeDTORequest likeDTORequest = new LikeDTORequest(userId, postId);
-        return likeService.unlikePost(likeDTORequest);
+    public ResponseEntity<Void> LikeDeleteHandler(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails principal){
+        throwIfUserNull(principal);
+        likeService.unlikePost(postId);
+        return ResponseUtil.wrapEntity(null);
     }
 }

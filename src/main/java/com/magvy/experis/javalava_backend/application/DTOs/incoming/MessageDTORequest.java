@@ -5,6 +5,4 @@ import lombok.Getter;
 @Getter
 public class MessageDTORequest {
     private String content;
-
-    private Long toUserId;
 }

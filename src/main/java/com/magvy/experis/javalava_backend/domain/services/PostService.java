@@ -5,164 +5,96 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsD
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
-import com.magvy.experis.javalava_backend.domain.exceptions.PostNotFoundException;
-import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
+import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
+import com.magvy.experis.javalava_backend.domain.util.PostUtil;
+import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.MissingResourceException;
-import java.util.Optional;
 
 @Service
 public class PostService {
     private final PostRepository postRepository;
-    private final LikeRepository likeRepository;
-    private final CommentRepository commentRepository;
-    private final FriendService friendService;
-    private final UserService userService;
+    private final SecurityUtil securityUtil;
+    private final PostUtil postUtil;
     private final int pageSize = 10;
 
-    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, FriendService friendService, UserService userService) {
+    public PostService(PostRepository postRepository, SecurityUtil securityUtil, PostUtil postUtil) {
         this.postRepository = postRepository;
-        this.likeRepository = likeRepository;
-        this.commentRepository = commentRepository;
-        this.friendService = friendService;
-        this.userService = userService;
-    }
-  
-    private Post convertToEntity(Long id, PostDTORequest postDTORequest, User user) {
-        return new Post(
-                id,
-                postDTORequest.getContent(),
-                postDTORequest.isVisible(),
-                user
-        );
+        this.securityUtil = securityUtil;
+        this.postUtil = postUtil;
     }
 
-    public List<PostDTOResponse> loadPosts(int offset, Optional<User> user) {
+    public List<PostDTOResponse> loadPosts(int offset) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
-        if (user.isEmpty()) {
-            return pageToDTOList(postRepository.findByVisibleTrue(pageable), (long) -1);
-        }
-        return pageToDTOList(postRepository.findPostsForUser(user.get().getId(), pageable), user.get().getId());
+
+        if (!securityUtil.isAuthenticated()) return postUtil.pageToDTOList(postRepository.findByVisibleTrue(pageable), (long) -1);
+
+        Long authenticatedUserId = securityUtil.getAuthenticatedUser().getId();
+        Page<Post> posts = postRepository.findPostsForUser(authenticatedUserId, pageable);
+        return postUtil.pageToDTOList(posts, authenticatedUserId);
     }
 
-    public List<PostDTOResponse> loadPostsByUser(int offset, Optional<User> user, Long selectedId) {
+    public List<PostDTOResponse> loadPostsByUser(int offset, Long selectedId) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
-        if (user.isEmpty()) {
-            return pageToDTOList(postRepository.findByVisibleTrueAndUserId(selectedId, pageable), (long) -1);
-        }
-        return pageToDTOList(postRepository.findPostsFromUser(user.get().getId(), selectedId, pageable), user.get().getId());
+
+        if (!securityUtil.isAuthenticated()) return postUtil.pageToDTOList(postRepository.findByVisibleTrueAndUserId(selectedId, pageable), (long) -1);
+
+        Long authenticatedUserId = securityUtil.getAuthenticatedUser().getId();
+        Page<Post> posts = postRepository.findPostsFromUser(authenticatedUserId, selectedId, pageable);
+        return postUtil.pageToDTOList(posts, authenticatedUserId);
     }
 
-    public List<PostDTOResponse> loadPostsByFriends(int offset, User user) {
+    public List<PostDTOResponse> loadPostsByFriends(int offset) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
-        if (user == null) {
-            throw new UnauthenticatedUserException("Couldn't find user in database");
-        }
-        return pageToDTOList(postRepository.findPostsFromFriends(user.getId(), pageable), user.getId());
+        Long authenticatedUserId = securityUtil.getAuthenticatedUser().getId();
+        Page<Post> posts = postRepository.findPostsFromFriends(authenticatedUserId, pageable);
+        return postUtil.pageToDTOList(posts, authenticatedUserId);
     }
 
-    private List<PostDTOResponse> pageToDTOList(Page<Post> posts, Long id) {
-        return posts.stream()
-                .map(post -> new PostDTOResponse(
-                        post,
-                        likeRepository.existsByPost_idAndUser_Id(post.getId(), id),
-                        (int)likeRepository.countByPost_Id(post.getId()),
-                        (int)commentRepository.countByPost(post)
-                ))
-                .toList();
-    }
-  
-    public Post findByID(Long id) {
-        return postRepository.findById(id).orElseThrow(() -> new MissingResourceException("Post not found", "Post", String.valueOf(id)));
+    public PostDTOResponse createPost(PostDTORequest postDTORequest) {
+        postUtil.validate(postDTORequest);
+        User authenticatedUser = securityUtil.getAuthenticatedUser();
+        Post post = postUtil.convertToEntity(postDTORequest, authenticatedUser);
+        post = postRepository.save(post);
+        return new PostDTOResponse(post);
     }
 
-    public boolean isPostVisibleToUser(Post post, User user) {
-        if (post.isVisible()) {
-            return true;
-        }
-        if( user == null) {
-            return false;
-        }
-        if (post.getUser().getId().equals(user.getId())) {
-            return true;
-        }
-        return friendService.isFriends(user.getId(), post.getUser().getId());
+    public PostDTOResponse readPost(Long id) {
+        Post post = postUtil.findByIdOrThrow(id);
+        if (!postUtil.isPostVisibleToAuthenticatedUser(post)) throw new PostException("User does not have permission to view this post", HttpStatus.FORBIDDEN);
+        return new PostDTOResponse(post);
     }
 
-    public Post createPost(User user, PostDTORequest postDTORequest) {
-        if (user == null) {
-            throw new UnauthorizedActionException("Cannot create a post as an anonymous user.");
-        }
-
-        if (postDTORequest.getContent().trim().isEmpty()) {
-            throw new IllegalArgumentException("Content must be something.");
-        }
-
-        Post post = convertToEntity(null, postDTORequest, user);
-        return postRepository.save(post);
+    public PostDTOResponse updatePost(Long id, PostDTORequest postDTORequest) {
+        postUtil.validate(postDTORequest);
+        Post post = postUtil.findByIdOrThrow(id);
+        if (!postUtil.authenticatedUserOwnsPost(post)) throw new UnauthorizedActionException("User does not own this post.");
+        post = postRepository.save(post);
+        return new PostDTOResponse(post);
     }
 
-    public Optional<Post> getPost(Long id, Optional<User> user) {
-        if (user.isEmpty()) {
-            return postRepository.findByIdAndVisibleTrue(id);
-        }
-        return postRepository.findByIdIfUserLoggedIn(user.get(), id);
-    }
-
-    public Post updatePost(Long id, User user, PostDTORequest postDTORequest) {
-        if (user == null) {
-            throw new UnauthorizedActionException("Cannot update a post as an anonymous user.");
-        }
-        if (postDTORequest.getContent().trim().isEmpty()) {
-            throw new IllegalArgumentException("Content must be something.");
-        }
-        Optional<Post> oPost = postRepository.findById(id);
-        if (oPost.isEmpty()) {
-            throw new PostNotFoundException("Can't update a missing post.");
-        }
-        Post post = oPost.get();
-        if (!post.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedActionException("User does not own this post.");
-        }
-        post = convertToEntity(id, postDTORequest, user);
-        return postRepository.save(post);
-    }
-
-    public void deletePost(Long id, User user) {
-        if (user == null) {
-            throw new UnauthorizedActionException("Cannot delete a post as an anonymous user.");
-        }
-        Optional<Post> oPost = postRepository.findById(id);
-        if (oPost.isEmpty()) {
-            throw new PostNotFoundException("Can't delete a missing post.");
-        }
-        Post post = oPost.get();
-        if (!post.getUser().getId().equals(user.getId()) && !userService.isAdmin(user.getId())) {
-            throw new UnauthorizedActionException("User does not own this post.");
-        }
+    public void deletePost(Long id) {
+        Post post = postUtil.findByIdOrThrow(id);
+        if (!postUtil.authenticatedUserOwnsPost(post) && !securityUtil.authenticatedUserIsAdmin()) throw new UnauthorizedActionException("User does not own this post.");
         postRepository.delete(post);
     }
 
-    public PermissionsDTOResponse getPermissions(Long id, User user) {
-        Optional<Post> uPost = postRepository.findById(id);
-        if (uPost.isEmpty()) throw new PostNotFoundException("Post not found in database");
-        Post post = uPost.get();
-        boolean read = isPostVisibleToUser(post, user);
-        boolean write = post.getUser().getId().equals(user.getId());
-        boolean delete = userService.isAdmin(user.getId());
+    public PermissionsDTOResponse getPermissions(Long id) {
+        Post post = postUtil.findByIdOrThrow(id);
+        boolean read = postUtil.isPostVisibleToAuthenticatedUser(post);
+        boolean write = postUtil.authenticatedUserOwnsPost(post);
+        boolean delete = securityUtil.authenticatedUserIsAdmin();
         return new PermissionsDTOResponse(id, read, write, delete);
     }
 }

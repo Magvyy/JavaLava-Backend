@@ -5,8 +5,13 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.CommentDTORe
 import com.magvy.experis.javalava_backend.domain.entitites.Comment;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
-import com.magvy.experis.javalava_backend.domain.exceptions.UnauthenticatedUserException;
+import com.magvy.experis.javalava_backend.domain.exceptions.CommentException;
+import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
+import com.magvy.experis.javalava_backend.domain.util.CommentUtil;
+import com.magvy.experis.javalava_backend.domain.util.PostUtil;
+import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
+import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,93 +20,74 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CommentService {
-
-    private final UserService userService;
-    private final PostService postService;
-    private final WebSocketService webSocketService;
     private final CommentRepository commentRepository;
+    private final SecurityUtil securityUtil;
+    private final CommentUtil commentUtil;
+    private final PostUtil postUtil;
+    private final WebSocketService webSocketService;
     private final int pageSize = 10;
 
-    public CommentService(UserService userService, PostService postService, WebSocketService webSocketService, CommentRepository commentRepository) {
-        this.userService = userService;
-        this.postService = postService;
-        this.webSocketService = webSocketService;
+    public CommentService(CommentRepository commentRepository, SecurityUtil securityUtil, CommentUtil commentUtil, PostUtil postUtil, WebSocketService webSocketService) {
         this.commentRepository = commentRepository;
+        this.securityUtil = securityUtil;
+        this.commentUtil = commentUtil;
+        this.postUtil = postUtil;
+        this.webSocketService = webSocketService;
     }
 
 
-    public ResponseEntity<CommentDTOResponse> createPost(Long postId, User user, CommentDTORequest commentDTORequest) {
-        if(!postService.isPostVisibleToUser(postService.findByID(postId), user)) {
-            throw new UnauthenticatedUserException("User not authorized to create comments on this post");
-        }
-        if (commentDTORequest.getContent().trim().isEmpty()) {
-            throw new IllegalArgumentException("Content must be something.");
-        }
-        Comment comment = convertToEntity(postId, user, commentDTORequest);
+    public CommentDTOResponse createPost(Long postId, CommentDTORequest commentDTORequest) {
+        commentUtil.validate(commentDTORequest);
+
+        Post post = postUtil.findByIdOrThrow(postId);
+        if(!postUtil.isPostVisibleToAuthenticatedUser(post)) throw new CommentException("User not authorized to create comments on this post", HttpStatus.FORBIDDEN);
+
+        Comment comment = commentUtil.convertToEntity(commentDTORequest, post);
         comment = commentRepository.save(comment);
         webSocketService.sendNotification(
-                postService.findByID(postId).getUser().getUserName(),
-                "New comment on your post from " + user.getUserName()
+                post.getUser().getUserName(),
+                "New comment on your post from " + comment.getUser().getUserName()
         );
-        CommentDTOResponse commentDTOResponse = new CommentDTOResponse(comment);
-        return new ResponseEntity<>(commentDTOResponse, HttpStatus.OK);
+
+        return new CommentDTOResponse(comment);
     }
 
-    public Comment convertToEntity(Long postId, User user, CommentDTORequest commentDTO) {
-        return new Comment(
-                commentDTO.getContent(),
-                postService.findByID(postId),
-                user
-        );
-    }
-
-    public List<CommentDTOResponse> loadCommentsByPost(Long postId, Optional<User> user, int offset) {
+    public List<CommentDTOResponse> loadCommentsByPost(Long postId, int offset) {
         Sort sort = Sort.by("published").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
-        Post post = postService.findByID(postId);
-        if (user.isEmpty()) {
-            if (!postService.findByID(postId).isVisible()) {
-                throw new UnauthorizedActionException("User not authorized to view comments on this post");
+
+        Post post = postUtil.findByIdOrThrow(postId);
+        if (!securityUtil.isAuthenticated()) {
+            if (!post.isVisible()) {
+                throw new CommentException("User not authorized to view comments on this post", HttpStatus.FORBIDDEN);
             }
-        } else if(!postService.isPostVisibleToUser(postService.findByID(postId), user.get())) {
-            throw new UnauthenticatedUserException("User not authorized to view comments on this post");
         }
+        if (!postUtil.isPostVisibleToAuthenticatedUser(post)) {
+            throw new UserException("User not authorized to view comments on this post", HttpStatus.FORBIDDEN);
+        }
+
         List<Comment> comments = commentRepository.findByPost(post, pageable);
         return comments.stream().map(CommentDTOResponse::new).toList();
     }
 
-    public ResponseEntity<CommentDTOResponse> edit(Long commentId, User user, CommentDTORequest commentDTORequest) {
-        if (commentDTORequest.getContent().trim().isEmpty()) {
-            throw new IllegalArgumentException("Content must be something.");
-        }
-        Optional<Comment> oComment = commentRepository.findById(commentId);
-        if (oComment.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        Comment comment = oComment.get();
-        if (!comment.getUser().getId().equals(user.getId())) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        comment = commentRepository.save(convertToEntity(comment.getPost().getId(), user, commentDTORequest));
-        CommentDTOResponse commentDTOResponse = new CommentDTOResponse(comment);
-        return new ResponseEntity<>(commentDTOResponse, HttpStatus.OK);
+    public CommentDTOResponse edit(Long commentId, CommentDTORequest commentDTORequest) {
+        commentUtil.validate(commentDTORequest);
+        Comment comment = commentUtil.findByIdOrThrow(commentId);
+        if (!commentUtil.authenticatedUserOwnsComment(comment)) throw new CommentException("User does not have permission to edit this comment", HttpStatus.FORBIDDEN);
+        comment.setContent(commentDTORequest.getContent());
+        comment = commentRepository.save(comment);
+        return new CommentDTOResponse(comment);
     }
 
-    public HttpStatus delete(Long commentId, User user) {
-        Optional<Comment> oComment = commentRepository.findById(commentId);
-        if (oComment.isEmpty()) {
-            return HttpStatus.NOT_FOUND;
-        }
-        Comment comment = oComment.get();
-        if (!comment.getUser().getId().equals(user.getId()) && !userService.isAdmin(user.getId())) {
-            return HttpStatus.UNAUTHORIZED;
-        }
+    public void delete(Long commentId) {
+        Comment comment = commentUtil.findByIdOrThrow(commentId);
+        if (!commentUtil.authenticatedUserOwnsComment(comment) && !securityUtil.authenticatedUserIsAdmin()) throw new CommentException("User does not have permission to delete this comment", HttpStatus.FORBIDDEN);
         commentRepository.delete(comment);
-        return HttpStatus.OK;
     }
 }

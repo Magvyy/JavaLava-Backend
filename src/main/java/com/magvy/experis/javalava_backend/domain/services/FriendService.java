@@ -5,13 +5,15 @@ import com.magvy.experis.javalava_backend.domain.entitites.Friend;
 import com.magvy.experis.javalava_backend.domain.entitites.FriendRequest;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendId;
-import com.magvy.experis.javalava_backend.domain.entitites.composite.FriendRequestId;
 import com.magvy.experis.javalava_backend.domain.enums.FriendStatus;
+import com.magvy.experis.javalava_backend.domain.exceptions.FriendException;
+import com.magvy.experis.javalava_backend.domain.util.FriendRequestUtil;
+import com.magvy.experis.javalava_backend.domain.util.FriendUtil;
+import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
+import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.FriendRequestRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,129 +23,96 @@ import java.util.List;
 public class FriendService {
     private final FriendRepository friendRepository;
     private final FriendRequestRepository friendRequestRepository;
-    private final UserService userService;
+    private final SecurityUtil securityUtil;
+    private final FriendUtil friendUtil;
+    private final FriendRequestUtil friendRequestUtil;
+    private final UserUtil userUtil;
     private final WebSocketService webSocketService;
 
-    public FriendService(FriendRepository friendRepository, FriendRequestRepository friendRequestRepository, UserService userService, WebSocketService webSocketService) {
-        this.webSocketService = webSocketService;
-        this.userService = userService;
+    public FriendService(FriendRepository friendRepository, FriendRequestRepository friendRequestRepository, SecurityUtil securityUtil, FriendUtil friendUtil, FriendRequestUtil friendRequestUtil, UserUtil userUtil, WebSocketService webSocketService) {
         this.friendRepository = friendRepository;
         this.friendRequestRepository = friendRequestRepository;
+        this.securityUtil = securityUtil;
+        this.friendUtil = friendUtil;
+        this.friendRequestUtil = friendRequestUtil;
+        this.userUtil = userUtil;
+        this.webSocketService = webSocketService;
     }
 
-    public boolean isFriends(Long userId1, Long userId2) {
-        return friendRepository.existsByUser1IdAndUser2Id(userId1, userId2)
-                || friendRepository.existsByUser1IdAndUser2Id(userId2, userId1);
-    }
-
-    public ResponseEntity<Void> sendFriendRequest(User from, Long toId) {
-        Long fromId = from.getId();
-        if (isFriends(fromId, toId)) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (friendRequestRepository.existsByFromIdAndToId(fromId, toId)
-                || friendRequestRepository.existsByFromIdAndToId(toId, fromId)) {
-            return ResponseEntity.badRequest().build();
-        }
-        User to = userService.getUserById(toId);
-        FriendRequest friendRequest = new FriendRequest(
-                from,
-                to
-        );
+    public void sendFriendRequest(Long recipientId) {
+        User recipient = userUtil.findByIdOrThrow(recipientId);
+        if (friendUtil.isFriends(recipientId)) throw new FriendException("These users are already friends", HttpStatus.CONFLICT);
+        if (friendRequestUtil.friendRequestExists(recipientId)) throw new FriendException("There is already a friend request between these users", HttpStatus.CONFLICT);
+        FriendRequest friendRequest = friendRequestUtil.createFriendRequest(recipientId);
         friendRequestRepository.save(friendRequest);
         webSocketService.sendNotification(
-                to.getUserName(),
-                "New friend request from " + from.getUserName()
+                recipient.getUserName(),
+                "New friend request from " + friendRequest.getFrom().getUserName()
         );
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Transactional
-    public ResponseEntity<Void> acceptFriendRequest(User user, Long fromId) {
-        Long userId = user.getId();
-        FriendRequest request = getIncomingRequestOrThrow(fromId, userId);
+    public void acceptFriendRequest(Long senderId) {
+        FriendRequest request = friendRequestUtil.getFriendRequestFromOrThrow(senderId);
         User friendUser = request.getFrom();
-        if (isFriends(user.getId(), friendUser.getId())) {
+        if (friendUtil.isFriends(friendUser.getId())) {
             friendRequestRepository.delete(request);
-            return ResponseEntity.badRequest().build();
+            return;
         }
-        Friend friend = new Friend(user, friendUser);
+        Friend friend = friendUtil.createFriend(senderId);
         friendRepository.save(friend);
         friendRequestRepository.delete(request);
-        webSocketService.sendNotification(friendUser.getUserName(),
-                "Your friend request to " + user.getUserName() + " has been accepted");
-        return ResponseEntity.noContent().build();
+        webSocketService.sendNotification(
+                friendUser.getUserName(),
+                "Your friend request to " + request.getTo().getUserName() + " has been accepted"
+        );
     }
 
-    public ResponseEntity<Void> declineFriendRequest(User user, Long fromId) {
-        Long userId = user.getId();
-        FriendRequest request = getIncomingRequestOrThrow(fromId, userId);
+    public void declineFriendRequest(Long senderId) {
+        FriendRequest request = friendRequestUtil.getFriendRequestFromOrThrow(senderId);
         friendRequestRepository.delete(request);
-        return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<Void> removeFriend(User user, Long friendId) {
-        Long userId = user.getId();
-        FriendId id = new FriendId(userId, friendId);
-        if (!friendRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
+    public void removeFriend(Long friendId) {
+        FriendId id = friendUtil.createFriendId(friendId);
+        friendUtil.findByIdOrThrow(id);
         friendRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<List<UserDTOResponse>> getFriendsList(User user) {
-        Long id = user.getId();
-        List<Friend> friends = friendRepository.findAllByUser(id);
-        List<UserDTOResponse> response = friends.stream()
+    public List<UserDTOResponse> getFriendsList() {
+        Long authenticatedUserId = securityUtil.getAuthenticatedUser().getId();
+        List<Friend> friends = friendRepository.findAllByUser(authenticatedUserId);
+        return friends.stream()
                 .map(friend -> {
                     User other =
-                            friend.getUser1().getId().equals(id)
+                            friend.getUser1().getId().equals(authenticatedUserId)
                                     ? friend.getUser2()
                                     : friend.getUser1();
 
                     return new UserDTOResponse(other);
                 })
                 .toList();
-        return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<List<UserDTOResponse>> getFriendRequests(User user) {
-        Long id = user.getId();
-        List<FriendRequest> requests = friendRequestRepository.findAllByToId(id);
-        List<UserDTOResponse> response = requests.stream()
+    public List<UserDTOResponse> getFriendRequests() {
+        Long authenticatedUserId = securityUtil.getAuthenticatedUser().getId();
+        List<FriendRequest> requests = friendRequestRepository.findAllByToId(authenticatedUserId);
+        return requests.stream()
                 .map(request -> {
                     User from = request.getFrom();
                     return new UserDTOResponse(from);
                 })
                 .toList();
-        return ResponseEntity.ok(response);
     }
 
-    private FriendRequest getIncomingRequestOrThrow(Long fromId, Long toUserId) {
-
-        FriendRequestId id = new FriendRequestId(fromId, toUserId);
-
-        FriendRequest request = friendRequestRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Friend request not found"));
-
-        if (!request.getTo().getId().equals(toUserId)) {
-            throw new AccessDeniedException("Not authorized to manage this friend request");
-        }
-
-        return request;
-    }
-
-    public FriendStatus getFriendStatus(Long id, User requester) {
-        Long requesterId = requester.getId();
-        if (isFriends(requesterId, id)) {
+    public FriendStatus getFriendStatus(Long userId) {
+        if (friendUtil.isFriends(userId)) {
             return FriendStatus.FRIENDS;
         }
-        if (friendRequestRepository.existsByFromIdAndToId(requesterId, id)) {
+        if (friendRequestUtil.hasRequestTo(userId)) {
             return FriendStatus.PENDING;
         }
-        if (friendRequestRepository.existsByFromIdAndToId(id, requesterId)) {
+        if (friendRequestUtil.hasRequestFrom(userId)) {
             return FriendStatus.REQUESTED;
         }
         return FriendStatus.NOT_FRIENDS;

@@ -1,13 +1,11 @@
 package com.magvy.experis.javalava_backend.controllers;
+
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.MessageDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ConversationDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.entitites.Message;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.MessageService;
-import com.magvy.experis.javalava_backend.domain.services.WebSocketService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,35 +14,32 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/messages")
-public class MessageController extends BaseAuthHController {
+public class MessageController extends BaseAuthController {
 
     private final MessageService messageService;
-    private final WebSocketService websocketService;
 
-    public MessageController(MessageService messageService, WebSocketService websocketService) {
+    public MessageController(MessageService messageService) {
         this.messageService = messageService;
-        this.websocketService = websocketService;
     }
 
-    @PostMapping()
-    public ResponseEntity<MessageDTOResponse> sendMessage(@RequestBody MessageDTORequest messageDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        Message message = messageService.sendMessage(messageDTORequest, user);
-        websocketService.sendMessage(message.getTo().getUserName(), message);
-        return new ResponseEntity<>(new MessageDTOResponse(message), HttpStatus.OK);
+    @PostMapping("/{id}")
+    public ResponseEntity<MessageDTOResponse> sendMessage(@PathVariable Long id, @RequestBody MessageDTORequest messageDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+        throwIfUserNull(principal);
+        MessageDTOResponse message = messageService.sendMessage(messageDTORequest, id);
+        return ResponseUtil.wrapEntity(message);
     }
 
     @GetMapping()
     public ResponseEntity<List<ConversationDTOResponse>> getConversations(@RequestParam(value = "offset") int offset, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        List<ConversationDTOResponse> messages = messageService.getConversations(user, offset);
-        return new ResponseEntity<>(messages, HttpStatus.OK);
+        throwIfUserNull(principal);
+        List<ConversationDTOResponse> messages = messageService.getConversations(offset);
+        return ResponseUtil.wrapEntity(messages);
     }
 
-    @GetMapping("/{sender_id}")
-    public ResponseEntity<List<MessageDTOResponse>> getConversation(@PathVariable Long sender_id, @RequestParam(value = "offset") int offset, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        List<MessageDTOResponse> conversation = messageService.getConversation(user, sender_id, offset);
-        return new ResponseEntity<>(conversation, HttpStatus.OK);
+    @GetMapping("/{id}")
+    public ResponseEntity<List<MessageDTOResponse>> getConversation(@PathVariable Long id, @RequestParam(value = "offset") int offset, @AuthenticationPrincipal CustomUserDetails principal) {
+        throwIfUserNull(principal);
+        List<MessageDTOResponse> conversation = messageService.getConversation(id, offset);
+        return ResponseUtil.wrapEntity(conversation);
     }
 }
