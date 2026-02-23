@@ -67,6 +67,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, exception.getStatus());
     }
 
+    @ExceptionHandler(MessageException.class)
+    public ResponseEntity<DefaultResponseDTO> handleMessageException(MessageException exception) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, exception.getStatus());
+    }
+
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorDTOResponse> handleException(ResponseStatusException exception, HttpServletRequest request) {
         HttpHeaders headers = new HttpHeaders();

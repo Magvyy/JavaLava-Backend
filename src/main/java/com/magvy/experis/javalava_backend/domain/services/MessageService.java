@@ -5,12 +5,16 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.Conversation
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.exceptions.MessageException;
+import com.magvy.experis.javalava_backend.domain.util.MessageUtil;
+import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
 import com.magvy.experis.javalava_backend.domain.util.UserUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.MessageRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,55 +23,47 @@ import java.util.List;
 @Service
 public class MessageService {
     private final MessageRepository messageRepository;
+    private final SecurityUtil securityUtil;
+    private final MessageUtil messageUtil;
     private final UserUtil userUtil;
+    private final WebSocketService websocketService;
     private final int pageSize = 20;
 
 
-    public MessageService(MessageRepository messageRepository, UserUtil userUtil) {
+    public MessageService(MessageRepository messageRepository, SecurityUtil securityUtil, MessageUtil messageUtil, UserUtil userUtil, WebSocketService websocketService) {
         this.messageRepository = messageRepository;
+        this.securityUtil = securityUtil;
+        this.messageUtil = messageUtil;
         this.userUtil = userUtil;
+        this.websocketService = websocketService;
     }
 
-    private Message ConvertToEntity(MessageDTORequest messageDTORequest, User sender, User recipient) {
-        return new Message(
-                messageDTORequest.getContent(),
-                sender,
-                recipient
-        );
+    public MessageDTOResponse sendMessage(MessageDTORequest messageDTORequest, Long id) {
+        messageUtil.validate(messageDTORequest);
+        User recipient = userUtil.findByIdOrThrow(id);
+        if (messageUtil.isSelf(id)) throw new MessageException("Cannot message self", HttpStatus.BAD_REQUEST);
+        Message message = messageUtil.convertToEntity(messageDTORequest, recipient);
+        message = messageRepository.save(message);
+        websocketService.sendMessage(message.getTo().getUserName(), message);
+        return new MessageDTOResponse(message);
     }
 
-    public Message sendMessage(MessageDTORequest messageDTORequest, User sender) {
-        User recipient = userUtil.findByIdOrThrow(messageDTORequest.getToUserId());
-
-        if (messageDTORequest.getContent().trim().isEmpty()) {
-            throw new IllegalArgumentException("Content must be something.");
-        }
-
-        if (recipient == null) {
-            throw new IllegalArgumentException("Recipient cannot be null");
-        }
-
-        if (sender.equals(recipient)) {
-            throw new IllegalArgumentException("Sender and recipient are the same");
-        }
-        Message message = ConvertToEntity(messageDTORequest, sender, recipient);
-        return messageRepository.save(message);
-    }
-
-    public List<ConversationDTOResponse> getConversations(User authUser, int offset) {
+    public List<ConversationDTOResponse> getConversations(int offset) {
+        User authenticatedUser = securityUtil.getAuthenticatedUser();
         Sort sort = Sort.by("sent").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
-        Page<Message> messageList = messageRepository.getConversationsOrderBySentDesc(authUser.getId(), pageable);
+        Page<Message> messageList = messageRepository.getConversationsOrderBySentDesc(authenticatedUser.getId(), pageable);
         return messageList.stream()
-                .map(msg -> new ConversationDTOResponse(msg, authUser))
+                .map(msg -> new ConversationDTOResponse(msg, authenticatedUser))
                 .toList();
     }
 
-    public List<MessageDTOResponse> getConversation(User recipient, Long sender_id, int offset) {
+    public List<MessageDTOResponse> getConversation(Long id, int offset) {
+        User authenticatedUser = securityUtil.getAuthenticatedUser();
         Sort sort = Sort.by("sent").descending();
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
-        User sender = userUtil.findByIdOrThrow(sender_id);
-        Page<Message> messageList = messageRepository.findByFromAndToOrFromAndTo(recipient, sender, sender, recipient, pageable);
+        User sender = userUtil.findByIdOrThrow(id);
+        Page<Message> messageList = messageRepository.findByFromAndToOrFromAndTo(authenticatedUser, sender, sender, authenticatedUser, pageable);
         return pageToDTOList(messageList).reversed();
     }
 
@@ -76,6 +72,4 @@ public class MessageService {
                 .map(MessageDTOResponse::new)
                 .toList();
     }
-
-
 }
