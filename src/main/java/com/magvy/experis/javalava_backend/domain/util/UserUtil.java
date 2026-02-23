@@ -1,6 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.util;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
@@ -43,11 +44,16 @@ public class UserUtil {
         return findByIdOrThrow(id).getRoles().stream().anyMatch(role -> role.getRole() == RoleEnum.ADMIN);
     }
 
-    public boolean isValidUserName(String userName) {
+    public void validate(AuthDTO authDTO) {
+        if (!isValidUserName(authDTO.getUserName())) throw new UserException("Invalid username", HttpStatus.BAD_REQUEST);
+        if (!isValidPassword(authDTO.getPassword())) throw new UserException("Invalid password", HttpStatus.BAD_REQUEST);
+    }
+
+    private boolean isValidUserName(String userName) {
         return !userName.trim().isEmpty();
     }
 
-    public boolean isValidPassword(String userName) {
+    private boolean isValidPassword(String userName) {
         return !userName.trim().isEmpty();
     }
 }

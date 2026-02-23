@@ -35,13 +35,9 @@ public class UserService implements UserDetailsService {
     }
 
     public void createUser(AuthDTO authDTO) {
-        User user = userUtil.convertToEntity(authDTO);
-
         if (userUtil.isUserNameTaken(authDTO.getUserName())) throw new UserException("Username is taken", HttpStatus.CONFLICT);
-
-        if (!userUtil.isValidUserName(user.getUserName())) throw new IllegalArgumentException("Username is invalid");
-        if (!userUtil.isValidPassword(user.getPassword())) throw new IllegalArgumentException("Password is invalid");
-
+        userUtil.validate(authDTO);
+        User user = userUtil.convertToEntity(authDTO);
         userRepository.save(user);
     }
 

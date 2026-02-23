@@ -68,7 +68,11 @@ public class PostUtil {
         return friendService.isFriends(authenticatedUser.getId(), post.getUser().getId());
     }
 
-    public boolean isValidContent(String content) {
+    public void validate(PostDTORequest postDTORequest) {
+        if (!isValidContent(postDTORequest.getContent())) throw new PostException("Invalid content", HttpStatus.BAD_REQUEST);
+    }
+
+    private boolean isValidContent(String content) {
         return !content.trim().isEmpty();
     }
 

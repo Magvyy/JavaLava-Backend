@@ -5,19 +5,13 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsD
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
-import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
-import com.magvy.experis.javalava_backend.domain.exceptions.UserException;
 import com.magvy.experis.javalava_backend.domain.exceptions.UnauthorizedActionException;
 import com.magvy.experis.javalava_backend.domain.util.PostUtil;
 import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
-import com.magvy.experis.javalava_backend.domain.util.UserUtil;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,14 +22,12 @@ public class PostService {
     private final SecurityUtil securityUtil;
     private final PostRepository postRepository;
     private final PostUtil postUtil;
-    private final UserUtil userUtil;
     private final int pageSize = 10;
 
-    public PostService(SecurityUtil securityUtil, PostRepository postRepository, PostUtil postUtil, UserUtil userUtil) {
+    public PostService(SecurityUtil securityUtil, PostRepository postRepository, PostUtil postUtil) {
         this.securityUtil = securityUtil;
         this.postRepository = postRepository;
         this.postUtil = postUtil;
-        this.userUtil = userUtil;
     }
 
     public List<PostDTOResponse> loadPosts(int offset) {
@@ -66,7 +58,7 @@ public class PostService {
     }
 
     public Post createPost(PostDTORequest postDTORequest) {
-        if (!postUtil.isValidContent(postDTORequest.getContent())) throw new IllegalArgumentException("Content must be something.");
+        postUtil.validate(postDTORequest);
         User authenticatedUser = securityUtil.getAuthenticatedUser();
         Post post = postUtil.convertToEntity(postDTORequest, authenticatedUser);
         return postRepository.save(post);
@@ -79,7 +71,7 @@ public class PostService {
     }
 
     public Post updatePost(Long id, PostDTORequest postDTORequest) {
-        if (!postUtil.isValidContent(postDTORequest.getContent())) throw new PostException("Content is invalid", HttpStatus.BAD_REQUEST);
+        postUtil.validate(postDTORequest);
         Post post = postUtil.findByIdOrThrow(id);
         if (!postUtil.authenticatedUserOwnsPost(post)) throw new UnauthorizedActionException("User does not own this post.");
         return postRepository.save(post);
