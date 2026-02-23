@@ -23,15 +23,17 @@ import java.util.List;
 
 @Service
 public class UserService implements UserDetailsService {
-    private final SecurityUtil securityUtil;
     private final UserRepository userRepository;
+    private final SecurityUtil securityUtil;
     private final UserUtil userUtil;
+    private final FriendService friendService;
     private final int pageSize = 10;
 
-    public UserService(SecurityUtil securityUtil, UserRepository userRepository, UserUtil userUtil) {
-        this.securityUtil = securityUtil;
+    public UserService(UserRepository userRepository, SecurityUtil securityUtil, UserUtil userUtil, FriendService friendService) {
         this.userRepository = userRepository;
+        this.securityUtil = securityUtil;
         this.userUtil = userUtil;
+        this.friendService = friendService;
     }
 
     public void createUser(AuthDTO authDTO) {
@@ -53,8 +55,9 @@ public class UserService implements UserDetailsService {
         userRepository.delete(user);
     }
 
-    public ProfileDTOResponse getProfile(Long id, FriendStatus friendStatus) {
+    public ProfileDTOResponse getProfile(Long id) {
         User user = userUtil.findByIdOrThrow(id);
+        FriendStatus friendStatus = (securityUtil.isAuthenticated()) ? friendService.getFriendStatus(id) : null;
         return new ProfileDTOResponse(user, friendStatus);
     }
 

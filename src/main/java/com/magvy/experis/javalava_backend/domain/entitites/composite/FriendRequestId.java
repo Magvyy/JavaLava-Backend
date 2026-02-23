@@ -32,7 +32,7 @@ public class FriendRequestId implements Serializable {
         if (this == o) return true;
         if (o == null) return false;
         if (!(o instanceof FriendRequestId that)) return false;
-        return from.equals(that.from) && to.equals(that.to) || from.equals(that.to) && to.equals(that.from);
+        return from.equals(that.from) && to.equals(that.to);
     }
 
     @Override

@@ -51,7 +51,7 @@ public class PostController extends BaseAuthController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<Void> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
         postService.deletePost(id);
         return ResponseUtil.wrapEntity(null);

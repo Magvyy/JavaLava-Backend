@@ -5,7 +5,6 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTORespo
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
-import com.magvy.experis.javalava_backend.domain.services.FriendService;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.CommentRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
@@ -17,18 +16,18 @@ import java.util.List;
 
 @Component
 public class PostUtil {
-    private final SecurityUtil securityUtil;
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
-    private final FriendService friendService;
+    private final SecurityUtil securityUtil;
+    private final FriendUtil friendUtil;
 
-    public PostUtil(SecurityUtil securityUtil, PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, FriendService friendService) {
-        this.securityUtil = securityUtil;
+    public PostUtil(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, SecurityUtil securityUtil, FriendUtil friendUtil) {
         this.postRepository = postRepository;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
-        this.friendService = friendService;
+        this.securityUtil = securityUtil;
+        this.friendUtil = friendUtil;
     }
 
     public Post convertToEntity(PostDTORequest postDTORequest, User user) {
@@ -43,8 +42,8 @@ public class PostUtil {
         return posts.stream()
                 .map(post -> new PostDTOResponse(
                         post,
-                        likeRepository.existsByPost_idAndUser_Id(post.getId(), id),
-                        (int) likeRepository.countByPost_Id(post.getId()),
+                        likeRepository.existsByPostIdAndUserId(post.getId(), id),
+                        (int) likeRepository.countByPostId(post.getId()),
                         (int) commentRepository.countByPost(post)
                 ))
                 .toList();
@@ -65,7 +64,7 @@ public class PostUtil {
         if (authenticatedUserOwnsPost(post)) {
             return true;
         }
-        return friendService.isFriends(authenticatedUser.getId(), post.getUser().getId());
+        return friendUtil.isFriends(post.getUser().getId());
     }
 
     public void validate(PostDTORequest postDTORequest) {

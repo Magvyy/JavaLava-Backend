@@ -21,14 +21,14 @@ import java.util.Optional;
 
 @Service
 public class PostService {
-    private final SecurityUtil securityUtil;
     private final PostRepository postRepository;
+    private final SecurityUtil securityUtil;
     private final PostUtil postUtil;
     private final int pageSize = 10;
 
-    public PostService(SecurityUtil securityUtil, PostRepository postRepository, PostUtil postUtil) {
-        this.securityUtil = securityUtil;
+    public PostService(PostRepository postRepository, SecurityUtil securityUtil, PostUtil postUtil) {
         this.postRepository = postRepository;
+        this.securityUtil = securityUtil;
         this.postUtil = postUtil;
     }
 

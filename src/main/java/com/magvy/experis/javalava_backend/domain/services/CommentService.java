@@ -27,16 +27,16 @@ import java.util.Optional;
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final CommentUtil commentUtil;
     private final SecurityUtil securityUtil;
+    private final CommentUtil commentUtil;
     private final PostUtil postUtil;
     private final WebSocketService webSocketService;
     private final int pageSize = 10;
 
-    public CommentService(CommentRepository commentRepository, CommentUtil commentUtil, SecurityUtil securityUtil, PostUtil postUtil, WebSocketService webSocketService) {
+    public CommentService(CommentRepository commentRepository, SecurityUtil securityUtil, CommentUtil commentUtil, PostUtil postUtil, WebSocketService webSocketService) {
         this.commentRepository = commentRepository;
-        this.commentUtil = commentUtil;
         this.securityUtil = securityUtil;
+        this.commentUtil = commentUtil;
         this.postUtil = postUtil;
         this.webSocketService = webSocketService;
     }

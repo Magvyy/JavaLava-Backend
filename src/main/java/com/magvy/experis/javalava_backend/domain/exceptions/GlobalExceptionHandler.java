@@ -15,6 +15,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<DefaultResponseDTO> handleAuthenticationException(AuthenticationException exception) {
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UnauthorizedActionException.class)
+    public ResponseEntity<DefaultResponseDTO> handleUnauthorizedDeletionException(UnauthorizedActionException exception) {
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
     @ExceptionHandler(UserException.class)
     public ResponseEntity<DefaultResponseDTO> handleUserException(UserException exception) {
         HttpHeaders headers = new HttpHeaders();
@@ -38,6 +48,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(LikeException.class)
     public ResponseEntity<DefaultResponseDTO> handleLikeException(LikeException exception) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, exception.getStatus());
+    }
+
+    @ExceptionHandler(FriendException.class)
+    public ResponseEntity<DefaultResponseDTO> handleFriendException(FriendException exception) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, exception.getStatus());
+    }
+
+    @ExceptionHandler(FriendRequestException.class)
+    public ResponseEntity<DefaultResponseDTO> handleFriendRequestException(FriendRequestException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(new DefaultResponseDTO(exception.getMessage()), headers, exception.getStatus());

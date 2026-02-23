@@ -43,8 +43,4 @@ public class LikeUtil {
     public Like findByIdOrThrow(LikeId id) {
         return likeRepository.findById(id).orElseThrow(() -> new LikeException("Like not found", HttpStatus.NOT_FOUND));
     }
-
-    public boolean authenticatedUserLikesPost(LikeId id) {
-
-    }
 }
