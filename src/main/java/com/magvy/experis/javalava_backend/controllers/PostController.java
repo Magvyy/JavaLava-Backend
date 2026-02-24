@@ -4,15 +4,15 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsD
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import org.springframework.http.HttpHeaders;
@@ -26,20 +26,24 @@ import java.util.Optional;
 public class PostController extends BaseAuthHController{
     private final PostService postService;
 
-    private final AttatchmentService attatchmentService;
+    private final AttachmentService attachmentService;
 
     @Autowired
-    public PostController(PostService postService, AttatchmentService attatchmentService) {
+    public PostController(PostService postService, AttachmentService attachmentService) {
         this.postService = postService;
-        this.attatchmentService = attatchmentService;
+        this.attachmentService = attachmentService;
     }
 
-    @PostMapping()
-    public ResponseEntity<PostDTOResponse> createPost(@RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<PostDTOResponse> createPost(
+            @RequestPart(value = "attachment", required = false) MultipartFile attachment,
+            @RequestPart (value = "post") PostDTORequest postDTORequest,
+            @AuthenticationPrincipal CustomUserDetails principal) {
         User user = throwIfUserNull(principal);
-        Post post = postService.createPost(user, postDTORequest);
+        Post post = postService.createPost(user, postDTORequest, attachment);
         return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
     }
+
 
     @GetMapping("{id}")
     public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
@@ -97,8 +101,8 @@ public class PostController extends BaseAuthHController{
         return postService.loadPostsByFriends(offset, user);
     }
 
-    @PostMapping("/attatchment")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-        return attatchmentService.uploadFile(file);
+    @GetMapping("/attachment/{id}")
+    public ResponseEntity<Attachment> getAttachmentTest(@PathVariable Long id){
+        return attachmentService.getAttachmentById(id);
     }
 }

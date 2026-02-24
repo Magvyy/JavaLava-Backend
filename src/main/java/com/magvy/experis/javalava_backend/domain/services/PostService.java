@@ -3,6 +3,8 @@ package com.magvy.experis.javalava_backend.domain.services;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
+import com.magvy.experis.javalava_backend.controllers.AttachmentService;
+import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostNotFoundException;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.MissingResourceException;
@@ -28,22 +31,26 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final FriendService friendService;
     private final UserService userService;
+
+    private final AttachmentService attatchmentService;
     private final int pageSize = 10;
 
-    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, FriendService friendService, UserService userService) {
+    public PostService(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, FriendService friendService, UserService userService, AttachmentService attatchmentService) {
         this.postRepository = postRepository;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
         this.friendService = friendService;
         this.userService = userService;
+        this.attatchmentService = attatchmentService;
     }
   
-    private Post convertToEntity(Long id, PostDTORequest postDTORequest, User user) {
+    private Post convertToEntity(Long id, PostDTORequest postDTORequest, User user, Long attachmentId) {
         return new Post(
                 id,
                 postDTORequest.getContent(),
                 postDTORequest.isVisible(),
-                user
+                user,
+                attachmentId
         );
     }
 
@@ -102,7 +109,7 @@ public class PostService {
         return friendService.isFriends(user.getId(), post.getUser().getId());
     }
 
-    public Post createPost(User user, PostDTORequest postDTORequest) {
+    public Post createPost(User user, PostDTORequest postDTORequest, MultipartFile file) {
         if (user == null) {
             throw new UnauthorizedActionException("Cannot create a post as an anonymous user.");
         }
@@ -111,7 +118,11 @@ public class PostService {
             throw new IllegalArgumentException("Content must be something.");
         }
 
-        Post post = convertToEntity(null, postDTORequest, user);
+        System.out.println("2");
+        Attachment attachment = attatchmentService.createAttachment(file);
+
+        System.out.println("5");
+        Post post = convertToEntity(null, postDTORequest, user, (attachment == null) ? null : attachment.getId());
         return postRepository.save(post);
     }
 
@@ -137,7 +148,7 @@ public class PostService {
         if (!post.getUser().getId().equals(user.getId())) {
             throw new UnauthorizedActionException("User does not own this post.");
         }
-        post = convertToEntity(id, postDTORequest, user);
+        post = convertToEntity(id, postDTORequest, user, oPost.get().getAttachmentId());
         return postRepository.save(post);
     }
 

@@ -25,6 +25,9 @@ public class Post {
     @Column(name = "visible", nullable = false)
     private boolean visible;
 
+    @Column(name = "attachment_id", nullable = true)
+    private Long attachmentId;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -35,12 +38,13 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE) // Use CascadeType.REMOVE or ALL
     private List<Comment> comments;
 
-    public Post(Long id, String content, boolean visible, User user) {
+    public Post(Long id, String content, boolean visible, User user, Long attachmentId) {
         this.id = id;
         this.content = content;
         this.published = LocalDateTime.now();
         this.visible = visible;
         this.user = user;
+        this.attachmentId = attachmentId;
     }
 
     public Post(Long id, String content, LocalDateTime published, boolean visible, User user) {
