@@ -2,6 +2,7 @@ package com.magvy.experis.javalava_backend.domain.util;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
+import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
@@ -21,20 +22,24 @@ public class PostUtil {
     private final CommentRepository commentRepository;
     private final SecurityUtil securityUtil;
     private final FriendUtil friendUtil;
+    private final AttachmentUtil attachmentUtil;
 
-    public PostUtil(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, SecurityUtil securityUtil, FriendUtil friendUtil) {
+    public PostUtil(PostRepository postRepository, LikeRepository likeRepository, CommentRepository commentRepository, SecurityUtil securityUtil, FriendUtil friendUtil, AttachmentUtil attachmentUtil) {
         this.postRepository = postRepository;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
         this.securityUtil = securityUtil;
         this.friendUtil = friendUtil;
+        this.attachmentUtil = attachmentUtil;
     }
 
-    public Post convertToEntity(PostDTORequest postDTORequest, User user) {
+    public Post convertToEntity(PostDTORequest postDTORequest, Attachment attachment) {
+        User authenticatedUser = securityUtil.getAuthenticatedUser();
         return new Post(
                 postDTORequest.getContent(),
                 postDTORequest.isVisible(),
-                user
+                authenticatedUser,
+                attachment
         );
     }
 

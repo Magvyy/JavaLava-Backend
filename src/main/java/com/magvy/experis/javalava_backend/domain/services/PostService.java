@@ -3,9 +3,11 @@ package com.magvy.experis.javalava_backend.domain.services;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
+import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
+import com.magvy.experis.javalava_backend.domain.util.AttachmentUtil;
 import com.magvy.experis.javalava_backend.domain.util.PostUtil;
 import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,12 +26,14 @@ public class PostService {
     private final PostRepository postRepository;
     private final SecurityUtil securityUtil;
     private final PostUtil postUtil;
+    private final AttachmentUtil attachmentUtil;
     private final int pageSize = 10;
 
-    public PostService(PostRepository postRepository, SecurityUtil securityUtil, PostUtil postUtil) {
+    public PostService(PostRepository postRepository, SecurityUtil securityUtil, PostUtil postUtil, AttachmentUtil attachmentUtil) {
         this.postRepository = postRepository;
         this.securityUtil = securityUtil;
         this.postUtil = postUtil;
+        this.attachmentUtil = attachmentUtil;
     }
 
     public List<PostDTOResponse> loadPosts(int offset) {
@@ -61,10 +66,11 @@ public class PostService {
         return postUtil.pageToDTOList(posts, authenticatedUserId);
     }
 
-    public PostDTOResponse createPost(PostDTORequest postDTORequest) {
+    public PostDTOResponse createPost(PostDTORequest postDTORequest, MultipartFile file) {
         postUtil.validate(postDTORequest);
-        User authenticatedUser = securityUtil.getAuthenticatedUser();
-        Post post = postUtil.convertToEntity(postDTORequest, authenticatedUser);
+        Attachment attachment = attachmentUtil.createAttachment(file);
+
+        Post post = postUtil.convertToEntity(postDTORequest, attachment);
         post = postRepository.save(post);
         return new PostDTOResponse(post);
     }

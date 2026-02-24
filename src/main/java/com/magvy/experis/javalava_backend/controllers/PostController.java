@@ -7,9 +7,11 @@ import com.magvy.experis.javalava_backend.application.security.config.custom.Cus
 import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,10 +25,10 @@ public class PostController extends BaseAuthController {
         this.postService = postService;
     }
 
-    @PostMapping()
-    public ResponseEntity<PostDTOResponse> createPost(@RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<PostDTOResponse> createPost(@RequestPart(value = "attachment", required = false) MultipartFile attachment, @RequestPart (value = "post") PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
-        PostDTOResponse postDTOResponse = postService.createPost(postDTORequest);
+        PostDTOResponse postDTOResponse = postService.createPost(postDTORequest, attachment);
         return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
