@@ -19,6 +19,16 @@ public class GlobalExceptionHandler {
         return ResponseUtil.wrapEntity(new DefaultResponseDTO(exception.getMessage()), exception.getStatus());
     }
 
+    @ExceptionHandler(InvalidMediaTypeException.class)
+    public ResponseEntity<DefaultResponseDTO> handleInvalidMediaTypeException(InvalidMediaTypeException exception) {
+        return ResponseUtil.wrapEntity(new DefaultResponseDTO(exception.getMessage()), exception.getStatus());
+    }
+
+    @ExceptionHandler(AttachmentException.class)
+    public ResponseEntity<DefaultResponseDTO> handleAttachmentException(AttachmentException exception) {
+        return ResponseUtil.wrapEntity(new DefaultResponseDTO(exception.getMessage()), exception.getStatus());
+    }
+
     @ExceptionHandler(CommentException.class)
     public ResponseEntity<DefaultResponseDTO> handleCommentException(CommentException exception) {
         return ResponseUtil.wrapEntity(new DefaultResponseDTO(exception.getMessage()), exception.getStatus());

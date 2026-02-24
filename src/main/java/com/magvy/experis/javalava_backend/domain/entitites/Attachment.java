@@ -1,6 +1,7 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
 
 import com.magvy.experis.javalava_backend.domain.enums.MediaType;
+import com.magvy.experis.javalava_backend.domain.util.AttachmentUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,9 @@ public class Attachment {
     @Column(name = "content_type", nullable = false)
     private String contentType;
 
+    @Column(name = "media_type", nullable = true)
+    private MediaType mediaType;
+
     @Column(name = "url", nullable = true)
     private String url;
 
@@ -27,6 +31,7 @@ public class Attachment {
     @Column(name = "data", nullable = false)
     private byte[] data;
 
+    public Attachment(){}
     public Attachment(Long id, MultipartFile attachment) {
         this.id = id;
         this.contentType = attachment.getContentType();

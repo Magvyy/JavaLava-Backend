@@ -1,7 +1,11 @@
 package com.magvy.experis.javalava_backend.domain.util;
 
 import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
+import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.enums.MediaType;
+import com.magvy.experis.javalava_backend.domain.exceptions.AttachmentException;
+import com.magvy.experis.javalava_backend.domain.exceptions.InvalidMediaTypeException;
+import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.AttachmentRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +27,19 @@ public class AttachmentUtil {
                 attachment
         );
     }
-    public Attachment createAttachment(MultipartFile file){
+    public Attachment createAttachment(MultipartFile file) throws InvalidMediaTypeException {
         if (file.isEmpty()) {
             return null;
         }
-        System.out.println("3");
         Attachment attachment = convertToEntity(file);
-        System.out.println("4");
+
+        // Add the media type to the attachment entity
+        MediaType mediaType = determineMediaType(attachment);
+        System.out.println("Media type: " + mediaType);
+        if (mediaType == MediaType.OTHER || mediaType == null) {
+            throw new InvalidMediaTypeException(mediaType == null ? "null" : mediaType.name(), HttpStatus.BAD_REQUEST);
+        }
+        attachment.setMediaType(mediaType);
         return attachmentRepository.save(attachment);
     }
 
@@ -51,5 +61,9 @@ public class AttachmentUtil {
 
     public ResponseEntity<Attachment> getAttachmentById(Long id){
         return new ResponseEntity<>(attachmentRepository.getReferenceById(id), HttpStatus.OK);
+    }
+
+    public Attachment findByIdOrThrow(Long id) {
+        return attachmentRepository.findById(id).orElseThrow(() -> new AttachmentException("Attachment not found", HttpStatus.NOT_FOUND));
     }
 }

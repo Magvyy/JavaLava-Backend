@@ -1,6 +1,7 @@
 package com.magvy.experis.javalava_backend.application.DTOs.outgoing;
 
 import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
+import com.magvy.experis.javalava_backend.domain.enums.MediaType;
 import lombok.Getter;
 
 
@@ -11,6 +12,7 @@ public class AttachmentDTO {
     private final String contentType;
     private final Long size;
     private final String url;
+    private final MediaType mediaType;
 
     public AttachmentDTO(Attachment attachment) {
         this.id = attachment.getId();
@@ -18,5 +20,6 @@ public class AttachmentDTO {
         this.contentType = attachment.getContentType();
         this.size = (long) attachment.getData().length;
         this.url = "/attachments/" + attachment.getId(); // URL to access the attachment
+        this.mediaType = attachment.getMediaType();
     }
 }
