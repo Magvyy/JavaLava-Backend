@@ -93,7 +93,7 @@ public class PostService {
         Post post = postUtil.findByIdOrThrow(id);
         boolean read = postUtil.isPostVisibleToAuthenticatedUser(post);
         boolean write = postUtil.authenticatedUserOwnsPost(post);
-        boolean delete = securityUtil.authenticatedUserIsAdmin();
+        boolean delete = write || securityUtil.authenticatedUserIsAdmin();
         return new PermissionsDTOResponse(id, read, write, delete);
     }
 }
