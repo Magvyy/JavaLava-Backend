@@ -70,7 +70,7 @@ public class PostService {
         postUtil.validate(postDTORequest);
         Attachment attachment = attachmentUtil.createAttachment(file);
 
-        Post post = postUtil.convertToEntity(postDTORequest, attachment == null ? null : attachment.getId());
+        Post post = postUtil.convertToEntity(postDTORequest, attachment);
         post = postRepository.save(post);
         return new PostDTOResponse(post);
     }

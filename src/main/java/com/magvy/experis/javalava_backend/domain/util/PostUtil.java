@@ -33,13 +33,13 @@ public class PostUtil {
         this.attachmentUtil = attachmentUtil;
     }
 
-    public Post convertToEntity(PostDTORequest postDTORequest, Long attachmentId) {
+    public Post convertToEntity(PostDTORequest postDTORequest, Attachment attachment) {
         User authenticatedUser = securityUtil.getAuthenticatedUser();
         return new Post(
                 postDTORequest.getContent(),
                 postDTORequest.isVisible(),
                 authenticatedUser,
-                attachmentId
+                attachment
         );
     }
 

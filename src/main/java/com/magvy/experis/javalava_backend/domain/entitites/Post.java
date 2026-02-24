@@ -25,8 +25,9 @@ public class Post {
     @Column(name = "visible", nullable = false)
     private boolean visible;
 
-    @Column(name = "attachment_id", nullable = true)
-    private Long attachmentId;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "attachment_id", nullable = true)
+    private Attachment attachment;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -45,12 +46,12 @@ public class Post {
         this.user = user;
     }
 
-    public Post(String content, boolean visible, User user, Long attachmentId) {
+    public Post(String content, boolean visible, User user, Attachment attachment) {
         this.content = content;
         this.visible = visible;
         this.user = user;
         this.published = LocalDateTime.now();
-        this.attachmentId = attachmentId;
+        this.attachment = attachment;
     }
 
     public Post(String content, LocalDateTime published, boolean visible, User user) {

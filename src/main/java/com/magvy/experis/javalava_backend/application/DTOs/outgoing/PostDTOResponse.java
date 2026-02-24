@@ -2,6 +2,8 @@ package com.magvy.experis.javalava_backend.application.DTOs.outgoing;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
+import com.magvy.experis.javalava_backend.domain.enums.MediaType;
+import com.magvy.experis.javalava_backend.domain.util.AttachmentUtil;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -19,7 +21,7 @@ public class PostDTOResponse {
 
     private boolean visible;
 
-    private Long attachmentId;
+    private AttachmentDTO attachment;
 
     private boolean liked;
 
@@ -33,7 +35,7 @@ public class PostDTOResponse {
         this.content = post.getContent();
         this.published = post.getPublished();
         this.visible = post.isVisible();
-        this.attachmentId = post.getAttachmentId();
+        this.attachment = (post.getAttachment() != null) ? new AttachmentDTO(post.getAttachment()) : null;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
     }
@@ -45,7 +47,7 @@ public class PostDTOResponse {
         this.published = post.getPublished();
         this.visible = post.isVisible();
         this.liked = liked;
-        this.attachmentId = post.getAttachmentId();
+        this.attachment = (post.getAttachment() != null) ? new AttachmentDTO(post.getAttachment()) : null;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
     }
@@ -55,7 +57,7 @@ public class PostDTOResponse {
         this.user = new UserDTOResponse(post.getUser());
         this.content = post.getContent();
         this.published = post.getPublished();
-        this.attachmentId = post.getAttachmentId();
+        this.attachment = (post.getAttachment() != null) ? new AttachmentDTO(post.getAttachment()) : null;
         this.visible = post.isVisible();
     }
 }
