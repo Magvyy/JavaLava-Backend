@@ -1,13 +1,16 @@
 package com.magvy.experis.javalava_backend.application.DTOs.outgoing;
 
 import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
+import lombok.Getter;
 
+
+@Getter
 public class AttachmentDTO {
-    private Long id;
-    private String fileName;
-    private String contentType;
-    private Long size;
-    private String url;
+    private final Long id;
+    private final String fileName;
+    private final String contentType;
+    private final Long size;
+    private final String url;
 
     public AttachmentDTO(Attachment attachment) {
         this.id = attachment.getId();
