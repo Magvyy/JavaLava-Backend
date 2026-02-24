@@ -38,13 +38,34 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE) // Use CascadeType.REMOVE or ALL
     private List<Comment> comments;
 
-    public Post(Long id, String content, boolean visible, User user, Long attachmentId) {
+    public Post(String content, boolean visible, User user) {
+        this.content = content;
+        this.published = LocalDateTime.now();
+        this.visible = visible;
+        this.user = user;
+    }
+
+    public Post(String content, boolean visible, User user, Long attachmentId) {
+        this.content = content;
+        this.visible = visible;
+        this.user = user;
+        this.published = LocalDateTime.now();
+        this.attachmentId = attachmentId;
+    }
+
+    public Post(String content, LocalDateTime published, boolean visible, User user) {
+        this.content = content;
+        this.published = published;
+        this.visible = visible;
+        this.user = user;
+    }
+
+    public Post(Long id, String content, boolean visible, User user) {
         this.id = id;
         this.content = content;
         this.published = LocalDateTime.now();
         this.visible = visible;
         this.user = user;
-        this.attachmentId = attachmentId;
     }
 
     public Post(Long id, String content, LocalDateTime published, boolean visible, User user) {

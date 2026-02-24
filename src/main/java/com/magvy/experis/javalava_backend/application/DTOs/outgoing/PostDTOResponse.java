@@ -19,6 +19,8 @@ public class PostDTOResponse {
 
     private boolean visible;
 
+    private Long attachmentId;
+
     private boolean liked;
 
     private int likeCount;
@@ -31,6 +33,7 @@ public class PostDTOResponse {
         this.content = post.getContent();
         this.published = post.getPublished();
         this.visible = post.isVisible();
+        this.attachmentId = post.getAttachmentId();
         this.likeCount = likeCount;
         this.commentCount = commentCount;
     }
@@ -42,6 +45,7 @@ public class PostDTOResponse {
         this.published = post.getPublished();
         this.visible = post.isVisible();
         this.liked = liked;
+        this.attachmentId = post.getAttachmentId();
         this.likeCount = likeCount;
         this.commentCount = commentCount;
     }
@@ -51,6 +55,7 @@ public class PostDTOResponse {
         this.user = new UserDTOResponse(post.getUser());
         this.content = post.getContent();
         this.published = post.getPublished();
+        this.attachmentId = post.getAttachmentId();
         this.visible = post.isVisible();
     }
 }

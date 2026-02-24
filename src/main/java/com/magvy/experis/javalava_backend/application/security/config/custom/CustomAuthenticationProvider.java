@@ -1,6 +1,5 @@
-package com.magvy.experis.javalava_backend.application.security.config;
+package com.magvy.experis.javalava_backend.application.security.config.custom;
 
-import com.magvy.experis.javalava_backend.domain.services.UserService;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -8,17 +7,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserService userService;
+    private final CustomUserDetailsService userService;
     private final PasswordEncoder passwordEncoder;
 
-    public CustomAuthenticationProvider(UserService userService, PasswordEncoder passwordEncoder) {
+    public CustomAuthenticationProvider(CustomUserDetailsService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -29,10 +27,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         UserDetails userDetails = userService.loadUserByUsername(username);
-
-        if (userDetails == null) {
-            throw new UsernameNotFoundException("User not found.");
-        }
 
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Incorrect password");

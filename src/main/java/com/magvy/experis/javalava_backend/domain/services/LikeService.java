@@ -1,54 +1,44 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTORequest;
 import com.magvy.experis.javalava_backend.domain.entitites.Like;
+import com.magvy.experis.javalava_backend.domain.entitites.composite.LikeId;
+import com.magvy.experis.javalava_backend.domain.exceptions.LikeException;
+import com.magvy.experis.javalava_backend.domain.util.LikeUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LikeService {
     private final LikeRepository likeRepository;
-    private final UserRepository userRepository;
-    private final PostRepository postRepository;
+    private final LikeUtil likeUtil;
     private final WebSocketService webSocketService;
 
 
     @Autowired
-    public LikeService(LikeRepository likeRepository, UserRepository userRepository, PostRepository postRepository, WebSocketService webSocketService){
+    public LikeService(LikeRepository likeRepository, LikeUtil likeUtil, WebSocketService webSocketService){
         this.likeRepository = likeRepository;
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
+        this.likeUtil = likeUtil;
         this.webSocketService = webSocketService;
     }
 
-    private Like convertToEntity(LikeDTORequest likeDTORequest) {
-        return new Like(userRepository.getReferenceById(likeDTORequest.getUserId()),
-                postRepository.getReferenceById(likeDTORequest.getPostId()));
-    }
-
-    public ResponseEntity<String> likePost(LikeDTORequest likeDTORequest){
-        if (likeRepository.existsByPost_idAndUser_Id(likeDTORequest.getPostId(), likeDTORequest.getUserId())){
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+    public void likePost(Long postId) {
+        LikeId likeId = likeUtil.createLikeId(postId);
+        if (likeRepository.existsById(likeId)) throw new LikeException("User has already liked this post", HttpStatus.CONFLICT);
         // Lazy loading, user and post only loaded once needed
-        Like newLike = convertToEntity(likeDTORequest);
-        likeRepository.save(newLike);
-        webSocketService.sendNotification(newLike.getPost().getUser().getUserName(),
-                "Your post has a new like from " + newLike.getUser().getUserName());
-        return ResponseEntity.noContent().build();
+        Like like = likeUtil.convertToEntity(postId);
+        like = likeRepository.save(like);
+        webSocketService.sendNotification(
+                like.getPost().getUser().getUserName(),
+                "Your post has a new like from " + like.getUser().getUserName()
+        );
     }
 
-    public ResponseEntity<String> unlikePost(LikeDTORequest likeDTORequest){
-        if (!likeRepository.existsByPost_idAndUser_Id(likeDTORequest.getPostId(), likeDTORequest.getUserId())){
-            return ResponseEntity.notFound().build();
-        }
-        Like like = convertToEntity(likeDTORequest);
+    public void unlikePost(Long postId) {
+        LikeId likeId = likeUtil.createLikeId(postId);
+        if (!likeRepository.existsById(likeId)) throw new LikeException("User has not liked this post", HttpStatus.BAD_REQUEST);
+        Like like = likeUtil.convertToEntity(postId);
         likeRepository.delete(like);
-        return ResponseEntity.noContent().build();
     }
 }

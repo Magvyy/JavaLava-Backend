@@ -1,108 +1,79 @@
 package com.magvy.experis.javalava_backend.controllers;
 
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
+import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import com.magvy.experis.javalava_backend.domain.entitites.Post;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
-public class PostController extends BaseAuthHController{
+public class PostController extends BaseAuthController {
     private final PostService postService;
 
-    private final AttachmentService attachmentService;
-
     @Autowired
-    public PostController(PostService postService, AttachmentService attachmentService) {
+    public PostController(PostService postService) {
         this.postService = postService;
-        this.attachmentService = attachmentService;
     }
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<PostDTOResponse> createPost(
-            @RequestPart(value = "attachment", required = false) MultipartFile attachment,
-            @RequestPart (value = "post") PostDTORequest postDTORequest,
-            @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        Post post = postService.createPost(user, postDTORequest, attachment);
-        return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
+    public ResponseEntity<PostDTOResponse> createPost(@RequestPart(value = "attachment", required = false) MultipartFile attachment, @RequestPart (value = "post") PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+        throwIfUserNull(principal);
+        PostDTOResponse postDTOResponse = postService.createPost(postDTORequest, attachment);
+        return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
-
     @GetMapping("{id}")
-    public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
-        Optional<User> user = getUserIfAuth(principal);
-        Optional<Post> oPost = postService.getPost(id, user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
-        if (oPost.isEmpty()) {
-            return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(new PostDTOResponse(oPost.get()), HttpStatus.OK);
-        }
+    public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id) {
+        PostDTOResponse postDTOResponse = postService.readPost(id);
+        return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
     @GetMapping("{id}/perms")
-    public ResponseEntity<PermissionsDTOResponse> getPostPermissions(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
-        Optional<User> user = getUserIfAuth(principal);
-        PermissionsDTOResponse perms = postService.getPermissions(id, user.orElse(null));
-        return new ResponseEntity<>(perms, HttpStatus.OK);
+    public ResponseEntity<PermissionsDTOResponse> getPostPermissions(@PathVariable Long id) {
+        PermissionsDTOResponse perms = postService.getPermissions(id);
+        return ResponseUtil.wrapEntity(perms);
     }
 
     @PutMapping("{id}")
     public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        Post post = postService.updatePost(id, user, postDTORequest);
-        return new ResponseEntity<>(new PostDTOResponse(post), HttpStatus.OK);
+        throwIfUserNull(principal);
+        PostDTOResponse postDTOResponse = postService.updatePost(id, postDTORequest);
+        return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<PostDTOResponse> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        postService.deletePost(id, user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
-        return new ResponseEntity<>(null, headers, HttpStatus.OK);
+    public ResponseEntity<Void> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
+        throwIfUserNull(principal);
+        postService.deletePost(id);
+        return ResponseUtil.wrapEntity(null);
     }
 
     @GetMapping("/user/{id}")
-    public List<PostDTOResponse> loadPostByUserHandler(@PathVariable Long id, @RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
-        Optional<User> user = getUserIfAuth(principal);
-        return postService.loadPostsByUser(offset, user, id);
+    public ResponseEntity<List<PostDTOResponse>> loadPostByUserHandler(@PathVariable Long id, @RequestParam int offset) {
+        List<PostDTOResponse> postDTOResponses = postService.loadPostsByUser(offset, id);
+        return ResponseUtil.wrapEntity(postDTOResponses);
     }
 
     @GetMapping("/all")
-    public List<PostDTOResponse> loadPostHandler(@RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
-        Optional<User> user = getUserIfAuth(principal);
-        return postService.loadPosts(offset, user);
+    public ResponseEntity<List<PostDTOResponse>> loadPostHandler(@RequestParam int offset) {
+        List<PostDTOResponse> postDTOResponses = postService.loadPosts(offset);
+        return ResponseUtil.wrapEntity(postDTOResponses);
     }
 
     @GetMapping("/friends")
-    public List<PostDTOResponse> loadPostByFriendsHandler(@RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        return postService.loadPostsByFriends(offset, user);
-    }
-
-    @GetMapping("/attachment/{id}")
-    public ResponseEntity<Attachment> getAttachmentTest(@PathVariable Long id){
-        return attachmentService.getAttachmentById(id);
+    public ResponseEntity<List<PostDTOResponse>> loadPostByFriendsHandler(@RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
+        throwIfUserNull(principal);
+        List<PostDTOResponse> postDTOResponses = postService.loadPostsByFriends(offset);
+        return ResponseUtil.wrapEntity(postDTOResponses);
     }
 }

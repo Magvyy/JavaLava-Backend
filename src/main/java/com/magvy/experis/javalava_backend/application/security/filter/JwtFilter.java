@@ -1,7 +1,7 @@
 package com.magvy.experis.javalava_backend.application.security.filter;
 
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetailsService;
 import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
-import com.magvy.experis.javalava_backend.domain.services.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -22,10 +22,10 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
-    private final UserService userService;
+    private final CustomUserDetailsService userService;
     private final String jwt_cookie_name;
 
-    public JwtFilter(JwtUtil jwtUtil, UserService userService, @Value("${jwt.name}") String jwt_cookie_name) {
+    public JwtFilter(JwtUtil jwtUtil, CustomUserDetailsService userService, @Value("${jwt.name}") String jwt_cookie_name) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.jwt_cookie_name = jwt_cookie_name;

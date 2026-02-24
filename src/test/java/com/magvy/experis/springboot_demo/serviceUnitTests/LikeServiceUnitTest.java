@@ -1,22 +1,20 @@
 package com.magvy.experis.springboot_demo.serviceUnitTests;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.LikeDTORequest;
 import com.magvy.experis.javalava_backend.domain.entitites.Like;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.entitites.composite.LikeId;
+import com.magvy.experis.javalava_backend.domain.exceptions.LikeException;
 import com.magvy.experis.javalava_backend.domain.services.LikeService;
 import com.magvy.experis.javalava_backend.domain.services.WebSocketService;
+import com.magvy.experis.javalava_backend.domain.util.LikeUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.LikeRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
-import com.magvy.experis.javalava_backend.infrastructure.repositories.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -32,10 +30,7 @@ public class LikeServiceUnitTest {
     LikeRepository likeRepository;
 
     @Mock
-    UserRepository userRepository;
-
-    @Mock
-    PostRepository postRepository;
+    LikeUtil likeUtil;
 
     @Mock
     WebSocketService webSocketService;
@@ -44,19 +39,23 @@ public class LikeServiceUnitTest {
 
     AutoCloseable mocks;
 
-    Long user_id = 1L;
-    Long post_id = 2L;
-    LikeDTORequest likeDtoRequest = new LikeDTORequest(user_id, post_id);
+    Long userId = 1L;
+    Long postId = 2L;
 
     // Initialize the user and post with some arbitrary content (not important)
-    User user = new User(user_id, "Tom Bombadill", "MyPassword");
-    Post post = new Post(post_id, "Some content", LocalDateTime.now(), true, user);
+    User user = new User(userId, "Tom Bombadill", "MyPassword");
+    Post post = new Post(postId, "Some content", LocalDateTime.now(), true, user);
+    LikeId id = new LikeId(user, post);
+    Like like = new Like(user, post);
 
 
     @BeforeEach
     void setUp(){
         mocks = MockitoAnnotations.openMocks(this);
-        likeService = new LikeService(likeRepository, userRepository, postRepository, webSocketService);
+        likeService = new LikeService(likeRepository, likeUtil, webSocketService);
+        when(likeUtil.createLikeId(anyLong())).thenReturn(id);
+        when(likeUtil.convertToEntity(anyLong())).thenReturn(like);
+        when(likeRepository.save(any(Like.class))).thenReturn(like);
     }
 
     @AfterEach
@@ -66,16 +65,15 @@ public class LikeServiceUnitTest {
 
     @Test
     void likePostSavesLike_WhenLikeDoesntExist() {
-        when(likeRepository.existsByPost_idAndUser_Id(post_id, user_id)).thenReturn(false);
-        when(userRepository.getReferenceById(user_id)).thenReturn(user);
-        when(postRepository.getReferenceById(post_id)).thenReturn(post);
+        when(likeRepository.existsById(id)).thenReturn(false);
+
         // Method so we can see the like-object passed to the save-parameter
         when(likeRepository.save(any(Like.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ResponseEntity<String> response = likeService.likePost(likeDtoRequest);
-
-        // Should return either 204 no content, or 200 ok
-        assertTrue(HttpStatus.NO_CONTENT.equals(response.getStatusCode()) || HttpStatus.OK.equals(response.getStatusCode()));
+        // Should not throw if user can like post
+        assertDoesNotThrow(() -> {
+            likeService.likePost(postId);
+        });
 
         ArgumentCaptor<Like> captor = ArgumentCaptor.forClass(Like.class);
         // Save invocation to captor
@@ -88,23 +86,22 @@ public class LikeServiceUnitTest {
     @Test
     void likePostReturnConflict_WhenLikeAlreadyExist() {
         // Like already exists
-        when(likeRepository.existsByPost_idAndUser_Id(post_id, user_id)).thenReturn(true);
+        when(likeRepository.existsById(id)).thenReturn(true);
 
-        ResponseEntity<String> response = likeService.likePost(likeDtoRequest);
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertThrows(LikeException.class, () -> likeService.likePost(postId));
         verify(likeRepository, never()).save(any(Like.class));
     }
 
 
     @Test
     void unLikePostReturnOkOrNoContent_WhenLikeExists() {
-        when(likeRepository.existsByPost_idAndUser_Id(post_id, user_id)).thenReturn(true);
-        when(userRepository.getReferenceById(user_id)).thenReturn(user);
-        when(postRepository.getReferenceById(post_id)).thenReturn(post);
+        when(likeRepository.existsById(id)).thenReturn(true);
+
         doAnswer(invocation -> invocation.getArgument(0)).when(likeRepository).delete(any(Like.class));
 
-        ResponseEntity<String> response = likeService.unlikePost(likeDtoRequest);
-        assertTrue(HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.NO_CONTENT.equals(response.getStatusCode()));
+        assertDoesNotThrow(() -> {
+            likeService.unlikePost(postId);
+        });
 
         ArgumentCaptor<Like> captor = ArgumentCaptor.forClass(Like.class);
         verify(likeRepository, times(1)).delete(captor.capture());
@@ -116,11 +113,8 @@ public class LikeServiceUnitTest {
 
     @Test
     void unLikePostReturnNotFound_WhenLikeDoesntExist() {
-        when(likeRepository.existsByPost_idAndUser_Id(post_id, user_id)).thenReturn(false);
-
-        ResponseEntity<String> response = likeService.unlikePost(likeDtoRequest);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        when(likeRepository.existsById(id)).thenReturn(false);
+        assertThrows(LikeException.class, () -> likeService.unlikePost(postId));
         verify(likeRepository, never()).delete(any(Like.class));
     }
 }

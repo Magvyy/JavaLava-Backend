@@ -2,20 +2,18 @@ package com.magvy.experis.javalava_backend.controllers;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.CommentDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.CommentDTOResponse;
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
+import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.CommentService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/posts/{postId}/comments")
-public class CommentController extends BaseAuthHController {
+public class CommentController extends BaseAuthController {
     private final CommentService commentService;
 
     public CommentController(CommentService commentService) {
@@ -24,26 +22,26 @@ public class CommentController extends BaseAuthHController {
 
     @PostMapping()
     public ResponseEntity<CommentDTOResponse> createComment(@PathVariable Long postId, @RequestBody CommentDTORequest commentDTO, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        return commentService.createPost(postId, user, commentDTO);
+        throwIfUserNull(principal);
+        CommentDTOResponse commentDTOResponse = commentService.createPost(postId, commentDTO);
+        return ResponseUtil.wrapEntity(commentDTOResponse);
     }
     @GetMapping()
-    public List<CommentDTOResponse> getComments(@PathVariable Long postId, @RequestParam int offset, @AuthenticationPrincipal CustomUserDetails principal) {
-        Optional<User> user = getUserIfAuth(principal);
-        return commentService.loadCommentsByPost(postId, user, offset);
+    public ResponseEntity<List<CommentDTOResponse>> getComments(@PathVariable Long postId, @RequestParam int offset) {
+        List<CommentDTOResponse> commentDTOResponses = commentService.loadCommentsByPost(postId, offset);
+        return ResponseUtil.wrapEntity(commentDTOResponses);
     }
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentDTOResponse> updateComment(@PathVariable Long commentId, @RequestBody CommentDTORequest commentDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        return commentService.edit(commentId, user, commentDTORequest);
+        throwIfUserNull(principal);
+        CommentDTOResponse commentDTOResponse = commentService.edit(commentId, commentDTORequest);
+        return ResponseUtil.wrapEntity(commentDTOResponse);
     }
     @DeleteMapping("/{commentId}")
-    public HttpStatus deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal CustomUserDetails principal) {
-        User user = throwIfUserNull(principal);
-        if (user == null) return HttpStatus.UNAUTHORIZED;
-        return commentService.delete(commentId, user);
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal CustomUserDetails principal) {
+        throwIfUserNull(principal);
+        commentService.delete(commentId);
+        return ResponseUtil.wrapEntity(null);
     }
 
 }

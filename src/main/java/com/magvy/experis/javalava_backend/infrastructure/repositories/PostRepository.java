@@ -15,8 +15,6 @@ import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    List<Post> findAllByUser(User user);
-    Page<Post> findByUserId(Long userId, Pageable pageable);
     Page<Post> findByVisibleTrue(Pageable pageable);
     Page<Post> findByVisibleTrueAndUserId(Long userId, Pageable pageable);
 

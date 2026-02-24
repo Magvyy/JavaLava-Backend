@@ -3,7 +3,7 @@ package com.magvy.experis.javalava_backend.controllers;
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.DefaultResponseDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
-import com.magvy.experis.javalava_backend.application.security.config.CustomUserDetails;
+import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
 import com.magvy.experis.javalava_backend.application.security.filter.util.JwtUtil;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.UserService;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthController extends BaseAuthHController {
+public class AuthController extends BaseAuthController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
@@ -44,7 +44,7 @@ public class AuthController extends BaseAuthHController {
 
     @PostMapping("/register")
     public ResponseEntity <DefaultResponseDTO> registerPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
-        userService.register(authDTO);
+        userService.createUser(authDTO);
         return authHandler(authDTO, response);
     }
 
@@ -68,5 +68,4 @@ public class AuthController extends BaseAuthHController {
 
         return new ResponseEntity<>(new DefaultResponseDTO("Unauthenticated"), HttpStatus.UNAUTHORIZED);
     }
-
 }
