@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -25,19 +26,19 @@ public class Post {
     @Column(name = "visible", nullable = false)
     private boolean visible;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "attachment_id", nullable = true)
-    private Attachment attachment;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE) // Use CascadeType.REMOVE or ALL
-    private List<Like> likes;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "attachment_id", nullable = true)
+    private Attachment attachment;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE) // Use CascadeType.REMOVE or ALL
-    private List<Comment> comments;
+    private List<Like> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE) // Use CascadeType.REMOVE or ALL
+    private List<Comment> comments = new ArrayList<>();
 
     public Post(String content, boolean visible, User user) {
         this.content = content;

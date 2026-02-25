@@ -1,7 +1,6 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
 
 import com.magvy.experis.javalava_backend.domain.enums.MediaType;
-import com.magvy.experis.javalava_backend.domain.util.AttachmentUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

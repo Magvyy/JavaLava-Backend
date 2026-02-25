@@ -5,7 +5,6 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PermissionsD
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
-import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
 import com.magvy.experis.javalava_backend.domain.util.AttachmentUtil;
 import com.magvy.experis.javalava_backend.domain.util.PostUtil;

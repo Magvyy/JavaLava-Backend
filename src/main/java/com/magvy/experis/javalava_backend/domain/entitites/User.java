@@ -27,11 +27,11 @@ public class User {
     @JoinColumn(name = "attachment_id", nullable = true)
     private Attachment attachment;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Role> roles;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Role> roles = new ArrayList<>();;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Post> posts;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Post> posts = new ArrayList<>();;
 
     public void addRole(RoleEnum role) {
         this.roles.add(new Role(this, role));
