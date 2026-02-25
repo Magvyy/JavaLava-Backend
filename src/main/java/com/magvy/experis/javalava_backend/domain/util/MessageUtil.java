@@ -1,11 +1,15 @@
 package com.magvy.experis.javalava_backend.domain.util;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.MessageDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.MessageException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class MessageUtil {
@@ -35,5 +39,11 @@ public class MessageUtil {
     public boolean isSelf(Long userId) {
         Long authenticatedUserId = securityUtil.getAuthenticatedUser().getId();
         return authenticatedUserId.equals(userId);
+    }
+
+    public List<MessageDTOResponse> pageToDTOList(Page<Message> messages) {
+        return messages.stream()
+                .map(MessageDTOResponse::new)
+                .toList();
     }
 }

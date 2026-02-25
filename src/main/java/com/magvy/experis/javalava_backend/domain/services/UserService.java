@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.domain.services;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.UserDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.ProfileDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
@@ -32,10 +33,10 @@ public class UserService {
         this.friendService = friendService;
     }
 
-    public void createUser(AuthDTO authDTO) {
-        userUtil.validate(authDTO);
-        if (userUtil.isUserNameTaken(authDTO.getUserName())) throw new UserException("Username is taken", HttpStatus.CONFLICT);
-        User user = userUtil.convertToEntity(authDTO);
+    public void createUser(UserDTORequest userDTORequest) {
+        userUtil.validateRegister(userDTORequest);
+        if (userUtil.isUserNameTaken(userDTORequest.getUserName())) throw new UserException("Username is taken", HttpStatus.CONFLICT);
+        User user = userUtil.convertToEntity(userDTORequest);
         userRepository.save(user);
     }
 
@@ -51,6 +52,14 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    public UserDTOResponse updateUser(Long id, UserDTORequest userRequestDTO, MultipartFile file) {
+        User user = userUtil.findByIdOrThrow(id);
+        if (!userUtil.authenticatedUserHasId(id)) throw new UserException("Unauthorized user update", HttpStatus.FORBIDDEN);
+        userUtil.validateAndSet(user, userRequestDTO, file);
+        user = userRepository.save(user);
+        return new UserDTOResponse(user);
+    }
+
     public ProfileDTOResponse getProfile(Long id) {
         User user = userUtil.findByIdOrThrow(id);
         FriendStatus friendStatus = (securityUtil.isAuthenticated()) ? friendService.getFriendStatus(id) : null;
@@ -63,6 +72,6 @@ public class UserService {
         }
 
         Pageable limit = PageRequest.of(offset / pageSize, pageSize);
-        return userRepository.searchUsers(query.trim(), limit);
+        return userUtil.pageToDTOList(userRepository.searchUsers(query.trim(), limit));
     }
 }

@@ -3,11 +3,11 @@ package com.magvy.experis.javalava_backend.application.DTOs.incoming;
 import lombok.Getter;
 
 @Getter
-public class AuthDTO {
+public class UserDTORequest {
     private String userName;
     private String password;
 
-    public AuthDTO(String userName, String password) {
+    public UserDTORequest(String userName, String password) {
         this.userName = userName;
         this.password = password;
     }

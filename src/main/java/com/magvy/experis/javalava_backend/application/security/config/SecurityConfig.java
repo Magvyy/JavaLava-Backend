@@ -62,6 +62,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                             .requestMatchers("/posts/friends/**").hasRole("USER")
                             .requestMatchers("/messages/**").hasRole("USER")
+                            .requestMatchers("/attachments/**").permitAll()
                             .anyRequest().authenticated()
                 )
                 .logout(logout -> logout

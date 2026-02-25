@@ -1,6 +1,6 @@
 package com.magvy.experis.javalava_backend.controllers;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.UserDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.DefaultResponseDTO;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.UserDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.config.custom.CustomUserDetails;
@@ -38,19 +38,19 @@ public class AuthController extends BaseAuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity <DefaultResponseDTO> loginPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
-        return authHandler(authDTO, response);
+    public ResponseEntity <DefaultResponseDTO> loginPostHandler(@RequestBody UserDTORequest userDTORequest, HttpServletResponse response) {
+        return authHandler(userDTORequest, response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity <DefaultResponseDTO> registerPostHandler(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
-        userService.createUser(authDTO);
-        return authHandler(authDTO, response);
+    public ResponseEntity <DefaultResponseDTO> registerPostHandler(@RequestBody UserDTORequest userDTORequest, HttpServletResponse response) {
+        userService.createUser(userDTORequest);
+        return authHandler(userDTORequest, response);
     }
 
-    private ResponseEntity <DefaultResponseDTO> authHandler(AuthDTO authDTO, HttpServletResponse response) {
+    private ResponseEntity <DefaultResponseDTO> authHandler(UserDTORequest userDTORequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authDTO.getUserName(), authDTO.getPassword())
+                new UsernamePasswordAuthenticationToken(userDTORequest.getUserName(), userDTORequest.getPassword())
         );
 
         Object principal = authentication.getPrincipal();

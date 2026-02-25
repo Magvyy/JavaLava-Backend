@@ -69,7 +69,6 @@ public class PostService {
     public PostDTOResponse createPost(PostDTORequest postDTORequest, MultipartFile file) {
         postUtil.validate(postDTORequest);
         Attachment attachment = attachmentUtil.createAttachment(file);
-
         Post post = postUtil.convertToEntity(postDTORequest, attachment);
         post = postRepository.save(post);
         return new PostDTOResponse(post);
@@ -81,10 +80,10 @@ public class PostService {
         return new PostDTOResponse(post);
     }
 
-    public PostDTOResponse updatePost(Long id, PostDTORequest postDTORequest) {
-        postUtil.validate(postDTORequest);
+    public PostDTOResponse updatePost(Long id, PostDTORequest postDTORequest, MultipartFile file) {
         Post post = postUtil.findByIdOrThrow(id);
         if (!postUtil.authenticatedUserOwnsPost(post)) throw new PostException("User does not have permission to edit this post", HttpStatus.FORBIDDEN);
+        postUtil.validateAndSet(post, postDTORequest, file);
         post = postRepository.save(post);
         return new PostDTOResponse(post);
     }

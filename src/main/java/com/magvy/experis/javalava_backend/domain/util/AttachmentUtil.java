@@ -28,6 +28,9 @@ public class AttachmentUtil {
         );
     }
     public Attachment createAttachment(MultipartFile file) throws InvalidMediaTypeException {
+        if (file == null) {
+            return null;
+        }
         if (file.isEmpty()) {
             return null;
         }

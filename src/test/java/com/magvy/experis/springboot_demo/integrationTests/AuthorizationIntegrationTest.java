@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magvy.experis.javalava_backend.App;
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
+import com.magvy.experis.javalava_backend.application.DTOs.incoming.UserDTORequest;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import com.magvy.experis.javalava_backend.controllers.AuthController;
@@ -84,9 +84,9 @@ public class AuthorizationIntegrationTest {
        assertThat(webTestClient).isNotNull();
     }
 
-    MultiValueMap<String, ResponseCookie> getResultCookieFromRegister(AuthDTO authDTO) {
+    MultiValueMap<String, ResponseCookie> getResultCookieFromRegister(UserDTORequest userDTORequest) {
        return webTestClient.post().uri("/auth/register")
-               .bodyValue(authDTO)
+               .bodyValue(userDTORequest)
                .exchange()
                .expectStatus().is2xxSuccessful()
                .expectBody(String.class)
@@ -96,9 +96,9 @@ public class AuthorizationIntegrationTest {
     @Test
     void loginAsAdmin_SuccessfullyDeleteOtherUserPost() throws JsonProcessingException {
         // 1 Register regular user
-        AuthDTO authDTO = new AuthDTO("testUser2", "password");
+        UserDTORequest userDTORequest = new UserDTORequest("testUser2", "password");
 
-        MultiValueMap<String, ResponseCookie> result = getResultCookieFromRegister(authDTO);
+        MultiValueMap<String, ResponseCookie> result = getResultCookieFromRegister(userDTORequest);
 
         // 2 create post as regular user
         EntityExchangeResult<String> post = webTestClient.post().uri("/posts")
@@ -127,10 +127,10 @@ public class AuthorizationIntegrationTest {
             .expectStatus().is2xxSuccessful();
 
         // 4 Login as admin
-        AuthDTO adminAuthDTO = new AuthDTO("admin", "admin");
+        UserDTORequest adminUserDTORequest = new UserDTORequest("admin", "admin");
 
         MultiValueMap<String, ResponseCookie> adminResult = webTestClient.post().uri("/auth/login")
-                .bodyValue(adminAuthDTO)
+                .bodyValue(adminUserDTORequest)
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()
@@ -154,7 +154,7 @@ public class AuthorizationIntegrationTest {
     void loginAsUser_UnSuccessfullyDeleteOtherUserPost() throws JsonProcessingException {
 
        // Register user to create the post
-        AuthDTO userDTO = new AuthDTO("kfdlsajfk", "password");
+        UserDTORequest userDTO = new UserDTORequest("kfdlsajfk", "password");
         MultiValueMap<String, ResponseCookie> userCookieResult = getResultCookieFromRegister(userDTO);
 
         // Create the post
@@ -184,7 +184,7 @@ public class AuthorizationIntegrationTest {
                 .expectStatus().is2xxSuccessful();
 
         // Create new user to attempt delete
-        AuthDTO otherUserDTO = new AuthDTO("jklsdklj", "password");
+        UserDTORequest otherUserDTO = new UserDTORequest("jklsdklj", "password");
         MultiValueMap<String, ResponseCookie> otherUserCookieResult = getResultCookieFromRegister(otherUserDTO);
 
     //        // Try delete post as other user
@@ -208,9 +208,9 @@ public class AuthorizationIntegrationTest {
 
        //1 Register regular user
         String url = "ws://localhost:" + port + "/websocket";
-        AuthDTO authDTO = new AuthDTO("testUser", "password");
+        UserDTORequest userDTORequest = new UserDTORequest("testUser", "password");
         MultiValueMap<String, ResponseCookie> result = webTestClient.post().uri("/auth/register")
-                .bodyValue(authDTO)
+                .bodyValue(userDTORequest)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(String.class)
@@ -276,9 +276,9 @@ public class AuthorizationIntegrationTest {
         Long userId = user.getId();
 
         //Register another user to send message to testUser over WebSocket
-        AuthDTO anotherUserAuthDTO = new AuthDTO("anotherUser", "password");
+        UserDTORequest anotherUserDTORequest = new UserDTORequest("anotherUser", "password");
         MultiValueMap<String, ResponseCookie> anotherResult = webTestClient.post().uri("/auth/register")
-                .bodyValue(anotherUserAuthDTO)
+                .bodyValue(anotherUserDTORequest)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(String.class)

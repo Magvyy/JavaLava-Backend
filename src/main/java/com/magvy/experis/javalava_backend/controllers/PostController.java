@@ -26,32 +26,32 @@ public class PostController extends BaseAuthController {
     }
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<PostDTOResponse> createPost(@RequestPart(value = "attachment", required = false) MultipartFile attachment, @RequestPart (value = "post") PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    public ResponseEntity<PostDTOResponse> createPost(@RequestPart(value = "attachment", required = false) MultipartFile file, @RequestPart (value = "post") PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
-        PostDTOResponse postDTOResponse = postService.createPost(postDTORequest, attachment);
+        PostDTOResponse postDTOResponse = postService.createPost(postDTORequest, file);
         return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id) {
         PostDTOResponse postDTOResponse = postService.readPost(id);
         return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
-    @GetMapping("{id}/perms")
+    @GetMapping("/{id}/perms")
     public ResponseEntity<PermissionsDTOResponse> getPostPermissions(@PathVariable Long id) {
         PermissionsDTOResponse perms = postService.getPermissions(id);
         return ResponseUtil.wrapEntity(perms);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    @PutMapping(value = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestPart(value = "attachment", required = false) MultipartFile file, @RequestPart (value = "post") PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
-        PostDTOResponse postDTOResponse = postService.updatePost(id, postDTORequest);
+        PostDTOResponse postDTOResponse = postService.updatePost(id, postDTORequest, file);
         return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
         postService.deletePost(id);

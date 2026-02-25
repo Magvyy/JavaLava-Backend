@@ -12,8 +12,8 @@ import java.io.IOException;
 @Entity
 @Getter
 @Setter
-@Table(name = "attatchments")
-public class Attachment {
+@Table(name = "attachments")
+public class Attachment     {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,7 +27,7 @@ public class Attachment {
     @Column(name = "url", nullable = true)
     private String url;
 
-    @Lob
+    //@Lob
     @Column(name = "data", nullable = false)
     private byte[] data;
 

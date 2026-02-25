@@ -1,8 +1,10 @@
 package com.magvy.experis.javalava_backend.domain.util;
 
 import com.magvy.experis.javalava_backend.application.DTOs.incoming.PostDTORequest;
+import com.magvy.experis.javalava_backend.application.DTOs.outgoing.MessageDTOResponse;
 import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTOResponse;
 import com.magvy.experis.javalava_backend.domain.entitites.Attachment;
+import com.magvy.experis.javalava_backend.domain.entitites.Message;
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.exceptions.PostException;
@@ -12,6 +14,7 @@ import com.magvy.experis.javalava_backend.infrastructure.repositories.PostReposi
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -70,6 +73,14 @@ public class PostUtil {
             return true;
         }
         return friendUtil.isFriends(post.getUser().getId());
+    }
+
+    public void validateAndSet(Post post, PostDTORequest postDTORequest, MultipartFile file) {
+        validate(postDTORequest);
+        Attachment attachment = attachmentUtil.createAttachment(file);
+        post.setContent(postDTORequest.getContent());
+        post.setVisible(postDTORequest.isVisible());
+        post.setAttachment(attachment);
     }
 
     public void validate(PostDTORequest postDTORequest) {
