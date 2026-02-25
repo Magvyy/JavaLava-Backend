@@ -5,6 +5,7 @@ import com.magvy.experis.javalava_backend.application.DTOs.outgoing.PostDTORespo
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
+import com.magvy.experis.javalava_backend.domain.util.AttachmentUtil;
 import com.magvy.experis.javalava_backend.domain.util.PostUtil;
 import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
 import com.magvy.experis.javalava_backend.infrastructure.repositories.PostRepository;
@@ -37,6 +38,9 @@ public class PostServiceUnitTest {
     @Mock
     PostUtil postUtil;
 
+    @Mock
+    AttachmentUtil attachmentUtil;
+
     AutoCloseable mocks;
 
     PostService postService;
@@ -44,7 +48,7 @@ public class PostServiceUnitTest {
     @BeforeEach
     void setup(){
         mocks = MockitoAnnotations.openMocks(this);
-        postService = new PostService(postRepository, securityUtil, postUtil);
+        postService = new PostService(postRepository, securityUtil, postUtil, attachmentUtil);
         user = new User(1L, "", "");
         postOwner = new User(2L, "", "");
         post = new Post(1L, "", LocalDateTime.now(), true, postOwner);
@@ -180,7 +184,7 @@ public class PostServiceUnitTest {
         when(postDTORequest.isVisible()).thenReturn(true);
         when(securityUtil.getAuthenticatedUser()).thenReturn(null);
 
-        assertThrows(RuntimeException.class, () -> postService.createPost(postDTORequest));
+        assertThrows(RuntimeException.class, () -> postService.createPost(postDTORequest, null));
     }
 
     @Test
@@ -193,7 +197,7 @@ public class PostServiceUnitTest {
         ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
 
         when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        PostDTOResponse post = postService.createPost(postDTORequest);
+        PostDTOResponse post = postService.createPost(postDTORequest, null);
         verify(postRepository, times(1)).save(captor.capture());
 
         assertEquals(post.getContent(), postDTORequest.getContent());

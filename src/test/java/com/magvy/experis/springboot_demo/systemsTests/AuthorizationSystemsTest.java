@@ -1,4 +1,4 @@
-package com.magvy.experis.springboot_demo.integrationTests;
+package com.magvy.experis.springboot_demo.systemsTests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,8 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.messaging.converter.JacksonJsonMessageConverter;
 import org.springframework.messaging.simp.stomp.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +29,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
@@ -42,7 +45,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = App.class)
-public class AuthorizationIntegrationTest {
+public class AuthorizationSystemsTest {
 
     @Autowired
     private AuthController authController;
@@ -100,17 +103,23 @@ public class AuthorizationIntegrationTest {
 
         MultiValueMap<String, ResponseCookie> result = getResultCookieFromRegister(userDTORequest);
 
+        String postJson = """
+            {
+            "content": "This is a post content",
+            "published": "09-02-2026 14:30:00",
+             "visible": true
+            }
+        """;
+
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        builder.part("post", postJson).contentType(MediaType.APPLICATION_JSON);
+        MultiValueMap<String, HttpEntity<?>> multipartData = builder.build();
+
         // 2 create post as regular user
         EntityExchangeResult<String> post = webTestClient.post().uri("/posts")
                 .cookie("access_token", result.get("access_token").getFirst().getValue())
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("""
-                  {
-                    "content": "This is a post content",
-                    "published": "09-02-2026 14:30:00",
-                     "visible": true
-                  }
-                """)
+                .body(BodyInserters.fromMultipartData(multipartData))
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(String.class)
@@ -158,16 +167,22 @@ public class AuthorizationIntegrationTest {
         MultiValueMap<String, ResponseCookie> userCookieResult = getResultCookieFromRegister(userDTO);
 
         // Create the post
+        String json = """
+            {
+            "content": "This is a post content",
+            "published": "09-02-2026 14:30:00",
+             "visible": true
+            }
+        """;
+
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        builder.part("post", json).contentType(MediaType.APPLICATION_JSON);
+        MultiValueMap<String, HttpEntity<?>> multipartData = builder.build();
+
         EntityExchangeResult<String> post = webTestClient.post().uri("/posts")
                 .cookie("access_token", userCookieResult.get("access_token").getFirst().getValue())
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("""
-                  {
-                    "content": "This is a post content",
-                    "published": "09-02-2026 14:30:00",
-                     "visible": true
-                  }
-                """)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(multipartData))
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(String.class)
@@ -284,15 +299,14 @@ public class AuthorizationIntegrationTest {
                 .expectBody(String.class)
                 .returnResult().getResponseCookies();
 
-        webTestClient.post().uri("/messages")
+        webTestClient.post().uri("/messages/" + userId)
                 .cookie("access_token", anotherResult.get("access_token").getFirst().getValue())
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(String.format("""
+                .bodyValue("""
                   {
-                    "content": "This is the test!",
-                    "to_user_id": %s
+                    "content": "This is the test!"
                   }
-                """, userId))
+                """)
                 .exchange()
                 .expectStatus().is2xxSuccessful();
 

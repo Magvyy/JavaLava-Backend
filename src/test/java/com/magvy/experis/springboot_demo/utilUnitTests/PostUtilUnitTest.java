@@ -2,6 +2,7 @@ package com.magvy.experis.springboot_demo.utilUnitTests;
 
 import com.magvy.experis.javalava_backend.domain.entitites.Post;
 import com.magvy.experis.javalava_backend.domain.entitites.User;
+import com.magvy.experis.javalava_backend.domain.util.AttachmentUtil;
 import com.magvy.experis.javalava_backend.domain.util.FriendUtil;
 import com.magvy.experis.javalava_backend.domain.util.PostUtil;
 import com.magvy.experis.javalava_backend.domain.util.SecurityUtil;
@@ -36,6 +37,9 @@ public class PostUtilUnitTest {
     @Mock
     FriendUtil friendUtil;
 
+    @Mock
+    AttachmentUtil attachmentUtil;
+
     AutoCloseable mocks;
 
     PostUtil postUtil;
@@ -43,7 +47,7 @@ public class PostUtilUnitTest {
     @BeforeEach
     void setup(){
         mocks = MockitoAnnotations.openMocks(this);
-        postUtil = new PostUtil(postRepository, likeRepository, commentRepository, securityUtil, friendUtil);
+        postUtil = new PostUtil(postRepository, likeRepository, commentRepository, securityUtil, friendUtil, attachmentUtil);
         user = new User(1L, "", "");
         postOwner = new User(2L, "", "");
         post = new Post(1L, "", LocalDateTime.now(), true, postOwner);
