@@ -64,12 +64,6 @@ public class MessageService {
         Pageable pageable = PageRequest.of(offset / pageSize, pageSize, sort);
         User sender = userUtil.findByIdOrThrow(id);
         Page<Message> messageList = messageRepository.findByFromAndToOrFromAndTo(authenticatedUser, sender, sender, authenticatedUser, pageable);
-        return pageToDTOList(messageList).reversed();
-    }
-
-    private List<MessageDTOResponse> pageToDTOList(Page<Message> messages) {
-        return messages.stream()
-                .map(MessageDTOResponse::new)
-                .toList();
+        return messageUtil.pageToDTOList(messageList).reversed();
     }
 }

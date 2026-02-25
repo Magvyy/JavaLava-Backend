@@ -10,6 +10,7 @@ public class ProfileDTOResponse {
     private Long id;
     private String userName;
     private FriendStatus friendStatus;
+    private AttachmentDTO attachment;
 
     public ProfileDTOResponse() {}
 
@@ -17,6 +18,7 @@ public class ProfileDTOResponse {
         this.friendStatus = friendStatus;
         this.id = user.getId();
         this.userName = user.getUserName();
+        this.attachment = (user.getAttachment() != null) ? new AttachmentDTO(user.getAttachment()) : null;
     }
 }
 

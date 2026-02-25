@@ -1,6 +1,5 @@
 package com.magvy.experis.javalava_backend.domain.entitites;
 
-import com.magvy.experis.javalava_backend.application.DTOs.incoming.AuthDTO;
 import com.magvy.experis.javalava_backend.application.security.RoleEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,8 +23,15 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "attachment_id", nullable = true)
+    private Attachment attachment;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
     private List<Role> roles;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Post> posts;
 
     public void addRole(RoleEnum role) {
         this.roles.add(new Role(this, role));
@@ -48,6 +54,7 @@ public class User {
         this.userName = userName;
         this.password = password;
         this.roles = new ArrayList<>();
+        this.roles.add(new Role(this, RoleEnum.USER));
     }
 
     public User() {

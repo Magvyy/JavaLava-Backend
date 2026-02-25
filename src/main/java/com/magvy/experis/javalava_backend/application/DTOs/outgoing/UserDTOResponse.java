@@ -8,12 +8,14 @@ public class UserDTOResponse {
 
     private Long id;
     private String userName;
+    private AttachmentDTO attachment;
 
     public UserDTOResponse() {}
 
     public UserDTOResponse(User user) {
         this.id = user.getId();
         this.userName = user.getUserName();
+        this.attachment = (user.getAttachment() != null) ? new AttachmentDTO(user.getAttachment()) : null;
     }
 
     public UserDTOResponse(Long id, String userName) {

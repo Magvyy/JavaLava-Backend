@@ -7,9 +7,11 @@ import com.magvy.experis.javalava_backend.application.security.config.custom.Cus
 import com.magvy.experis.javalava_backend.controllers.util.ResponseUtil;
 import com.magvy.experis.javalava_backend.domain.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,33 +25,33 @@ public class PostController extends BaseAuthController {
         this.postService = postService;
     }
 
-    @PostMapping()
-    public ResponseEntity<PostDTOResponse> createPost(@RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<PostDTOResponse> createPost(@RequestPart(value = "attachment", required = false) MultipartFile file, @RequestPart (value = "post") PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
-        PostDTOResponse postDTOResponse = postService.createPost(postDTORequest);
+        PostDTOResponse postDTOResponse = postService.createPost(postDTORequest, file);
         return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<PostDTOResponse> getPost(@PathVariable Long id) {
         PostDTOResponse postDTOResponse = postService.readPost(id);
         return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
-    @GetMapping("{id}/perms")
+    @GetMapping("/{id}/perms")
     public ResponseEntity<PermissionsDTOResponse> getPostPermissions(@PathVariable Long id) {
         PermissionsDTOResponse perms = postService.getPermissions(id);
         return ResponseUtil.wrapEntity(perms);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestBody PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
+    @PutMapping(value = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<PostDTOResponse> updatePost(@PathVariable Long id, @RequestPart(value = "attachment", required = false) MultipartFile file, @RequestPart (value = "post") PostDTORequest postDTORequest, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
-        PostDTOResponse postDTOResponse = postService.updatePost(id, postDTORequest);
+        PostDTOResponse postDTOResponse = postService.updatePost(id, postDTORequest, file);
         return ResponseUtil.wrapEntity(postDTOResponse);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails principal) {
         throwIfUserNull(principal);
         postService.deletePost(id);
